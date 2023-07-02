@@ -175,7 +175,7 @@ class ReasoningTasks():
         os.makedirs(f"logs/mcts-{name}/pkl/", exist_ok=True)
 
         n_files = len(self.data_files)
-        domain_pddl = f'gpt-plan-benchmark/gpt_plan_test/instances/{self.data["domain_file"]}'
+        domain_pddl = f'../LLMs-Planning/llm_planning_analysis/instances/blocksworld/{self.data["domain_file"]}'
 
         final_output = ""
         correct_plans = 0
