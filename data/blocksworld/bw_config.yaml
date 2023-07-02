@@ -1,6 +1,7 @@
 ---
 domain_file: generated_domain.pddl
 instances_template: instance-{}.pddl
+domain_name: blocksworld
 domain_intro: |
    I am playing with a set of blocks where I need to arrange the blocks into stacks. Here are the actions I can do
 
