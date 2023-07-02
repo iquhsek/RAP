@@ -3,7 +3,8 @@
 import os
 import yaml
 import sys
-sys.path.append("gpt-plan-benchmark/gpt_plan_test")
+sys.path.append("../LLMs-Planning/planner_tools")
+sys.path.append("../LLMs-Planning/llm_planning_analysis")
 from Executor import Executor
 from utils import *
 from pathlib import Path
@@ -15,7 +16,7 @@ import numpy as np
 import subprocess
 
 from rap.blocksworld_mcts import reasoning_mcts_search
-from rap.models import WorldModel, AgentModel, QueryLlama
+from rap.models import QueryLlama
 
 import torch
 from llama import *
