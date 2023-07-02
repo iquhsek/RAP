@@ -197,11 +197,11 @@ class ReasoningTasks():
             cur_instance = self.data_files[i]
             problem = self.get_problem(cur_instance[0], domain_pddl)
             gt_plan_text = cur_instance[1]
-            INIT, GOAL, PLAN = parsed_instance_to_text_blocksworld(problem, False, self.data)
+            INIT, GOAL, PLAN = instance_to_text_blocksworld(problem, False, self.data)
 
             query = prompts["baseline_action"]
             # gt_plan = self.compute_plan(domain_pddl, cur_instance)
-            query += fill_template(*parsed_instance_to_text_blocksworld(problem, False, self.data)) + "\n"
+            query += fill_template(*instance_to_text_blocksworld(problem, False, self.data)) + "\n"
             
             trajs, tree, trees = reasoning_mcts_search(
                 f'I have that, {INIT}.', 
