@@ -1,5 +1,9 @@
 # 1. copy paste mcts.py
 
+from colorama import init as colorama_init
+colorama_init()
+from colorama import Fore
+from colorama import Style
 import math
 import random
 from collections import defaultdict
@@ -45,7 +49,7 @@ class MCTS:
         self.aggr_child = aggr_child
 
     def rollout(self, node: MCTSNode):
-        if self.prior:
+        if self.prior: # It seems that we always set prior to be True
             path = self._select_prior(node)
         else:
             path = self._select(node)
@@ -114,8 +118,11 @@ class MCTS:
         return max((self.max_mean_terminal(child, sum + cur.reward, cnt + 1) for child in self.children[cur]), key=lambda x: x[1])
 
     def _back_propagate(self, path: list[MCTSNode], reward=0.):
+        print(f'Start back propagate...')
         coeff = 1
         for node in reversed(path):
+            print(f'current node.prompt={node.prompt}')
+            print(f'current node.reward={node.reward}')
             reward = reward * self.discount + node.reward
             coeff = coeff * self.discount + 1
             if self.aggr_reward == 'mean':

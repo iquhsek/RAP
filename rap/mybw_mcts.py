@@ -45,7 +45,7 @@ class ReasoningMCTSNode(MCTSNode):
         self.max_depth = max_depth
         # self.terminal = False
 
-    def _child_node(self, prompt, r0):
+    def _child_node(self, prompt, r0): # "prompt" and "r0" are the only two not inherited from the parent node
         return ReasoningMCTSNode(prompt, self.gen_fn, self.reward_fn, self.depth + 1, self._r1_default, self._r_alpha, parent=self, r0=r0, max_depth=self.max_depth)
 
     def _get_children(self):
@@ -186,7 +186,7 @@ def reasoning_mcts_search(initial_state: str,
         scores = []
         for idx in range(0, len(ll_prompts), speedup_action_batch_size):
             end_idx = min(idx + speedup_action_batch_size, len(ll_prompts))
-            log_probs = world_model.llamamodel.get_ll(baseline_prompt, ll_prompts[idx: end_idx])
+            log_probs = world_model.llamamodel.get_ll(baseline_prompt, ll_prompts[idx: end_idx]) # get_ll(prefix,prompts)
             scores += list(log_probs)
         print("## log probs\n", scores)
 
@@ -262,10 +262,11 @@ def reasoning_mcts_search(initial_state: str,
     trajs = []
     trees = []
     for _ in (pbar := trange(mcts_steps, disable=bool(int(os.environ.get("LOCAL_RANK", -1))), position=0)):
+        print(f'{Fore.BLUE}Rollout #{_}{Style.RESET_ALL}') # TODO: delete this later
         mcts.rollout(root)
         root.print(mcts)
-        max_n, max_r = mcts.max_mean_terminal(root)
-        trajs.append(traj := max_n.prompt)
+        max_n, max_r = mcts.max_mean_terminal(root) # max_n: the node with max reward/return | max_r: the max reward/return.
+        trajs.append(traj := max_n.prompt) # TODO: know what is stored in .prompt and how is it generated
         output = re.findall('The answer is .*?([.0-9,\\-]+).*\\.', traj)
         if len(output) == 0:
             temp_r = 'not found'
