@@ -38,9 +38,9 @@ class MCTSNode(ABC):
 
 class MCTS:
     def __init__(self, w_exp=1, discount=1, prior=False, aggr_reward='sum', aggr_child='max'):
-        self.Q: dict[MCTSNode, float] = defaultdict(lambda : 0.)
-        self.N: dict[MCTSNode, int] = defaultdict(lambda : 0)
-        self.M: dict[MCTSNode, float] = defaultdict(lambda : -math.inf)
+        self.Q: dict[MCTSNode, float] = defaultdict(lambda : 0.) # sum of past returns
+        self.N: dict[MCTSNode, int] = defaultdict(lambda : 0) # num of visits paid to states
+        self.M: dict[MCTSNode, float] = defaultdict(lambda : -math.inf) # max return achieved previously
         self.children = dict()
         self.w_exp = w_exp
         self.discount = discount
@@ -120,10 +120,12 @@ class MCTS:
     def _back_propagate(self, path: list[MCTSNode], reward=0.):
         print(f'Start back propagate...')
         coeff = 1
-        for node in reversed(path):
-            print(f'current node.prompt={node.prompt}')
-            print(f'current node.reward={node.reward}')
-            reward = reward * self.discount + node.reward
+        for node in reversed(path): # For nodes in the path, if node2 is the descendant of node1, then node2 has one more (action, state) pair.
+            print(f'{Fore.BLUE}current node.prompt={node.prompt}')
+            print(f'{Fore.CYAN}current node.reward={node.reward}')
+            print(f'{Fore.CYAN}current node.r0{node._r0}')
+            print(f'{Fore.CYAN}current node.r1{node._r1}{Style.RESET_ALL}') # TODO: delete this later
+            reward = reward * self.discount + node.reward # accumulate the reward --> get a return at each step. So we are back propagating reward to calculate return
             coeff = coeff * self.discount + 1
             if self.aggr_reward == 'mean':
                 c_reward = reward / coeff
