@@ -3,7 +3,7 @@
 import os
 import yaml
 import sys
-sys.path.append("../LLMs-Planning/gpt_plan_test")
+sys.path.append("LLMs-Planning/gpt_plan_test")
 from Executor import Executor
 from utils import *
 from pathlib import Path
@@ -174,7 +174,7 @@ class ReasoningTasks():
         os.makedirs(f"logs/mcts-{name}/pkl/", exist_ok=True)
 
         n_files = len(self.data_files)
-        domain_pddl = f'../LLMs-Planning/gpt_plan_test/instances/blocksworld/{self.data["domain_file"]}'
+        domain_pddl = f'LLMs-Planning/gpt_plan_test/instances/blocksworld/{self.data["domain_file"]}'
 
         final_output = ""
         correct_plans = 0
