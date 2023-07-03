@@ -54,7 +54,9 @@ class ReasoningMCTSNode(MCTSNode):
         self._calculate_reward()
         if self.is_terminal:
             return self.children
+        print(f'{Fore.RED}Get children of ---{self.prompt}{Style.RESET_ALL}')
         questions, r0 = self.gen_fn(self.prompt, self.depth)
+        print(f'{Fore.RED}r0={r0}{Style.RESET_ALL}')
         for question, r in zip(questions, r0):
             self.children.append(self._child_node(question, r))
         return self.children
