@@ -154,6 +154,12 @@ def reasoning_mcts_search(initial_state: str,
     def gen_fn(inp, depth):
         print("# in gen_fn")
         print(f"prompts={prompts['state_prefix']}")
+        print(f'{Fore.YELLOW}depth={depth}{Style.RESET_ALL}')
+        print(f'{Fore.YELLOW}inp={inp}{Style.RESET_ALL}')
+        print(f'{Fore.YELLOW}disect1={prompts["state_prefix"].format(depth)}{Style.RESET_ALL}')
+        print(f'{Fore.YELLOW}disect2={re.escape(prompts["state_prefix"].format(depth))}{Style.RESET_ALL}')
+        printshit = re.search(f'.*{re.escape(prompts["state_prefix"].format(depth))}(.*)', inp)
+        print(f'{Fore.YELLOW}final_before_subsc={printshit}{Style.RESET_ALL}')
         last_state = re.search(f'.*{re.escape(prompts["state_prefix"].format(depth))}(.*)', inp)[1]
         print("## input\n", inp)
         print("## last state\n", last_state)
