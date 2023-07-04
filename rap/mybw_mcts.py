@@ -48,10 +48,10 @@ class ReasoningMCTSNode(MCTSNode):
     def _child_node(self, prompt, r0): # "prompt" and "r0" are the only two not inherited from the parent node
         return ReasoningMCTSNode(prompt, self.gen_fn, self.reward_fn, self.depth + 1, self._r1_default, self._r_alpha, parent=self, r0=r0, max_depth=self.max_depth)
 
-    def _get_children(self):
+    def _get_children(self, cur_v):
         print("# in _get_children")
         self._visited = True
-        self._calculate_reward()
+        self._calculate_reward(cur_v)
         if self.is_terminal:
             return self.children
         print(f'{Fore.RED}Get children of ---{self.prompt}{Style.RESET_ALL}') # TODO:
@@ -61,20 +61,21 @@ class ReasoningMCTSNode(MCTSNode):
             self.children.append(self._child_node(question, r))
         return self.children
 
-    def find_children(self):
-        self.children = self.children or self._get_children()
+    def find_children(self, cur_v):
+        self.children = self.children or self._get_children(cur_v)
         return self.children
 
     def find_one_child(self) -> MCTSNode:
         return random.choice(self.find_children())
 
-    def _calculate_reward(self):
+    def _calculate_reward(self, cur_v):
         # NOTE: temporary
         print("# in _calculate_reward")
         print("## depth", self.depth)
         if self.depth == 0:
             return
-        self.prompt, self._r1, self._ans_list = self.reward_fn(self.prompt, self.depth)
+        # self.prompt, self._r1, self._ans_list = self.reward_fn(self.prompt, self.depth)
+        self._r1 = self.reward_fn(self.prompt, self.depth, cur_v)
 
     def _static_terminal(self):
         if self._r1 > 50:
@@ -210,7 +211,7 @@ def reasoning_mcts_search(initial_state: str,
 
         return new_action_output, soft_scores
     
-    def r1_fn(inp, depth):
+    def r1_fn(inp, depth, cur_v):
 
         print("# in r1_fn")
         print("## inp\n", inp)
@@ -224,47 +225,53 @@ def reasoning_mcts_search(initial_state: str,
         print(f'{Fore.GREEN}last_state={last_state}') # TODO:
         print(f'{Fore.GREEN}last_action={last_action}') # TODO:
 
-        if "Pick" in last_action: 
-            world_update_prompt = prompts["world_update_pickup"].format(last_state, last_action)
-        elif "Unstack" in last_action:
-            world_update_prompt = prompts["world_update_unstack"].format(last_state, last_action)
-        elif "Put" in last_action:
-            world_update_prompt = prompts["world_update_putdown"].format(last_state, last_action)
-        elif "Stack" in last_action: 
-            world_update_prompt = prompts["world_update_stack"].format(last_state, last_action)
+        # if "Pick" in last_action: 
+        #     world_update_prompt = prompts["world_update_pickup"].format(last_state, last_action)
+        # elif "Unstack" in last_action:
+        #     world_update_prompt = prompts["world_update_unstack"].format(last_state, last_action)
+        # elif "Put" in last_action:
+        #     world_update_prompt = prompts["world_update_putdown"].format(last_state, last_action)
+        # elif "Stack" in last_action: 
+        #     world_update_prompt = prompts["world_update_stack"].format(last_state, last_action)
 
-        world_output = world_model.query_LM(world_update_prompt, do_sample=False, num_return_sequences=1,
-                                    eos_token_id=eos_token_id)[0]
-        print(f'{Fore.GREEN}world_output={world_output}') # TODO:
+        # world_output = world_model.query_LM(world_update_prompt, do_sample=False, num_return_sequences=1,
+        #                             eos_token_id=eos_token_id)[0]
+        # print(f'{Fore.GREEN}world_output={world_output}') # TODO:
 
 
-        world_change = world_output.split("[CHANGE]")[-1]
-        # print("world change:\n" + "\"" + world_change + "\"")     
-        # print("==============inp================")
-        # print(inp)
-        last_state = inp.split(f"[STATE {depth-1}]")[-1].split(f"[ACTION {depth}]")[0]
-        print("last state:\n", "\"" + last_state + "\"")
-        new_state = apply_change(world_change, last_state)
-        print(f'{Fore.GREEN}new_state={new_state}') # TODO:
-        # print("==============new_state================")
-        # print("\"" + new_state + "\"")
-        new_prompt = inp + prompts["state_prefix"].format(depth) + " " + new_state + "\n"
-        print(f'{Fore.GREEN}new_prompt={new_prompt}') # TODO:
-        # print("new prompt:\n", "\"" + new_prompt + "\"")
-        # print(world_change)
-        goal_statement = inp.split("[GOAL]")[-1].split("[STATE 0]")[0]
-        goals = re.findall("the [a-z]{0,10} block is on top of the [a-z]{0,10} block", goal_statement)
-        meetings = [g in new_state for g in goals]
-        if sum(meetings) == len(meetings):
-            r1 = 100
-        else:
-            r1 = sum(meetings) / len(meetings) + 0.5
-        return r1, new_prompt, []
+        # world_change = world_output.split("[CHANGE]")[-1]
+        # # print("world change:\n" + "\"" + world_change + "\"")     
+        # # print("==============inp================")
+        # # print(inp)
+        # last_state = inp.split(f"[STATE {depth-1}]")[-1].split(f"[ACTION {depth}]")[0]
+        # print("last state:\n", "\"" + last_state + "\"")
+        # new_state = apply_change(world_change, last_state)
+        # print(f'{Fore.GREEN}new_state={new_state}') # TODO:
+        # # print("==============new_state================")
+        # # print("\"" + new_state + "\"")
+        # new_prompt = inp + prompts["state_prefix"].format(depth) + " " + new_state + "\n"
+        # print(f'{Fore.GREEN}new_prompt={new_prompt}') # TODO:
+        # # print("new prompt:\n", "\"" + new_prompt + "\"")
+        # # print(world_change)
+        # goal_statement = inp.split("[GOAL]")[-1].split("[STATE 0]")[0]
+        # goals = re.findall("the [a-z]{0,10} block is on top of the [a-z]{0,10} block", goal_statement)
+        # meetings = [g in new_state for g in goals]
+        # if sum(meetings) == len(meetings):
+        #     r1 = 100
+        # else:
+        #     r1 = sum(meetings) / len(meetings) + 0.5
+        # return r1, new_prompt, []
 
-    def reward_fn(inp, depth):
-        print("# in reward_fn")
-        r1, answer, ans_list = r1_fn(inp, depth)
-        return answer, r1, ans_list
+        r1 = cur_v
+        
+        return r1
+
+    def reward_fn(inp, depth, cur_v):
+        # print("# in reward_fn")
+        # r1, answer, ans_list = r1_fn(inp, depth)
+        # return answer, r1, ans_list
+        r1 = r1_fn(inp, depth, cur_v)
+        return r1
     
     mcts = MCTS(w_exp=w_exp, prior=True, aggr_reward='mean', aggr_child='max')
     root = ReasoningMCTSNode(prompts["goal_prefix"] + goal.strip() + "\n" + prompts["state_prefix"].format(0) + " " + initial_state.strip() + "\n", gen_fn, reward_fn, depth=0, r1_default=r1_default, r_alpha=r_alpha, max_depth=max_depth)
