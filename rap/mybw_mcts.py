@@ -82,11 +82,12 @@ class ReasoningMCTSNode(MCTSNode):
 
     @property
     def reward(self):
-        if self._r0 < 0 or self._r1 < 0:
-            return min(self._r0, self._r1)
-        print("# in @property reward: r0, r1, aggr", self._r0, self._r1, self._r0 ** self._r_alpha * self._r1 ** (1 - self._r_alpha))
+        # if self._r0 < 0 or self._r1 < 0:
+        #     return min(self._r0, self._r1)
+        # print("# in @property reward: r0, r1, aggr", self._r0, self._r1, self._r0 ** self._r_alpha * self._r1 ** (1 - self._r_alpha))
         
-        return self._r0 ** self._r_alpha * self._r1 ** (1 - self._r_alpha)
+        # return self._r0 ** self._r_alpha * self._r1 ** (1 - self._r_alpha)
+        return self._r0 * self._r_alpha + self._r1
 
     def print(self, mcts: MCTS, file=None):
         def pprint(*args):
@@ -139,7 +140,7 @@ def reasoning_mcts_search(initial_state: str,
                           speedup_action_batch_size=2,
                           w_exp=1):
 
-    def gen_fn(inp, depth):
+    def gen_fn(inp, depth): # for r0=Pr(a|s_t), the probability component ; we can keep this part
         print("# in gen_fn")
         last_state = re.search(f'.*{re.escape(prompts["state_prefix"].format(depth))}(.*)', inp)[1]
         print("## input\n", inp)
@@ -199,7 +200,7 @@ def reasoning_mcts_search(initial_state: str,
 
         return new_action_output, soft_scores
     
-    def r1_fn(inp, depth):
+    def r1_fn(inp, depth): # for r1
 
         print("# in r1_fn")
         print("## inp\n", inp)
@@ -231,14 +232,17 @@ def reasoning_mcts_search(initial_state: str,
         last_state = inp.split(f"[STATE {depth-1}]")[-1].split(f"[ACTION {depth}]")[0]
         print("last state:\n", "\"" + last_state + "\"")
         new_state = apply_change(world_change, last_state)
-        # print("==============new_state================")
-        # print("\"" + new_state + "\"")
+        print("==============new_state================")
+        print("\"" + new_state + "\"")
         new_prompt = inp + prompts["state_prefix"].format(depth) + " " + new_state + "\n"
-        # print("new prompt:\n", "\"" + new_prompt + "\"")
+        print("new prompt:\n", "\"" + new_prompt + "\"")
         # print(world_change)
         goal_statement = inp.split("[GOAL]")[-1].split("[STATE 0]")[0]
+        print(f"goal_statement={goal_statement}")
         goals = re.findall("the [a-z]{0,10} block is on top of the [a-z]{0,10} block", goal_statement)
+        print(f"goals={goals}")
         meetings = [g in new_state for g in goals]
+        print(f"meetings={meetings}")
         if sum(meetings) == len(meetings):
             r1 = 100
         else:
