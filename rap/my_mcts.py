@@ -82,7 +82,7 @@ class MCTS:
 
     def _expand(self, node: MCTSNode):
         if node not in self.children:
-            self.children[node] = node.find_children(self.Q[node]/self.N[node] if self.N[node] != 0 else 0)
+            self.children[node] = node.find_children()
 
     @staticmethod
     def _simulate(path: list[MCTSNode]):

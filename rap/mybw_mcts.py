@@ -48,10 +48,10 @@ class ReasoningMCTSNode(MCTSNode):
     def _child_node(self, prompt, r0): # "prompt" and "r0" are the only two not inherited from the parent node
         return ReasoningMCTSNode(prompt, self.gen_fn, self.reward_fn, self.depth + 1, self._r1_default, self._r_alpha, parent=self, r0=r0, max_depth=self.max_depth)
 
-    def _get_children(self, cur_v):
+    def _get_children(self):
         print("# in _get_children")
         self._visited = True
-        self._calculate_reward(cur_v)
+        self._calculate_reward()
         if self.is_terminal:
             return self.children
         print(f'{Fore.RED}Get children of ---{self.prompt}{Style.RESET_ALL}')
@@ -61,21 +61,21 @@ class ReasoningMCTSNode(MCTSNode):
             self.children.append(self._child_node(question, r))
         return self.children
 
-    def find_children(self, cur_v):
-        self.children = self.children or self._get_children(cur_v)
+    def find_children(self):
+        self.children = self.children or self._get_children()
         return self.children
 
     def find_one_child(self) -> MCTSNode:
         return random.choice(self.find_children())
 
-    def _calculate_reward(self, cur_v):
+    def _calculate_reward(self):
         # NOTE: temporary
         print("# in _calculate_reward")
         print("## depth", self.depth)
         if self.depth == 0:
             return
         # self.prompt, self._r1, self._ans_list = self.reward_fn(self.prompt, self.depth)
-        self._r1 = self.reward_fn(self.prompt, self.depth, cur_v)
+        self._r1 = self.reward_fn(self.prompt, self.depth)
 
     def _static_terminal(self):
         if self._r1 > 50:
@@ -262,11 +262,11 @@ def reasoning_mcts_search(initial_state: str,
             r1 = sum(meetings) / len(meetings) + 0.5
         return r1, new_prompt, []
 
-    def reward_fn(inp, depth, cur_v):
+    def reward_fn(inp, depth):
         # print("# in reward_fn")
         # r1, answer, ans_list = r1_fn(inp, depth)
         # return answer, r1, ans_list
-        r1 = r1_fn(inp, depth, cur_v)
+        r1 = r1_fn(inp, depth)
         return r1
     
     mcts = MCTS(w_exp=w_exp, prior=True, aggr_reward='mean', aggr_child='max')
