@@ -54,9 +54,9 @@ class ReasoningMCTSNode(MCTSNode):
         self._calculate_reward()
         if self.is_terminal:
             return self.children
-        print(f'{Fore.RED}Get children of ---{self.prompt}{Style.RESET_ALL}')
+        print(f'{Fore.RED}Get children of ---{self.prompt}{Style.RESET_ALL}') # TODO:
         questions, r0 = self.gen_fn(self.prompt, self.depth)
-        print(f'{Fore.RED}r0={r0}{Style.RESET_ALL}')
+        print(f'{Fore.RED}r0={r0}{Style.RESET_ALL}') # TODO:
         for question, r in zip(questions, r0):
             self.children.append(self._child_node(question, r))
         return self.children
@@ -91,11 +91,13 @@ class ReasoningMCTSNode(MCTSNode):
 
     @property
     def reward(self):
-        if self._r0 < 0 or self._r1 < 0:
-            return min(self._r0, self._r1)
-        print("# in @property reward: r0, r1, aggr", self._r0, self._r1, self._r0 ** self._r_alpha * self._r1 ** (1 - self._r_alpha))
+        return self._r0 * self._r_alpha + self._r1
+        # TODO: original
+        # if self._r0 < 0 or self._r1 < 0:
+        #     return min(self._r0, self._r1)
+        # print("# in @property reward: r0, r1, aggr", self._r0, self._r1, self._r0 ** self._r_alpha * self._r1 ** (1 - self._r_alpha))
         
-        return self._r0 ** self._r_alpha * self._r1 ** (1 - self._r_alpha)
+        # return self._r0 ** self._r_alpha * self._r1 ** (1 - self._r_alpha)
 
     def print(self, mcts: MCTS, file=None):
         def pprint(*args):
@@ -219,6 +221,8 @@ def reasoning_mcts_search(initial_state: str,
         
         last_state = re.search(f'.*{re.escape(prompts["state_prefix"].format(depth - 1))}(.*)', inp)[1]
         last_action = re.search(f'.*{re.escape(prompts["action_prefix"].format(depth))}(.*)', inp)[1]
+        print(f'{Fore.GREEN}last_state={last_state}') # TODO:
+        print(f'{Fore.GREEN}last_action={last_action}') # TODO:
 
         if "Pick" in last_action: 
             world_update_prompt = prompts["world_update_pickup"].format(last_state, last_action)
@@ -231,6 +235,7 @@ def reasoning_mcts_search(initial_state: str,
 
         world_output = world_model.query_LM(world_update_prompt, do_sample=False, num_return_sequences=1,
                                     eos_token_id=eos_token_id)[0]
+        print(f'{Fore.GREEN}world_output={world_output}') # TODO:
 
 
         world_change = world_output.split("[CHANGE]")[-1]
@@ -240,9 +245,11 @@ def reasoning_mcts_search(initial_state: str,
         last_state = inp.split(f"[STATE {depth-1}]")[-1].split(f"[ACTION {depth}]")[0]
         print("last state:\n", "\"" + last_state + "\"")
         new_state = apply_change(world_change, last_state)
+        print(f'{Fore.GREEN}new_state={new_state}') # TODO:
         # print("==============new_state================")
         # print("\"" + new_state + "\"")
         new_prompt = inp + prompts["state_prefix"].format(depth) + " " + new_state + "\n"
+        print(f'{Fore.GREEN}new_prompt={new_prompt}') # TODO:
         # print("new prompt:\n", "\"" + new_prompt + "\"")
         # print(world_change)
         goal_statement = inp.split("[GOAL]")[-1].split("[STATE 0]")[0]
