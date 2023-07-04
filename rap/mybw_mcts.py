@@ -1,10 +1,3 @@
-# 1. copy paste from blocksworld_mcts.py
-# 2. replace rap.mcts with rap.my_mcts
-
-from colorama import init as colorama_init
-colorama_init()
-from colorama import Fore
-from colorama import Style
 import io
 import json
 import os
@@ -18,7 +11,7 @@ from copy import deepcopy
 import torch
 from rap.utils.blocksworld import apply_change, generate_all_actions
 
-from rap.my_mcts import MCTS, MCTSNode
+from rap.mcts import MCTS, MCTSNode
 from rap.models import QueryLM
 from tqdm import tqdm, trange
 import numpy as np
@@ -45,7 +38,7 @@ class ReasoningMCTSNode(MCTSNode):
         self.max_depth = max_depth
         # self.terminal = False
 
-    def _child_node(self, prompt, r0): # "prompt" and "r0" are the only two not inherited from the parent node
+    def _child_node(self, prompt, r0):
         return ReasoningMCTSNode(prompt, self.gen_fn, self.reward_fn, self.depth + 1, self._r1_default, self._r_alpha, parent=self, r0=r0, max_depth=self.max_depth)
 
     def _get_children(self):
@@ -54,9 +47,7 @@ class ReasoningMCTSNode(MCTSNode):
         self._calculate_reward()
         if self.is_terminal:
             return self.children
-        print(f'{Fore.RED}Get children of ---{self.prompt}{Style.RESET_ALL}')
         questions, r0 = self.gen_fn(self.prompt, self.depth)
-        print(f'{Fore.RED}r0={r0}{Style.RESET_ALL}')
         for question, r in zip(questions, r0):
             self.children.append(self._child_node(question, r))
         return self.children
@@ -74,8 +65,7 @@ class ReasoningMCTSNode(MCTSNode):
         print("## depth", self.depth)
         if self.depth == 0:
             return
-        # self.prompt, self._r1, self._ans_list = self.reward_fn(self.prompt, self.depth)
-        self._r1 = self.reward_fn(self.prompt, self.depth)
+        self.prompt, self._r1, self._ans_list = self.reward_fn(self.prompt, self.depth)
 
     def _static_terminal(self):
         if self._r1 > 50:
@@ -151,13 +141,6 @@ def reasoning_mcts_search(initial_state: str,
 
     def gen_fn(inp, depth):
         print("# in gen_fn")
-        print(f"prompts={prompts['state_prefix']}")
-        print(f'{Fore.YELLOW}depth={depth}{Style.RESET_ALL}')
-        print(f'{Fore.YELLOW}inp={inp}{Style.RESET_ALL}')
-        print(f'{Fore.YELLOW}disect1={prompts["state_prefix"].format(depth)}{Style.RESET_ALL}')
-        print(f'{Fore.YELLOW}disect2={re.escape(prompts["state_prefix"].format(depth))}{Style.RESET_ALL}')
-        printshit = re.search(f'.*{re.escape(prompts["state_prefix"].format(depth))}(.*)', inp)
-        print(f'{Fore.YELLOW}final_before_subsc={printshit}{Style.RESET_ALL}')
         last_state = re.search(f'.*{re.escape(prompts["state_prefix"].format(depth))}(.*)', inp)[1]
         print("## input\n", inp)
         print("## last state\n", last_state)
@@ -196,7 +179,7 @@ def reasoning_mcts_search(initial_state: str,
         scores = []
         for idx in range(0, len(ll_prompts), speedup_action_batch_size):
             end_idx = min(idx + speedup_action_batch_size, len(ll_prompts))
-            log_probs = world_model.llamamodel.get_ll(baseline_prompt, ll_prompts[idx: end_idx]) # get_ll(prefix,prompts)
+            log_probs = world_model.llamamodel.get_ll(baseline_prompt, ll_prompts[idx: end_idx])
             scores += list(log_probs)
         print("## log probs\n", scores)
 
@@ -263,22 +246,19 @@ def reasoning_mcts_search(initial_state: str,
         return r1, new_prompt, []
 
     def reward_fn(inp, depth):
-        # print("# in reward_fn")
-        # r1, answer, ans_list = r1_fn(inp, depth)
-        # return answer, r1, ans_list
-        r1 = r1_fn(inp, depth)
-        return r1
+        print("# in reward_fn")
+        r1, answer, ans_list = r1_fn(inp, depth)
+        return answer, r1, ans_list
     
     mcts = MCTS(w_exp=w_exp, prior=True, aggr_reward='mean', aggr_child='max')
     root = ReasoningMCTSNode(prompts["goal_prefix"] + goal.strip() + "\n" + prompts["state_prefix"].format(0) + " " + initial_state.strip() + "\n", gen_fn, reward_fn, depth=0, r1_default=r1_default, r_alpha=r_alpha, max_depth=max_depth)
     trajs = []
     trees = []
     for _ in (pbar := trange(mcts_steps, disable=bool(int(os.environ.get("LOCAL_RANK", -1))), position=0)):
-        print(f'{Fore.BLUE}Rollout #{_}{Style.RESET_ALL}') # TODO: delete this later
         mcts.rollout(root)
         root.print(mcts)
-        max_n, max_r = mcts.max_mean_terminal(root) # max_n: the node with max reward/return | max_r: the max reward/return.
-        trajs.append(traj := max_n.prompt) # TODO: know what is stored in .prompt and how is it generated
+        max_n, max_r = mcts.max_mean_terminal(root)
+        trajs.append(traj := max_n.prompt)
         output = re.findall('The answer is .*?([.0-9,\\-]+).*\\.', traj)
         if len(output) == 0:
             temp_r = 'not found'
