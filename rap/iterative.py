@@ -1,27 +1,67 @@
 import io
 import json
 import os
+import math
 import random
 import re
 import sys
 import traceback
 import warnings
 from collections import defaultdict
+from abc import ABC, abstractmethod
 from copy import deepcopy
 import torch
 from rap.utils.blocksworld import apply_change, generate_all_actions
 
-from rap.mcts import MCTS, MCTSNode
+sys.path.append("gpt-plan-benchmark/gpt_plan_test")
+from utils import *
 from rap.models import QueryLM
 from tqdm import tqdm, trange
 import numpy as np
 
-class ReasoningMCTSNode(MCTSNode):
+
+def validate_plan(domain, instance, plan_file):
+    val_path = os.getenv("VAL")
+    cmd = f"{val_path}/validate {domain} {instance} {plan_file}"
+    response = os.popen(cmd).read()
+
+    print("RESPONSE:::", response)
+    if 'Problem in domain' in response:
+        raise Exception('Problem in domain: Check PDDL Writer')
+
+    if "Plan valid" in response:
+        return True, response
+    else:
+        return False, response
+
+
+class ITERSNode(ABC):
+    @abstractmethod
+    def find_children(self):
+        return set()
+
+    @property
+    @abstractmethod
+    def is_terminal(self):
+        return True
+
+    @property
+    @abstractmethod
+    def reward(self):
+        return 0
+
+    @property
+    @abstractmethod
+    def visited(self):
+        return 0
+
+
+class ReasoningITERSNode(ITERSNode):
     @property
     def visited(self):
         return self._visited
 
-    def __init__(self, prompt, gen_fn, reward_fn, depth, r1_default, r_alpha, max_depth=100, parent: 'ReasoningMCTSNode' = None, r0=0., ):
+    def __init__(self, prompt, gen_fn, reward_fn, depth, r1_default, r_alpha, max_depth=100, parent: 'ReasoningITERSNode' = None, r0=0., ):
         # self.n_sample = n_sample
         self._conf = None
         self.children = []
@@ -36,10 +76,10 @@ class ReasoningMCTSNode(MCTSNode):
         self._visited = False
         self.parent = parent
         self.max_depth = max_depth
-        # self.terminal = False
 
     def _child_node(self, prompt, r0):
-        return ReasoningMCTSNode(prompt, self.gen_fn, self.reward_fn, self.depth + 1, self._r1_default, self._r_alpha, parent=self, r0=r0, max_depth=self.max_depth)
+        """Produce a child node object given its prompt and prior probability as r0"""
+        return ReasoningITERSNode(prompt, self.gen_fn, self.reward_fn, self.depth + 1, self._r1_default, self._r_alpha, parent=self, r0=r0, max_depth=self.max_depth)
 
     def _get_children(self):
         print("# in _get_children")
@@ -55,9 +95,6 @@ class ReasoningMCTSNode(MCTSNode):
     def find_children(self):
         self.children = self.children or self._get_children()
         return self.children
-
-    def find_one_child(self) -> MCTSNode:
-        return random.choice(self.find_children())
 
     def _calculate_reward(self):
         # NOTE: temporary
@@ -75,6 +112,9 @@ class ReasoningMCTSNode(MCTSNode):
         else:
             return False
 
+    @property
+    def achieved_goal(self):
+        return self._r1 > 50
 
     @property
     def is_terminal(self):
@@ -82,51 +122,72 @@ class ReasoningMCTSNode(MCTSNode):
 
     @property
     def reward(self):
-        # if self._r0 < 0 or self._r1 < 0:
-        #     return min(self._r0, self._r1)
-        # print("# in @property reward: r0, r1, aggr", self._r0, self._r1, self._r0 ** self._r_alpha * self._r1 ** (1 - self._r_alpha))
-        
-        # return self._r0 ** self._r_alpha * self._r1 ** (1 - self._r_alpha)
         return self._r0 * self._r_alpha + self._r1
 
-    def print(self, mcts: MCTS, file=None):
-        def pprint(*args):
-            if file is None:
-                tqdm.write(*args)
+
+class ITERS:
+    """Iterative lookahead planning with llm"""
+    def __init__(self, w_exp=1, discount=1, prior=False, aggr_reward='sum', aggr_child='max', problem=None):
+        self.Q: dict[ITERSNode, float] = defaultdict(lambda : 0.)
+        self.N: dict[ITERSNode, int] = defaultdict(lambda : 0)
+        self.M: dict[ITERSNode, float] = defaultdict(lambda : -math.inf)
+        self.children = dict()
+        self.w_exp = w_exp
+        self.discount = discount
+        self.prior = prior
+        self.aggr_reward = aggr_reward
+        self.aggr_child = aggr_child
+        self.problem = problem
+
+    def rollout(self, max_iter: int, node: ITERSNode):
+        for k in range(max_iter):
+            # generate candidate lookahead paths
+            paths = self._lookahead(node)
+            # calculate the return from each path
+            for path in paths:
+                self._back_propagate(path)
+            # choose the path with maximum return
+            max_path = self._max_ahead(paths)
+            # the next node is the ending node of the chosen path
+            next_node = max_path[-1]
+            # stop iteration if we reached the goal
+            if next_node.achieved_goal:
+                break
+        return next_node
+
+    def _back_propagate(self, path: list[ITERSNode], reward=0.):
+        coeff = 1
+        for node in reversed(path):
+            reward = reward * self.discount + node.reward
+            coeff = coeff * self.discount + 1
+            if self.aggr_reward == 'mean':
+                c_reward = reward / coeff
             else:
-                print(*args, file=file)
-        p1 = '-' * (4 * self.depth - 4)
-        prefix = ' ' * (4 * self.depth - 4)
-        question = self.prompt.split("[PLAN]\n")[-1].replace("\n", "\\n")
-        pprint(p1 + question)
-        pprint(prefix + f'R: {self.reward:.3f} ; N: {mcts.N[self]} ; M: {mcts.M[self]:.3f} ; r0 : {self._r0:.3f}')
-        if not self.visited:
-            return
-        # answer = 'A' + self.prompt.split(f'Answer {self._prompt_index}')[-1].split('\n')[0]
-        if self.reward < -1:
-            if file is not None:
-                pprint(prefix + question)
-                # pprint(prefix + answer)
-            return
-        
-        for child in self.children:
-            child.print(mcts, file)
-        if self.depth == 1:
-            pprint("=" * 12)
+                c_reward = reward
+            if node not in self.N:
+                self.Q[node] = c_reward
+            else:
+                self.Q[node] += c_reward
+            self.N[node] += 1
+            self.M[node] = max(self.M[node], c_reward)
 
-    def __setstate__(self, state):
-        self.__dict__.update(state)
-        if self.gen_fn is None or self.reward_fn is None:
-            warnings.warn('MCTSNode loaded from pickle is read-only; Do not further roll out the tree!')
+    def _lookahead(self, node: ITERSNode):
+        paths = []
+        def route(node, path):
+            self._expand(node)
+            if node.is_terminal:
+                paths.append(path)
+            for new_node in self.children[node]:
+                path.append(new_node)
+                route(new_node, path)
+        route(node, [])
+        return paths
 
-    def __getstate__(self):
-        state = self.__dict__.copy()
-        state['gen_fn'] = None
-        state['reward_fn'] = None
-        return state
+    def _max_ahead(self, paths: list[list[ITERSNode]]):
+        return max(paths, key=lambda x: self.M[x[0]])
 
 
-def reasoning_mcts_search(initial_state: str,
+def iterative_search(initial_state: str,
                           goal: str,
                           prompts,
                           world_model: QueryLM,
@@ -137,10 +198,10 @@ def reasoning_mcts_search(initial_state: str,
                           r_alpha,
                           r1_default,
                           eos_token_id,
+                          problem,
                           speedup_action_batch_size=2,
                           w_exp=1):
-
-    def gen_fn(inp, depth): # for r0=Pr(a|s_t), the probability component ; we can keep this part
+    def gen_fn(inp, depth): # for r0=Pr(a|s_t), the probability component
         print("# in gen_fn")
         last_state = re.search(f'.*{re.escape(prompts["state_prefix"].format(depth))}(.*)', inp)[1]
         print("## input\n", inp)
@@ -200,7 +261,7 @@ def reasoning_mcts_search(initial_state: str,
 
         return new_action_output, soft_scores
     
-    def r1_fn(inp, depth): # for r1=Vrand ; TODO: r1 is only updated when
+    def r1_fn(inp, depth): # for r1=Vrand
 
         print("# in r1_fn")
         print("## inp\n", inp)
@@ -253,29 +314,26 @@ def reasoning_mcts_search(initial_state: str,
         print("# in reward_fn")
         r1, answer, ans_list = r1_fn(inp, depth)
         return answer, r1, ans_list
-    
-    mcts = MCTS(w_exp=w_exp, prior=True, aggr_reward='mean', aggr_child='max')
-    root = ReasoningMCTSNode(prompts["goal_prefix"] + goal.strip() + "\n" + prompts["state_prefix"].format(0) + " " + initial_state.strip() + "\n", gen_fn, reward_fn, depth=0, r1_default=r1_default, r_alpha=r_alpha, max_depth=max_depth)
+
+    its = ITERS(w_exp=w_exp, prior=True, aggr_reward='mean', aggr_child='max', problem=problem)
+    start_node = ReasoningITERSNode(prompts["goal_prefix"] + goal.strip() + "\n" + prompts["state_prefix"].format(0) + " " + initial_state.strip() + "\n", gen_fn, reward_fn, depth=0, r1_default=r1_default, r_alpha=r_alpha, max_depth=max_depth)
     trajs = []
-    trees = []
+    iters = []
     for _ in (pbar := trange(mcts_steps, disable=bool(int(os.environ.get("LOCAL_RANK", -1))), position=0)):
-        mcts.rollout(root)
-        root.print(mcts)
-        max_n, max_r = mcts.max_mean_terminal(root)
-        trajs.append(traj := max_n.prompt)
+        end_node = its.rollout(start_node)
+        trajs.append(traj := end_node.prompt)
         output = re.findall('The answer is .*?([.0-9,\\-]+).*\\.', traj)
         if len(output) == 0:
             temp_r = 'not found'
         else:
             temp_r = output[-1].replace(',', '')
-        pbar.set_description(f'{max_r:.3f} {temp_r}')
-        tree_copy = deepcopy(root)
-        tree_copy.Q = dict(mcts.Q)
-        tree_copy.N = dict(mcts.N)
-        tree_copy.M = dict(mcts.M)
-        trees.append(tree_copy)
+        iter_copy = deepcopy(start_node)
+        iter_copy.Q = dict(its.Q)
+        iter_copy.N = dict(its.N)
+        iter_copy.M = dict(its.M)
+        iters.append(iter_copy)
 
     with io.StringIO() as f:
-        root.print(mcts, file=f)
+        start_node.print(its, file=f)
         tree = f.getvalue()
-    return trajs, tree, trees
+    return trajs, tree, iters
