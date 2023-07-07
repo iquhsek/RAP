@@ -13,9 +13,8 @@ import argparse
 import time
 import random
 import numpy as np
-import subprocess
 
-from rap.iterative import iterative_search
+from rap.isearch import iterative_search
 from rap.models import QueryLlama
 
 import torch
