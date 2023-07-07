@@ -166,7 +166,7 @@ class ReasoningTasks():
             f.write(final_output)
     # ========================================== TASKS ========================================== #
 
-    def run_mcts(self, config_file, name="", prompts="", rollouts=10, max_depth=4, alpha=0.5, prompt_path=""):
+    def run_mcts(self, config_file, name="", prompts="", rollouts=10, max_iter=30, max_depth=4, alpha=0.5, prompt_path=""):
         self.read_config(config_file)
 
         # make directory for logs
@@ -211,8 +211,8 @@ class ReasoningTasks():
                 self.model, 
                 temperature=0.6,
                 mcts_steps=mcts_steps,
+                max_iter=max_iter,
                 max_depth=max_depth,
-                n_sample_confidence=10,
                 r1_default=0.5,
                 eos_token_id=self.model.tokenizer.encode('\n', bos=False, eos=False)[-1],
                 problem=problem,
@@ -293,6 +293,7 @@ if __name__ == '__main__':
     parser.add_argument('--name', type=str, default="unnamed", help='Name of the experiment')
     parser.add_argument('--data_path', type=str, default="data", help='Path to data')
     parser.add_argument('--rollouts', type=int, default=10, help='Number of rollouts')
+    parser.add_argument('--max_iter', type=int, default=30)
     parser.add_argument('--max_depth', type=int, default=4, help='Max depth of the tree')
     parser.add_argument('--alpha', type=float, default=0.5, help='Alpha for reward')
     parser.add_argument('--n_samples', type=int, default=10, help='Number of samples for t1')
@@ -313,11 +314,12 @@ if __name__ == '__main__':
     verbose = eval(args.verbose)
     prompt_path = args.prompt_path
     ckpt_path = args.ckpt_path
+    max_iter = args.max_iter
 
     tasks_obj = ReasoningTasks(verbose, model_name=model_name, data_path=data_path, ckpt_path=ckpt_path)
 
     if task == 'mcts':
         config_file = 'data/blocksworld/bw_config.yaml'
-        tasks_obj.run_mcts(config_file, name=name, prompts="", rollouts=rollouts, max_depth=max_depth, alpha=alpha, prompt_path=prompt_path)
+        tasks_obj.run_mcts(config_file, name=name, prompts="", rollouts=rollouts, max_iter=max_iter, max_depth=max_depth, alpha=alpha, prompt_path=prompt_path)
     else:
         raise NotImplementedError

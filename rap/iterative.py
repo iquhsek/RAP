@@ -193,7 +193,7 @@ def iterative_search(initial_state: str,
                           world_model: QueryLM,
                           temperature,
                           mcts_steps,
-                          n_sample_confidence,
+                          max_iter,
                           max_depth,
                           r_alpha,
                           r1_default,
@@ -320,7 +320,7 @@ def iterative_search(initial_state: str,
     trajs = []
     iters = []
     for _ in (pbar := trange(mcts_steps, disable=bool(int(os.environ.get("LOCAL_RANK", -1))), position=0)):
-        end_node = its.rollout(start_node)
+        end_node = its.rollout(max_iter, start_node)
         trajs.append(traj := end_node.prompt)
         output = re.findall('The answer is .*?([.0-9,\\-]+).*\\.', traj)
         if len(output) == 0:
