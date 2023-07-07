@@ -124,6 +124,31 @@ class ReasoningITERSNode(ITERSNode):
     def reward(self):
         return self._r0 * self._r_alpha + self._r1
 
+    def print(self, mcts, file=None):
+        def pprint(*args):
+            if file is None:
+                tqdm.write(*args)
+            else:
+                print(*args, file=file)
+        p1 = '-' * (4 * self.depth - 4)
+        prefix = ' ' * (4 * self.depth - 4)
+        question = self.prompt.split("[PLAN]\n")[-1].replace("\n", "\\n")
+        pprint(p1 + question)
+        pprint(prefix + f'R: {self.reward:.3f} ; N: {mcts.N[self]} ; M: {mcts.M[self]:.3f} ; r0 : {self._r0:.3f}')
+        if not self.visited:
+            return
+        # answer = 'A' + self.prompt.split(f'Answer {self._prompt_index}')[-1].split('\n')[0]
+        if self.reward < -1:
+            if file is not None:
+                pprint(prefix + question)
+                # pprint(prefix + answer)
+            return
+        
+        for child in self.children:
+            child.print(mcts, file)
+        if self.depth == 1:
+            pprint("=" * 12)
+
 
 class ITERS:
     """Iterative lookahead planning with llm"""
