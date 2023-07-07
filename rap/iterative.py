@@ -183,6 +183,10 @@ class ITERS:
         route(node, [])
         return paths
 
+    def _expand(self, node: ITERSNode):
+        if node not in self.children:
+            self.children[node] = node.find_children()
+
     def _max_ahead(self, paths: list[list[ITERSNode]]):
         return max(paths, key=lambda x: self.M[x[0]])
 
