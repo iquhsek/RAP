@@ -80,7 +80,13 @@ class ITERS:
                 self._back_propagate(path)
             # choose the path with maximum return
             max_path = self._max_ahead(paths)
-            print(f'{Fore.MAGENTA}Now print the max path we chose in this step in the form (prompt, reward) node by node --> {Style.RESET_ALL}:::::{[(tmp_node.prompt, tmp_node.reward) for tmp_node in max_path]}:::::') # TODO: debug
+            # TODO: debug. The GOAL is the same for all nodes so we don't have to print prompt["GOAL"]
+            print(f'{Fore.MAGENTA}Now print the max path we chose in this step in the form (prompt, reward) node by node --> {Style.RESET_ALL}')
+            for tmp_node in max_path:
+                print('--------go node--------')
+                print(tmp_node.prompt)
+                print(tmp_node.reward)
+                print('-----------------------')
             # the next node is the ending node of the chosen path
             next_node = max_path[-1]
             # stop iteration if we reached the goal
