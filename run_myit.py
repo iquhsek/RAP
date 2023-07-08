@@ -26,12 +26,18 @@ import time
 import re
 import pickle
 
+import colorama
+from colorama import Fore
+from colorama import Style
+colorama.init()
+
+
 def validate_plan(domain, instance, plan_file):
     val_path = os.getenv("VAL")
     cmd = f"{val_path}/validate {domain} {instance} {plan_file}"
     response = os.popen(cmd).read()
 
-    print("RESPONSE:::", response)
+    # print("RESPONSE:::", response)
     if 'Problem in domain' in response:
         raise Exception('Problem in domain: Check PDDL Writer')
 
@@ -56,12 +62,12 @@ def setup_model_parallel() -> Tuple[int, int]:
 def load(ckpt_dir: str, tokenizer_path: str, local_rank: int, world_size: int, max_batch_size: int) -> LLaMA:
     start_time = time.time()
     checkpoints = sorted(Path(ckpt_dir).glob("*.pth"))
-    #print(checkpoints)
+    # print(checkpoints)
     assert (
             world_size == len(checkpoints)
     ), f"Loading a checkpoint for MP={len(checkpoints)} but world size is {world_size}"
     ckpt_path = checkpoints[local_rank]
-    print("Loading")
+    # print("Loading")
     checkpoint = torch.load(ckpt_path, map_location="cpu")
     with open(Path(ckpt_dir) / "params.json", "r") as f:
         params = json.loads(f.read())
@@ -74,7 +80,7 @@ def load(ckpt_dir: str, tokenizer_path: str, local_rank: int, world_size: int, m
     torch.set_default_tensor_type(torch.FloatTensor)
     model.load_state_dict(checkpoint, strict=False)
     generator = LLaMA(model, tokenizer)
-    print(f"Loaded in {time.time() - start_time:.2f} seconds")
+    # print(f"Loaded in {time.time() - start_time:.2f} seconds")
     return generator
 
 success_template = "{} {} {} {}"
@@ -141,7 +147,7 @@ class ReasoningTasks():
         torch.distributed.barrier()
         
         if not os.path.exists(self.plan_file):
-            print("Plan failed")
+            # print("Plan failed")
             return ""
         
         return Path(self.plan_file).read_text()
@@ -222,7 +228,7 @@ class ReasoningTasks():
             if self.local_rank == 0:
                 json_logs = []
                 for rollout, traj in enumerate(trajs):
-                    print("evaluating one rollout")
+                    # print("evaluating one rollout")
                     #Extract actions from trace
                     # actions = re.findall('\[ACTION \d\](.*)', traj)
                     # Do text_to_plan procedure
@@ -258,7 +264,7 @@ class ReasoningTasks():
             final_output += success_template.format('='*35, "MCTS", "SUCCESS" if correct else "FAILURE", '='*35)
             final_output += response
             final_output += verbose_template.format(f'I have that, {INIT}\n My goal is to have that {GOAL}', trajs[-1], lm_plan, gt_plan_text, '='*77) if self.verbose else ""
-            if self.verbose: print(final_output)
+            # if self.verbose: print(final_output)
 
             self.save_output("mcts-" + name, final_output)
 
@@ -270,8 +276,8 @@ class ReasoningTasks():
 
         # --------------- Add to final output --------------- #
         final_output += f"[+]: The number of correct plans is {correct_plans}/{n_files}={correct_plans / (n_files) * 100}%"
-        print(f"[+]: The number of correct plans is {correct_plans}/{n_files}={correct_plans / (n_files) * 100}%")
-        print(total_correct)
+        # print(f"[+]: The number of correct plans is {correct_plans}/{n_files}={correct_plans / (n_files) * 100}%")
+        # print(total_correct)
         self.save_output("mcts-" + name, final_output)
 
 if __name__ == '__main__':

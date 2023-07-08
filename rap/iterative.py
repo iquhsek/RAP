@@ -13,13 +13,18 @@ sys.path.append("gpt-plan-benchmark/gpt_plan_test")
 from utils import *
 from tqdm import tqdm
 
+import colorama
+from colorama import Fore
+from colorama import Style
+colorama.init()
+
 
 def validate_plan(domain, instance, plan_file):
     val_path = os.getenv("VAL")
     cmd = f"{val_path}/validate {domain} {instance} {plan_file}"
     response = os.popen(cmd).read()
 
-    print("RESPONSE:::", response)
+    # print("RESPONSE:::", response)
     if 'Problem in domain' in response:
         raise Exception('Problem in domain: Check PDDL Writer')
 
@@ -64,14 +69,18 @@ class ITERS:
         self.aggr_child = aggr_child
 
     def rollout(self, max_iter: int, node: ITERSNode):
+        # TODO: debug
+        print(f'{Fore.BLUE}Start a rollout with {max_iter} loops.{Style.RESET_ALL}')
         for k in range(max_iter):
             # generate candidate lookahead paths
             paths = self._lookahead(node)
             # calculate the return from each path
+            print(f'{Fore.MAGENTA}Back propagate paths one by one...') # TODO: debug
             for path in paths:
                 self._back_propagate(path)
             # choose the path with maximum return
             max_path = self._max_ahead(paths)
+            print(f'{Fore.MAGENTA}Now print the max path we chose in this step in the form (prompt, reward) node by node --> {Style.RESET_ALL}:::::{[(tmp_node.prompt, tmp_node.reward) for tmp_node in max_path]}:::::') # TODO: debug
             # the next node is the ending node of the chosen path
             next_node = max_path[-1]
             # stop iteration if we reached the goal
@@ -96,6 +105,7 @@ class ITERS:
             self.M[node] = max(self.M[node], c_reward)
 
     def _lookahead(self, node: ITERSNode):
+        print(f'{Fore.MAGENTA}Recursively generate paths...') # TODO: debug
         paths = []
         def route(node, path):
             self._expand(node)
@@ -105,6 +115,7 @@ class ITERS:
                 path.append(new_node)
                 route(new_node, path)
         route(node, [])
+        print(f'{Fore.MAGENTA}Got in total {len(paths)} paths.{Style.RESET_ALL}') # TODO: debug
         return paths
 
     def _expand(self, node: ITERSNode):

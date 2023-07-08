@@ -10,6 +10,11 @@ from rap.models import QueryLM
 from rap.utils.blocksworld import apply_change, generate_all_actions
 from rap.iterative import ITERSNode, ITERS
 
+import colorama
+from colorama import Fore
+from colorama import Style
+colorama.init()
+
 
 class ReasoningITERSNode(ITERSNode):
     @property
@@ -119,15 +124,15 @@ def iterative_search(initial_state: str,
                           speedup_action_batch_size=2,
                           w_exp=1):
     def gen_fn(inp, depth): # for r0=Pr(a|s_t), the probability component
-        print("# in gen_fn")
+        # print("# in gen_fn")
         last_state = re.search(f'.*{re.escape(prompts["state_prefix"].format(depth))}(.*)', inp)[1]
-        print("## input\n", inp)
-        print("## last state\n", last_state)
+        # print("## input\n", inp)
+        # print("## last state\n", last_state)
 
         raw_action_list = generate_all_actions(last_state)
         action_output = [inp + prompts["action_prefix"].format(depth + 1) + " " + a.capitalize() + ".\n" for a in raw_action_list]
-        print("========")
-        print("action list")
+        # print("========")
+        # print("action list")
         new_action_output = []
         n_base_actions = 2 * (depth // 2)
         last_base_state = inp.split(prompts["state_prefix"].format(n_base_actions))[-1].split(prompts["action_prefix"].format(n_base_actions + 1))[0].strip()
@@ -148,25 +153,25 @@ def iterative_search(initial_state: str,
             action_list.append(history)
             lastest_list.append("\n".join(history.split("\n")[-1 if depth % 2 == 0 else -2:]))
                 
-        print("## action_list", action_list)
-        print("## last state in prompt: ", baseline_prompt.split("[STATE")[-1])
+        # print("## action_list", action_list)
+        # print("## last state in prompt: ", baseline_prompt.split("[STATE")[-1])
 
         ll_prompts = [baseline_prompt + a.lower() for a in lastest_list]
         
-        print("## evaluated actions in prompt: ", [prompt.split("[PLAN]\n")[-1] for prompt in ll_prompts])
+        # print("## evaluated actions in prompt: ", [prompt.split("[PLAN]\n")[-1] for prompt in ll_prompts])
         
         scores = []
         for idx in range(0, len(ll_prompts), speedup_action_batch_size):
             end_idx = min(idx + speedup_action_batch_size, len(ll_prompts))
             log_probs = world_model.llamamodel.get_ll(baseline_prompt, ll_prompts[idx: end_idx])
             scores += list(log_probs)
-        print("## log probs\n", scores)
+        # print("## log probs\n", scores)
 
         # softmax scores
         scores = np.array(scores)
         exp_scores = np.exp(scores)
         soft_scores = exp_scores / np.sum(exp_scores)
-        print("## soft scores\n", soft_scores)
+        # print("## soft scores\n", soft_scores)
         
         for a, s in zip(new_action_output, soft_scores):
             history = "".join(re.findall(r'\[ACTION \d+\].*?\n', a)).replace(".", "")
@@ -174,15 +179,15 @@ def iterative_search(initial_state: str,
             for id in identifier:
                 history = history.replace(id, "")
             history = history.strip()
-            print("## action seq and score\n", history, s)
+            # print("## action seq and score\n", history, s)
 
         return new_action_output, soft_scores
     
     def r1_fn(inp, depth): # for r1=Vrand
 
-        print("# in r1_fn")
-        print("## inp\n", inp)
-        print("## depth", depth)
+        # print("# in r1_fn")
+        # print("## inp\n", inp)
+        # print("## depth", depth)
 
         if depth == 0:
             return 1.0, inp, []
@@ -208,19 +213,19 @@ def iterative_search(initial_state: str,
         # print("==============inp================")
         # print(inp)
         last_state = inp.split(f"[STATE {depth-1}]")[-1].split(f"[ACTION {depth}]")[0]
-        print("last state:\n", "\"" + last_state + "\"")
+        # print("last state:\n", "\"" + last_state + "\"")
         new_state = apply_change(world_change, last_state)
-        print("==============new_state================")
-        print("\"" + new_state + "\"")
+        # print("==============new_state================")
+        # print("\"" + new_state + "\"")
         new_prompt = inp + prompts["state_prefix"].format(depth) + " " + new_state + "\n"
-        print("new prompt:\n", "\"" + new_prompt + "\"")
+        # print("new prompt:\n", "\"" + new_prompt + "\"")
         # print(world_change)
         goal_statement = inp.split("[GOAL]")[-1].split("[STATE 0]")[0]
-        print(f"goal_statement={goal_statement}")
+        # print(f"goal_statement={goal_statement}")
         goals = re.findall("the [a-z]{0,10} block is on top of the [a-z]{0,10} block", goal_statement)
-        print(f"goals={goals}")
+        # print(f"goals={goals}")
         meetings = [g in new_state for g in goals]
-        print(f"meetings={meetings}")
+        # print(f"meetings={meetings}")
         if sum(meetings) == len(meetings):
             r1 = 100
         else:
@@ -228,18 +233,35 @@ def iterative_search(initial_state: str,
         return r1, new_prompt, []
 
     def reward_fn(inp, depth):
-        print("# in reward_fn")
+        # print("# in reward_fn")
         r1, answer, ans_list = r1_fn(inp, depth)
         return answer, r1, ans_list
 
+    # TODO: debug
+    print(f'{Fore.YELLOW}Start a task.{Style.RESET_ALL}')
+    print(f'{Fore.YELLOW}In this task, the initial state is::::: {initial_state} :::::{Style.RESET_ALL}')
+    print(f'{Fore.YELLOW}In this task, the goal is::::: {goal} :::::{Style.RESET_ALL}')
+    print(f'{Fore.YELLOW}In this task, the prompts are{Style.RESET_ALL}::::: {prompts} :::::')
+    print(f'{Fore.YELLOW}In this task, the maximum iteration step is ::::: {max_iter} :::::{Style.RESET_ALL}')
+    print(f'{Fore.YELLOW}In this task, the maximum lookahead step is ::::: {max_depth} :::::{Style.RESET_ALL}')
+
     its = ITERS(w_exp=w_exp, prior=True, aggr_reward='mean', aggr_child='max')
     start_node = ReasoningITERSNode(prompts["goal_prefix"] + goal.strip() + "\n" + prompts["state_prefix"].format(0) + " " + initial_state.strip() + "\n", gen_fn, reward_fn, depth=0, r1_default=r1_default, r_alpha=r_alpha, max_depth=max_depth)
+
+    # TODO: debug
+    print(f'{Fore.YELLOW}Created start_node. Its current ::::: reward={start_node.reward}, consisting of r0={start_node._r0} and r1={start_node._r1}. Num of children={len(start_node.children)}. Has parent? answer={start_node.parent is None} :::::{Style.RESET_ALL}')
+
     trajs = []
     iters = []
+    
+    # TODO: debug
+    print(f'{Fore.YELLOW}Start a loop. ::::: Total loop range={mcts_steps} :::::{Style.RESET_ALL}')
     for _ in (pbar := trange(mcts_steps, disable=bool(int(os.environ.get("LOCAL_RANK", -1))), position=0)):
         end_node = its.rollout(max_iter, start_node)
+        print(f'{Fore.BLUE}Got an end node. Its prompt is {Style.RESET_ALL}:::::{end_node.prompt}:::::. {Fore.BLUE}This prompt will be a "traj". Its depth={end_node.depth}. Its reward={start_node.reward}, consisting of r0={start_node._r0} and r1={start_node._r1}. Num of children={len(start_node.children)}. Has parent? answer={start_node.parent is None} :::::{Style.RESET_ALL}')
         trajs.append(traj := end_node.prompt)
         output = re.findall('The answer is .*?([.0-9,\\-]+).*\\.', traj)
+        print(f'{Fore.BLUE}From the traj, our output is {Style.RESET_ALL}:::::{output}:::::{Fore.BLUE}If the output has len 0 ({len(output) == 0}), then we mark it as "not found"{Style.RESET_ALL}')
         if len(output) == 0:
             temp_r = 'not found'
         else:
