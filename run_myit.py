@@ -194,6 +194,13 @@ class ReasoningTasks():
 
         with open(prompt_path) as f:
             prompts = json.load(f)
+            '''
+            "prompts" here is a dictionary.
+            
+            It has keys: ['action_generation', 'world_update', 'world_update_pickup', 'world_update_unstack', 'world_update_putdown', 'world_update_stack', 'confidence', 'action_validity_pickup', 'action_validity_unstack', 'action_validity_putdown', 'action_validity_stack', 'complete_validity', 'state_extract', 'hand_state_extract', 'question_prefix', 'state_prefix', 'goal_prefix', 'action_prefix', 'action_gen_prefix', 'action_reason_prefix', 'state_gen_prefix', 'confidence_prefix', 'confidence_answer_prefix', 'validity_prefix', 'complete_validity_prefix', 'baseline_action']
+            
+            One can refer to ./data/blocksworld/my_mcts_prompts_update.json for an example of prompts.
+            '''
 
         mcts_steps = rollouts
         total_correct = [0] * mcts_steps
