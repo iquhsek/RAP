@@ -105,7 +105,7 @@ class ITERS:
             self.M[node] = max(self.M[node], c_reward)
 
     def _lookahead(self, node: ITERSNode):
-        print(f'{Fore.MAGENTA}Recursively generate paths...') # TODO: debug
+        print(f'{Fore.MAGENTA}Recursively generate paths...{Style.RESET_ALL}') # TODO: debug
         paths = []
         def route(node, path):
             self._expand(node)
