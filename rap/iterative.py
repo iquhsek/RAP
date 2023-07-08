@@ -75,7 +75,7 @@ class ITERS:
             # generate candidate lookahead paths
             paths = self._lookahead(node)
             # calculate the return from each path
-            print(f'{Fore.MAGENTA}Back propagate paths one by one...') # TODO: debug
+            print(f'{Fore.MAGENTA}Back propagate paths one by one...{Style.RESET_ALL}') # TODO: debug
             for path in paths:
                 self._back_propagate(path)
             # choose the path with maximum return

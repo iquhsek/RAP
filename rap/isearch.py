@@ -42,7 +42,7 @@ class ReasoningITERSNode(ITERSNode):
         return ReasoningITERSNode(prompt, self.gen_fn, self.reward_fn, self.depth + 1, self._r1_default, self._r_alpha, parent=self, r0=r0, max_depth=self.max_depth)
 
     def _get_children(self):
-        print("# in _get_children")
+        # print("# in _get_children")
         self._visited = True
         self._calculate_reward()
         if self.is_terminal:
@@ -58,8 +58,8 @@ class ReasoningITERSNode(ITERSNode):
 
     def _calculate_reward(self):
         # NOTE: temporary
-        print("# in _calculate_reward")
-        print("## depth", self.depth)
+        # print("# in _calculate_reward")
+        # print("## depth", self.depth)
         if self.depth == 0:
             return
         self.prompt, self._r1, self._ans_list = self.reward_fn(self.prompt, self.depth)
