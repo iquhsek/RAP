@@ -244,8 +244,8 @@ class ReasoningTasks():
                     json.dump(json_logs, f, indent=2)
                 with open(os.path.join(f'./logs/mcts-{name}/tree/', f'{i:04d}.tree'), 'w') as f:
                     f.write(tree)
-                with open(os.path.join(f'./logs/mcts-{name}/pkl/', f'{i:04d}.pkl'), 'wb') as f:
-                    pickle.dump(trees, f)
+                # with open(os.path.join(f'./logs/mcts-{name}/pkl/', f'{i:04d}.pkl'), 'wb') as f:
+                #     pickle.dump(trees, f)
 
 
             torch.distributed.barrier()
