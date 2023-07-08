@@ -250,7 +250,7 @@ class ReasoningTasks():
                 json_logs = []
                 for rollout, traj in enumerate(trajs):
                     # print("evaluating one rollout")
-                    #Extract actions from trace
+                    # Extract actions from trace
                     # actions = re.findall('\[ACTION \d\](.*)', traj)
                     # Do text_to_plan procedure
                     actions = re.findall('\[ACTION \d\](.*)', traj)
