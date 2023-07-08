@@ -200,6 +200,20 @@ class ReasoningTasks():
             It has keys: ['action_generation', 'world_update', 'world_update_pickup', 'world_update_unstack', 'world_update_putdown', 'world_update_stack', 'confidence', 'action_validity_pickup', 'action_validity_unstack', 'action_validity_putdown', 'action_validity_stack', 'complete_validity', 'state_extract', 'hand_state_extract', 'question_prefix', 'state_prefix', 'goal_prefix', 'action_prefix', 'action_gen_prefix', 'action_reason_prefix', 'state_gen_prefix', 'confidence_prefix', 'confidence_answer_prefix', 'validity_prefix', 'complete_validity_prefix', 'baseline_action']
             
             One can refer to ./data/blocksworld/my_mcts_prompts_update.json for an example of prompts.
+
+            It has several components and functionality:
+            1. It gives the llm few shot examples on the task. It tells llm the action-state transition rules.
+            2. Log the state, action ... at this node. Relevant keys are:
+                "question_prefix": "[SCENARIO 2]\n",
+                "state_prefix": "[STATE {}]",
+                "goal_prefix": "[GOAL] ",
+                "action_prefix": "[ACTION {}]",
+                "action_gen_prefix":  "[ACTIONS]",
+                "action_reason_prefix":  "[REASON]",
+                "state_gen_prefix":  "[STATE 1]",
+                "confidence_prefix": "[QUESTION] Is \"STATE 1\" closer to the goal than \"STATE 0\"?",
+                "confidence_answer_prefix": "[ANSWER]",
+                "validity_prefix": "[QUESTION] Is the action valid based on the state?",            
             '''
 
         mcts_steps = rollouts

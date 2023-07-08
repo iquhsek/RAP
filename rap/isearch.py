@@ -241,7 +241,17 @@ def iterative_search(initial_state: str,
     print(f'{Fore.YELLOW}Start a task.{Style.RESET_ALL}')
     print(f'{Fore.YELLOW}In this task, the initial state is::::: {initial_state} :::::{Style.RESET_ALL}')
     print(f'{Fore.YELLOW}In this task, the goal is::::: {goal} :::::{Style.RESET_ALL}')
-    print(f'{Fore.YELLOW}In this task, the prompts have keys={Style.RESET_ALL}::::: {prompts.keys()} :::::')
+    print(f'{Fore.YELLOW}In this task, the prompts partially include {Style.RESET_ALL}::::: \
+        question_prefix={prompts["question_prefix"]} \
+        state_prefix={prompts["state_prefix"]} \
+        goal_prefix={prompts["goal_prefix"]} \
+        action_prefix={prompts["action_prefix"]} \
+        action_gen_prefix={prompts["action_gen_prefix"]} \
+        action_reason_prefix={prompts["action_reason_prefix"]} \
+        state_gen_prefix={prompts["state_gen_prefix"]} \
+        confidence_prefix={prompts["confidence_prefix"]} \
+        confidence_answer_prefix={prompts["confidence_answer_prefix"]} \
+        validity_prefix={prompts["validity_prefix"]}:::::')
     print(f'{Fore.YELLOW}In this task, the maximum iteration step is ::::: {max_iter} :::::{Style.RESET_ALL}')
     print(f'{Fore.YELLOW}In this task, the maximum lookahead step is ::::: {max_depth} :::::{Style.RESET_ALL}')
 
