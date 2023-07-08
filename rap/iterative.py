@@ -70,8 +70,9 @@ class ITERS:
 
     def rollout(self, max_iter: int, node: ITERSNode):
         # TODO: debug
-        print(f'{Fore.BLUE}Start a rollout with {max_iter} loops.{Style.RESET_ALL}')
+        print(f'{Fore.BLUE}--------------BEGIN a rollout with {max_iter} loops--------------{Style.RESET_ALL}')
         for k in range(max_iter):
+            print(f'{Fore.MAGENTA} Rollout # {k} --------------{Style.RESET_ALL}')
             # generate candidate lookahead paths
             paths = self._lookahead(node)
             # calculate the return from each path
@@ -92,6 +93,7 @@ class ITERS:
             # stop iteration if we reached the goal
             if next_node.achieved_goal:
                 break
+        print(f'{Fore.BLUE}--------------Rollout END--------------{Style.RESET_ALL}')
         return next_node
 
     def _back_propagate(self, path: list[ITERSNode], reward=0.):
@@ -111,6 +113,7 @@ class ITERS:
             self.M[node] = max(self.M[node], c_reward)
 
     def _lookahead(self, node: ITERSNode):
+        print(f'{Fore.MAGENTA}----------------look ahead BEGIN----------------{Style.RESET_ALL}') # TODO: debug
         print(f'{Fore.MAGENTA}Recursively generate paths...{Style.RESET_ALL}') # TODO: debug
         paths = []
         def route(node, path):
@@ -122,6 +125,7 @@ class ITERS:
                 route(new_node, path)
         route(node, [])
         print(f'{Fore.MAGENTA}Got in total {len(paths)} paths.{Style.RESET_ALL}') # TODO: debug
+        print(f'{Fore.MAGENTA}----------------look ahead END----------------{Style.RESET_ALL}') # TODO: debug
         return paths
 
     def _expand(self, node: ITERSNode):
