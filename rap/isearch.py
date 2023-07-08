@@ -241,7 +241,7 @@ def iterative_search(initial_state: str,
     print(f'{Fore.YELLOW}Start a task.{Style.RESET_ALL}')
     print(f'{Fore.YELLOW}In this task, the initial state is::::: {initial_state} :::::{Style.RESET_ALL}')
     print(f'{Fore.YELLOW}In this task, the goal is::::: {goal} :::::{Style.RESET_ALL}')
-    print(f'{Fore.YELLOW}In this task, the prompts are{Style.RESET_ALL}::::: {prompts} :::::')
+    print(f'{Fore.YELLOW}In this task, the prompts have keys={Style.RESET_ALL}::::: {prompts.keys()} :::::')
     print(f'{Fore.YELLOW}In this task, the maximum iteration step is ::::: {max_iter} :::::{Style.RESET_ALL}')
     print(f'{Fore.YELLOW}In this task, the maximum lookahead step is ::::: {max_depth} :::::{Style.RESET_ALL}')
 
