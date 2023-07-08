@@ -52,7 +52,7 @@ class ITERSNode(ABC):
 
 class ITERS:
     """Iterative lookahead planning with llm"""
-    def __init__(self, w_exp=1, discount=1, prior=False, aggr_reward='sum', aggr_child='max', problem=None):
+    def __init__(self, w_exp=1, discount=1, prior=False, aggr_reward='sum', aggr_child='max'):
         self.Q: dict[ITERSNode, float] = defaultdict(lambda : 0.)
         self.N: dict[ITERSNode, int] = defaultdict(lambda : 0)
         self.M: dict[ITERSNode, float] = defaultdict(lambda : -math.inf)
@@ -62,7 +62,6 @@ class ITERS:
         self.prior = prior
         self.aggr_reward = aggr_reward
         self.aggr_child = aggr_child
-        self.problem = problem
 
     def rollout(self, max_iter: int, node: ITERSNode):
         for k in range(max_iter):

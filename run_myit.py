@@ -214,7 +214,6 @@ class ReasoningTasks():
                 max_depth=max_depth,
                 r1_default=0.5,
                 eos_token_id=self.model.tokenizer.encode('\n', bos=False, eos=False)[-1],
-                problem=problem,
                 r_alpha=alpha,
                 )
 

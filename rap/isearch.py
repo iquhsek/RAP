@@ -116,7 +116,6 @@ def iterative_search(initial_state: str,
                           r_alpha,
                           r1_default,
                           eos_token_id,
-                          problem,
                           speedup_action_batch_size=2,
                           w_exp=1):
     def gen_fn(inp, depth): # for r0=Pr(a|s_t), the probability component
@@ -233,7 +232,7 @@ def iterative_search(initial_state: str,
         r1, answer, ans_list = r1_fn(inp, depth)
         return answer, r1, ans_list
 
-    its = ITERS(w_exp=w_exp, prior=True, aggr_reward='mean', aggr_child='max', problem=problem)
+    its = ITERS(w_exp=w_exp, prior=True, aggr_reward='mean', aggr_child='max')
     start_node = ReasoningITERSNode(prompts["goal_prefix"] + goal.strip() + "\n" + prompts["state_prefix"].format(0) + " " + initial_state.strip() + "\n", gen_fn, reward_fn, depth=0, r1_default=r1_default, r_alpha=r_alpha, max_depth=max_depth)
     trajs = []
     iters = []
