@@ -7,6 +7,7 @@ import re
 import sys
 import traceback
 import warnings
+from copy import deepcopy
 from collections import defaultdict
 from abc import ABC, abstractmethod
 sys.path.append("gpt-plan-benchmark/gpt_plan_test")
@@ -122,8 +123,9 @@ class ITERS:
                 paths.append(path)
             else:
                 for new_node in self.children[node]:
-                    path.append(new_node)
-                    route(new_node, path)
+                    tmp_path = deepcopy(path)
+                    tmp_path.append(new_node)
+                    route(new_node, tmp_path)
         route(node, [])
         print(f'{Fore.MAGENTA}Got in total {len(paths)} paths.{Style.RESET_ALL}') # TODO: debug
         print(f'{Fore.MAGENTA}----------------look ahead END----------------{Style.RESET_ALL}') # TODO: debug
@@ -134,4 +136,5 @@ class ITERS:
             self.children[node] = node.find_children()
 
     def _max_ahead(self, paths: list[list[ITERSNode]]):
+        print(f'{Fore.MAGENTA}Comparing M values in {[self.M[0] for x in paths]}{Style.RESET_ALL}')
         return max(paths, key=lambda x: self.M[x[0]])
