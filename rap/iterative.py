@@ -86,7 +86,7 @@ class ITERS:
             for tmp_node in max_path:
                 print('--------go node--------')
                 print(tmp_node.prompt)
-                print(tmp_node.reward)
+                print(f'reward={tmp_node.reward},r0={tmp_node._r0},r1={tmp_node._r1}')
                 print('-----------------------')
             # the next node is the ending node of the chosen path
             next_node = max_path[-1]
