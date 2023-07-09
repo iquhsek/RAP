@@ -86,10 +86,11 @@ class ReasoningITERSNode(ITERSNode):
 
     def print(self, mcts, file=None):
         def pprint(*args):
-            if file is None:
-                tqdm.write(*args)
-            else:
-                print(*args, file=file)
+            pass # TODO: debug
+            # if file is None:
+            #     tqdm.write(*args)
+            # else:
+            #     print(*args, file=file)
         p1 = '-' * (4 * self.depth - 4)
         prefix = ' ' * (4 * self.depth - 4)
         question = self.prompt.split("[PLAN]\n")[-1].replace("\n", "\\n")
