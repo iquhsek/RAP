@@ -99,8 +99,11 @@ class ITERS:
 
     def _back_propagate(self, path: list[ITERSNode], reward=0.):
         coeff = 1
+        print(f'{Fore.RED}Start back-propagating a path in a reverse order{Style.RESET_ALL}')
         for node in reversed(path):
+            print(f'{Fore.RED}The current has prompt={Style.RESET_ALL}{node.prompt}')
             reward = reward * self.discount + node.reward
+            print(f'{Fore.RED}Counted its return={Style.RESET_ALL}{reward}')
             coeff = coeff * self.discount + 1
             if self.aggr_reward == 'mean':
                 c_reward = reward / coeff
@@ -112,6 +115,7 @@ class ITERS:
                 self.Q[node] += c_reward
             self.N[node] += 1
             self.M[node] = max(self.M[node], c_reward)
+        print(f'{Fore.RED}End this back-propagating{Style.RESET_ALL}')
 
     def _lookahead(self, node: ITERSNode):
         print(f'{Fore.MAGENTA}----------------look ahead BEGIN----------------{Style.RESET_ALL}') # TODO: debug
