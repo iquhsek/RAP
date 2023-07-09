@@ -297,8 +297,8 @@ class ReasoningTasks():
 
         # --------------- Add to final output --------------- #
         final_output += f"[+]: The number of correct plans is {correct_plans}/{n_files}={correct_plans / (n_files) * 100}%"
-        # print(f"[+]: The number of correct plans is {correct_plans}/{n_files}={correct_plans / (n_files) * 100}%")
-        # print(total_correct)
+        print(f"[+]: The number of correct plans is {correct_plans}/{n_files}={correct_plans / (n_files) * 100}%")
+        print(total_correct)
         self.save_output("mcts-" + name, final_output)
 
 if __name__ == '__main__':
