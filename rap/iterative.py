@@ -136,5 +136,6 @@ class ITERS:
             self.children[node] = node.find_children()
 
     def _max_ahead(self, paths: list[list[ITERSNode]]):
+        print(f'{Fore.MAGENTA}Comparing M values of path lens {[len(x) for x in paths]}{Style.RESET_ALL}')
         print(f'{Fore.MAGENTA}Comparing M values in {[self.M[0] for x in paths]}{Style.RESET_ALL}')
         return max(paths, key=lambda x: self.M[x[0]])
