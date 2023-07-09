@@ -86,7 +86,7 @@ class ITERS:
             for tmp_node in max_path:
                 print('--------go node--------')
                 print(tmp_node.prompt)
-                print(f'reward={tmp_node.reward},r0={tmp_node._r0},r1={tmp_node._r1}')
+                print(f'reward={tmp_node.reward},r0={tmp_node._r0},r1={tmp_node._r1},max_return={self.M[tmp_node]}')
                 print('-----------------------')
             # the next node is the ending node of the chosen path
             next_node = max_path[-1]
@@ -120,9 +120,10 @@ class ITERS:
             self._expand(node)
             if node.is_terminal:
                 paths.append(path)
-            for new_node in self.children[node]:
-                path.append(new_node)
-                route(new_node, path)
+            else:
+                for new_node in self.children[node]:
+                    path.append(new_node)
+                    route(new_node, path)
         route(node, [])
         print(f'{Fore.MAGENTA}Got in total {len(paths)} paths.{Style.RESET_ALL}') # TODO: debug
         print(f'{Fore.MAGENTA}----------------look ahead END----------------{Style.RESET_ALL}') # TODO: debug
