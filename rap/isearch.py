@@ -239,40 +239,40 @@ def iterative_search(initial_state: str,
         return answer, r1, ans_list
 
     # TODO: debug
-    print(f'{Fore.YELLOW}Start a task.{Style.RESET_ALL}')
-    print(f'{Fore.YELLOW}In this task, the initial state is::::: {initial_state} :::::{Style.RESET_ALL}')
-    print(f'{Fore.YELLOW}In this task, the goal is::::: {goal} :::::{Style.RESET_ALL}')
-    print(f'{Fore.YELLOW}In this task, the prompts partially include {Style.RESET_ALL}::::: \
-        question_prefix={prompts["question_prefix"]} \
-        state_prefix={prompts["state_prefix"]} \
-        goal_prefix={prompts["goal_prefix"]} \
-        action_prefix={prompts["action_prefix"]} \
-        action_gen_prefix={prompts["action_gen_prefix"]} \
-        action_reason_prefix={prompts["action_reason_prefix"]} \
-        state_gen_prefix={prompts["state_gen_prefix"]} \
-        confidence_prefix={prompts["confidence_prefix"]} \
-        confidence_answer_prefix={prompts["confidence_answer_prefix"]} \
-        validity_prefix={prompts["validity_prefix"]}:::::')
-    print(f'{Fore.YELLOW}In this task, the maximum iteration step is ::::: {max_iter} :::::{Style.RESET_ALL}')
-    print(f'{Fore.YELLOW}In this task, the maximum lookahead step is ::::: {max_depth} :::::{Style.RESET_ALL}')
+    # print(f'{Fore.YELLOW}Start a task.{Style.RESET_ALL}')
+    # print(f'{Fore.YELLOW}In this task, the initial state is::::: {initial_state} :::::{Style.RESET_ALL}')
+    # print(f'{Fore.YELLOW}In this task, the goal is::::: {goal} :::::{Style.RESET_ALL}')
+    # print(f'{Fore.YELLOW}In this task, the prompts partially include {Style.RESET_ALL}::::: \
+    #     question_prefix={prompts["question_prefix"]} \
+    #     state_prefix={prompts["state_prefix"]} \
+    #     goal_prefix={prompts["goal_prefix"]} \
+    #     action_prefix={prompts["action_prefix"]} \
+    #     action_gen_prefix={prompts["action_gen_prefix"]} \
+    #     action_reason_prefix={prompts["action_reason_prefix"]} \
+    #     state_gen_prefix={prompts["state_gen_prefix"]} \
+    #     confidence_prefix={prompts["confidence_prefix"]} \
+    #     confidence_answer_prefix={prompts["confidence_answer_prefix"]} \
+    #     validity_prefix={prompts["validity_prefix"]}:::::')
+    # print(f'{Fore.YELLOW}In this task, the maximum iteration step is ::::: {max_iter} :::::{Style.RESET_ALL}')
+    # print(f'{Fore.YELLOW}In this task, the maximum lookahead step is ::::: {max_depth} :::::{Style.RESET_ALL}')
 
     its = ITERS(w_exp=w_exp, prior=True, aggr_reward='mean', aggr_child='max')
     start_node = ReasoningITERSNode(prompts["goal_prefix"] + goal.strip() + "\n" + prompts["state_prefix"].format(0) + " " + initial_state.strip() + "\n", gen_fn, reward_fn, depth=0, r1_default=r1_default, r_alpha=r_alpha, max_depth=max_depth)
 
     # TODO: debug
-    print(f'{Fore.YELLOW}Created start_node. Its current ::::: reward={start_node.reward}, consisting of r0={start_node._r0} and r1={start_node._r1}. Num of children={len(start_node.children)}. Has parent? answer={start_node.parent is None} :::::{Style.RESET_ALL}')
+    # print(f'{Fore.YELLOW}Created start_node. Its current ::::: reward={start_node.reward}, consisting of r0={start_node._r0} and r1={start_node._r1}. Num of children={len(start_node.children)}. Has parent? answer={start_node.parent is None} :::::{Style.RESET_ALL}')
 
     trajs = []
     iters = []
     
     # TODO: debug
-    print(f'{Fore.YELLOW}Start a loop. ::::: Total loop range={mcts_steps} :::::{Style.RESET_ALL}')
+    # print(f'{Fore.YELLOW}Start a loop. ::::: Total loop range={mcts_steps} :::::{Style.RESET_ALL}')
     for _ in (pbar := trange(mcts_steps, disable=bool(int(os.environ.get("LOCAL_RANK", -1))), position=0)):
         end_node = its.rollout(max_iter, start_node)
-        print(f'{Fore.BLUE}Got an end node. Its prompt is {Style.RESET_ALL}:::::{end_node.prompt}:::::. {Fore.BLUE}This prompt will be a "traj". Its depth={end_node.depth}. Its reward={start_node.reward}, consisting of r0={start_node._r0} and r1={start_node._r1}. Num of children={len(start_node.children)}. Has parent? answer={start_node.parent is None} :::::{Style.RESET_ALL}')
+        # print(f'{Fore.BLUE}Got an end node. Its prompt is {Style.RESET_ALL}:::::{end_node.prompt}:::::. {Fore.BLUE}This prompt will be a "traj". Its depth={end_node.depth}. Its reward={start_node.reward}, consisting of r0={start_node._r0} and r1={start_node._r1}. Num of children={len(start_node.children)}. Has parent? answer={start_node.parent is None} :::::{Style.RESET_ALL}')
         trajs.append(traj := end_node.prompt)
         output = re.findall('The answer is .*?([.0-9,\\-]+).*\\.', traj)
-        print(f'{Fore.BLUE}From the traj, our output is {Style.RESET_ALL}:::::{output}:::::{Fore.BLUE}If the output has len 0 ({len(output) == 0}), then we mark it as "not found"{Style.RESET_ALL}')
+        # print(f'{Fore.BLUE}From the traj, our output is {Style.RESET_ALL}:::::{output}:::::{Fore.BLUE}If the output has len 0 ({len(output) == 0}), then we mark it as "not found"{Style.RESET_ALL}')
         if len(output) == 0:
             temp_r = 'not found'
         else:

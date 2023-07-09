@@ -71,39 +71,39 @@ class ITERS:
 
     def rollout(self, max_iter: int, node: ITERSNode):
         # TODO: debug
-        print(f'{Fore.BLUE}--------------BEGIN a rollout with {max_iter} loops--------------{Style.RESET_ALL}')
+        # print(f'{Fore.BLUE}--------------BEGIN a rollout with {max_iter} loops--------------{Style.RESET_ALL}')
         for k in range(max_iter):
-            print(f'{Fore.MAGENTA} Rollout # {k} --------------{Style.RESET_ALL}')
+            # print(f'{Fore.MAGENTA} Rollout # {k} --------------{Style.RESET_ALL}')
             # generate candidate lookahead paths
             paths = self._lookahead(node)
             # calculate the return from each path
-            print(f'{Fore.MAGENTA}Back propagate paths one by one...{Style.RESET_ALL}') # TODO: debug
+            # print(f'{Fore.MAGENTA}Back propagate paths one by one...{Style.RESET_ALL}') # TODO: debug
             for path in paths:
                 self._back_propagate(path)
             # choose the path with maximum return
             max_path = self._max_ahead(paths)
             # TODO: debug. The GOAL is the same for all nodes so we don't have to print prompt["GOAL"]
-            print(f'{Fore.MAGENTA}Now print the max path we chose in this step in the form (prompt, reward) node by node --> {Style.RESET_ALL}')
-            for tmp_node in max_path:
-                print('--------go node--------')
-                print(tmp_node.prompt)
-                print(f'reward={tmp_node.reward},r0={tmp_node._r0},r1={tmp_node._r1},max_return={self.M[tmp_node]}')
-                print('-----------------------')
+            # print(f'{Fore.MAGENTA}Now print the max path we chose in this step in the form (prompt, reward) node by node --> {Style.RESET_ALL}')
+            # for tmp_node in max_path:
+                # print('--------go node--------')
+                # print(tmp_node.prompt)
+                # print(f'reward={tmp_node.reward},r0={tmp_node._r0},r1={tmp_node._r1},max_return={self.M[tmp_node]}')
+                # print('-----------------------')
             # the next node is the ending node of the chosen path
             next_node = max_path[-1]
             # stop iteration if we reached the goal
             if next_node.achieved_goal:
                 break
-        print(f'{Fore.BLUE}--------------Rollout END--------------{Style.RESET_ALL}')
+        # print(f'{Fore.BLUE}--------------Rollout END--------------{Style.RESET_ALL}')
         return next_node
 
     def _back_propagate(self, path: list[ITERSNode], reward=0.):
         coeff = 1
-        print(f'{Fore.RED}Start back-propagating a path in a reverse order{Style.RESET_ALL}')
+        # print(f'{Fore.RED}Start back-propagating a path in a reverse order{Style.RESET_ALL}')
         for node in reversed(path):
-            print(f'{Fore.RED}The current has prompt={Style.RESET_ALL}{node.prompt}')
+            # print(f'{Fore.RED}The current has prompt={Style.RESET_ALL}{node.prompt}')
             reward = reward * self.discount + node.reward
-            print(f'{Fore.RED}Counted its return={Style.RESET_ALL}{reward}')
+            # print(f'{Fore.RED}Counted its return={Style.RESET_ALL}{reward}')
             coeff = coeff * self.discount + 1
             if self.aggr_reward == 'mean':
                 c_reward = reward / coeff
@@ -115,11 +115,11 @@ class ITERS:
                 self.Q[node] += c_reward
             self.N[node] += 1
             self.M[node] = max(self.M[node], c_reward)
-        print(f'{Fore.RED}End this back-propagating{Style.RESET_ALL}')
+        # print(f'{Fore.RED}End this back-propagating{Style.RESET_ALL}')
 
     def _lookahead(self, node: ITERSNode):
-        print(f'{Fore.MAGENTA}----------------look ahead BEGIN----------------{Style.RESET_ALL}') # TODO: debug
-        print(f'{Fore.MAGENTA}Recursively generate paths...{Style.RESET_ALL}') # TODO: debug
+        # print(f'{Fore.MAGENTA}----------------look ahead BEGIN----------------{Style.RESET_ALL}') # TODO: debug
+        # print(f'{Fore.MAGENTA}Recursively generate paths...{Style.RESET_ALL}') # TODO: debug
         paths = []
         def route(node, path):
             self._expand(node)
@@ -131,8 +131,8 @@ class ITERS:
                     tmp_path.append(new_node)
                     route(new_node, tmp_path)
         route(node, [])
-        print(f'{Fore.MAGENTA}Got in total {len(paths)} paths.{Style.RESET_ALL}') # TODO: debug
-        print(f'{Fore.MAGENTA}----------------look ahead END----------------{Style.RESET_ALL}') # TODO: debug
+        # print(f'{Fore.MAGENTA}Got in total {len(paths)} paths.{Style.RESET_ALL}') # TODO: debug
+        # print(f'{Fore.MAGENTA}----------------look ahead END----------------{Style.RESET_ALL}') # TODO: debug
         return paths
 
     def _expand(self, node: ITERSNode):
@@ -140,6 +140,6 @@ class ITERS:
             self.children[node] = node.find_children()
 
     def _max_ahead(self, paths: list[list[ITERSNode]]):
-        print(f'{Fore.MAGENTA}Comparing M values of path lens {[len(x) for x in paths]}{Style.RESET_ALL}')
-        print(f'{Fore.MAGENTA}Comparing M values in {[self.M[x[0]] for x in paths]}{Style.RESET_ALL}')
+        # print(f'{Fore.MAGENTA}Comparing M values of path lens {[len(x) for x in paths]}{Style.RESET_ALL}')
+        # print(f'{Fore.MAGENTA}Comparing M values in {[self.M[x[0]] for x in paths]}{Style.RESET_ALL}')
         return max(paths, key=lambda x: self.M[x[0]])
