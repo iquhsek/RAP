@@ -171,7 +171,7 @@ class ReasoningTasks():
             f.write(final_output)
     # ========================================== TASKS ========================================== #
 
-    def run_mcts(self, config_file, name="", prompts="", rollouts=10, max_iter=30, max_depth=4, alpha=0.5, prompt_path=""):
+    def run_mcts(self, config_file, name="", prompts="", rollouts=10, max_iter=30, max_depth=4, alpha=0.5, prompt_path="", resume_file_idx=0):
         self.read_config(config_file)
 
         # make directory for logs
@@ -223,6 +223,10 @@ class ReasoningTasks():
         for i in range(n_files):
             # TODO: debug
             print(f'{Fore.YELLOW}We are dealing with {i}-th file now.{Style.RESET_ALL}')
+            if i < resume_file_idx:
+                if self.local_rank == 0:
+                    correct_plans += 1
+                continue
 
             # query = prompts
             cur_instance = self.data_files[i]
@@ -328,6 +332,7 @@ if __name__ == '__main__':
     parser.add_argument('--n_samples', type=int, default=10, help='Number of samples for t1')
     parser.add_argument('--prompt_path', type=str, default="data/blocksworld/my_mcts_prompts_update.json", help='Path to prompts')
     parser.add_argument('--ckpt_path', type=str, default="", help='path to LLaMA checkpoint')
+    parser.add_argument('--resume_file_idx', type=int, default=50, help='resume experiment from a certain task')
 
 
     args = parser.parse_args()
@@ -349,6 +354,6 @@ if __name__ == '__main__':
 
     if task == 'mcts':
         config_file = 'data/blocksworld/bw_config.yaml'
-        tasks_obj.run_mcts(config_file, name=name, prompts="", rollouts=rollouts, max_iter=max_iter, max_depth=max_depth, alpha=alpha, prompt_path=prompt_path)
+        tasks_obj.run_mcts(config_file, name=name, prompts="", rollouts=rollouts, max_iter=max_iter, max_depth=max_depth, alpha=alpha, prompt_path=prompt_path, resume_file_idx=args.resume_file_idx)
     else:
         raise NotImplementedError
