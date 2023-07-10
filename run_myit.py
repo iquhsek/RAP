@@ -218,7 +218,11 @@ class ReasoningTasks():
 
         mcts_steps = rollouts
         total_correct = [0] * mcts_steps
+        # TODO: debug
+        print(f'{Fore.YELLOW}There are {n_files} files.{Style.RESET_ALL}')
         for i in range(n_files):
+            # TODO: debug
+            print(f'{Fore.YELLOW}We are dealing with {i}-th file now.{Style.RESET_ALL}')
 
             # query = prompts
             cur_instance = self.data_files[i]
