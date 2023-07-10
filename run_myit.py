@@ -332,7 +332,7 @@ if __name__ == '__main__':
     parser.add_argument('--n_samples', type=int, default=10, help='Number of samples for t1')
     parser.add_argument('--prompt_path', type=str, default="data/blocksworld/my_mcts_prompts_update.json", help='Path to prompts')
     parser.add_argument('--ckpt_path', type=str, default="", help='path to LLaMA checkpoint')
-    parser.add_argument('--resume_file_idx', type=int, default=50, help='resume experiment from a certain task')
+    parser.add_argument('--resume_file_idx', type=int, default=0, help='resume experiment from a certain task')
 
 
     args = parser.parse_args()
