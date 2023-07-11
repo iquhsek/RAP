@@ -166,7 +166,7 @@ def iterative_search(initial_state: str,
             # TODO:
             with open('shit.txt', 'w') as f:
                 f.write('ll_prompts='+str(ll_prompts[idx: end_idx])+'\n')
-                f.write('baseline_prompt='+str(baseline_prompt))
+                f.write('baseline_prompt='+str([baseline_prompt]))
             log_probs = world_model.llamamodel.get_ll(baseline_prompt, ll_prompts[idx: end_idx])
             scores += list(log_probs)
         # print("## log probs\n", scores)
