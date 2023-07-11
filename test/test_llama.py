@@ -141,7 +141,7 @@ if __name__ == '__main__':
     
     
     # API 1: world_model.query_LM
-    prompts = json.load('llama_prompts.json')
+    prompts = json.load(open('llama_prompts.json'))
     last_state = "I have that, the blue block is clear, the orange block is clear, the yellow block is clear, the hand is empty, the orange block is on top of the red block, the blue block is on the table, the red block is on the table, and the yellow block is on the table."
     last_action = "Pick up the blue block."
     if "Pick" in last_action: 
