@@ -75,6 +75,7 @@ class ITERS:
         for k in range(max_iter):
             # print(f'{Fore.MAGENTA} Rollout # {k} --------------{Style.RESET_ALL}')
             # generate candidate lookahead paths
+            print('start lookaheads')
             paths = self._lookahead(node)
             # calculate the return from each path
             # print(f'{Fore.MAGENTA}Back propagate paths one by one...{Style.RESET_ALL}') # TODO: debug
