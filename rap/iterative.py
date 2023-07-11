@@ -75,7 +75,6 @@ class ITERS:
         for k in range(max_iter):
             # print(f'{Fore.MAGENTA} Rollout # {k} --------------{Style.RESET_ALL}')
             # generate candidate lookahead paths
-            print('start lookaheads')
             paths = self._lookahead(node)
             # calculate the return from each path
             # print(f'{Fore.MAGENTA}Back propagate paths one by one...{Style.RESET_ALL}') # TODO: debug
@@ -152,19 +151,19 @@ class PITERS(ITERS):
         self.sample_per_node = sample_per_node
 
     def _lookahead(self, node: ITERSNode):
-        print('yesyes')
         paths = []
         def route(node, path):
             self._expand(node)
             if node.is_terminal:
                 paths.append(path)
             else:
-                print(f'Inside lookahead method, the current node has {len(self.children[node])} many children')
+                # print(f'Inside lookahead method, the current node has {len(self.children[node])} many children')
                 self.children[node].sort(reversed=True, key=lambda x: x._r0)
                 children_sample = self.children[node][:self.sample_per_node]
-                print(f'Inside lookahead method, we sampled {len(children_sample)} many children')
+                # print(f'Inside lookahead method, we sampled {len(children_sample)} many children')
                 for new_node in children_sample:
                     tmp_path = deepcopy(path)
                     tmp_path.append(new_node)
                     route(new_node, tmp_path)
+        route(node, [])
         return paths
