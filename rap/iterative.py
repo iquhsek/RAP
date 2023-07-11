@@ -157,8 +157,10 @@ class PITERS(ITERS):
             if node.is_terminal:
                 paths.append(path)
             else:
+                print(f'Inside lookahead method, the current node has {len(self.children[node])} many children')
                 self.children[node].sort(reversed=True, key=lambda x: x._r0)
                 children_sample = self.children[node][:self.sample_per_node]
+                print(f'Inside lookahead method, we sampled {len(children_sample)} many children')
                 for new_node in children_sample:
                     tmp_path = deepcopy(path)
                     tmp_path.append(new_node)
