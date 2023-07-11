@@ -6,12 +6,12 @@ python3 -m fastchat.serve.huggingface_api --model lmsys/vicuna-7b-v1.3
 python3 -m fastchat.serve.huggingface_api --model lmsys/fastchat-t5-3b-v1.0
 """
 import argparse
-import json
-
 import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM
-
 from fastchat.model import load_model, get_conversation_template, add_model_args
+import colorama
+from colorama import Fore
+from colorama import Style
+colorama.init()
 
 
 @torch.inference_mode()
@@ -58,6 +58,7 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     add_model_args(parser)
+    parser.add_argument("--model_path", type=str, default=None)
     parser.add_argument("--temperature", type=float, default=0.7)
     parser.add_argument("--repetition_penalty", type=float, default=1.0)
     parser.add_argument("--max-new-tokens", type=int, default=512)
