@@ -163,6 +163,9 @@ def iterative_search(initial_state: str,
         scores = []
         for idx in range(0, len(ll_prompts), speedup_action_batch_size):
             end_idx = min(idx + speedup_action_batch_size, len(ll_prompts))
+            # TODO:
+            print(f'{Fore.BLUE}baseline_prompt={baseline_prompt}{Style.RESET_ALL}')
+            print(f'{Fore.BLUE}ll_prompts[idx: end_idx]={ll_prompts[idx: end_idx]}{Style.RESET_ALL}')
             log_probs = world_model.llamamodel.get_ll(baseline_prompt, ll_prompts[idx: end_idx])
             scores += list(log_probs)
         # print("## log probs\n", scores)
