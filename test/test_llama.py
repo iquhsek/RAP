@@ -128,7 +128,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     local_rank, world_size = setup_model_parallel()
     tokenizer_path = os.path.join(os.path.dirname(args.ckpt_path), "tokenizer.model")
-    llama = load(args.ckpt_path, tokenizer_path, local_rank, world_size, 3)
+    llama = load(args.ckpt_path, tokenizer_path, local_rank, world_size, 10)
     if local_rank > 0:
         sys.stdout = open(os.devnull, 'w')
         log_file = None
