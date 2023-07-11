@@ -27,6 +27,9 @@ def main(args):
         debug=args.debug,
     )
 
+    # TODO:
+    print (f'{Fore.CYAN}Info about the model: {Style.RESET_ALL}{model.__class__, model.__class__.__name__}')
+
     msg = args.message
 
     conv = get_conversation_template(args.model_path)
