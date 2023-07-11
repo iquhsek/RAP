@@ -10,6 +10,7 @@ import warnings
 from copy import deepcopy
 from collections import defaultdict
 from abc import ABC, abstractmethod
+from rap.iterative import ITERSNode
 sys.path.append("gpt-plan-benchmark/gpt_plan_test")
 from utils import *
 from tqdm import tqdm
@@ -143,3 +144,24 @@ class ITERS:
         # print(f'{Fore.MAGENTA}Comparing M values of path lens {[len(x) for x in paths]}{Style.RESET_ALL}')
         # print(f'{Fore.MAGENTA}Comparing M values in {[self.M[x[0]] for x in paths]}{Style.RESET_ALL}')
         return max(paths, key=lambda x: self.M[x[0]])
+
+
+class PITERS(ITERS):
+    def __init__(self, w_exp=1, discount=1, prior=False, aggr_reward='sum', aggr_child='max', sample_per_node=2):
+        super().__init__(w_exp, discount, prior, aggr_reward, aggr_child)
+        self.sample_per_node = sample_per_node
+
+    def _lookahead(self, node: ITERSNode):
+        paths = []
+        def route(node, path):
+            self._expand(node)
+            if node.is_terminal:
+                paths.append(path)
+            else:
+                self.children[node].sort(reversed=True, key=lambda x: x._r0)
+                children_sample = self.children[node][:self.sample_per_node]
+                for new_node in children_sample:
+                    tmp_path = deepcopy(path)
+                    tmp_path.append(new_node)
+                    route(new_node, tmp_path)
+        return paths

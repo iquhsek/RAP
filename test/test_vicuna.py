@@ -27,25 +27,26 @@ def main(args):
         debug=args.debug,
     )
 
-    # TODO:
+    # TODO: delete
     print (f'|#|#|#|#|#|#|{Fore.CYAN}Info about the model: {Style.RESET_ALL}{Fore.RED}{model.__class__, model.__class__.__name__}{Style.RESET_ALL}')
 
     msg = args.message
 
-    # TODO:
+    # TODO: delete
     print (f'|#|#|#|#|#|#|{Fore.CYAN}msg = {Style.RESET_ALL}{Fore.RED}{msg}{Style.RESET_ALL}')
 
     conv = get_conversation_template(args.model_path)
     conv.append_message(conv.roles[0], msg)
     conv.append_message(conv.roles[1], None)
+    # TODO: We need to tailor this prompt to tasks{blocksworld,gsm8k,prontoqa}
     prompt = conv.get_prompt()
     
-    # TODO:
+    # TODO: delete
     print (f'|#|#|#|#|#|#|{Fore.CYAN}PROMPT = {Style.RESET_ALL}{Fore.RED}{prompt}{Style.RESET_ALL}')
 
     input_ids = tokenizer([prompt]).input_ids
     
-    # TODO:
+    # TODO: delete
     print (f'|#|#|#|#|#|#|{Fore.CYAN}input_ids = {Style.RESET_ALL}{Fore.RED}{input_ids}{Style.RESET_ALL}')
     
     output_ids = model.generate(
