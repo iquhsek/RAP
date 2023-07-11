@@ -145,7 +145,7 @@ if __name__ == '__main__':
     last_state = "I have that, the blue block is clear, the orange block is clear, the yellow block is clear, the hand is empty, the orange block is on top of the red block, the blue block is on the table, the red block is on the table, and the yellow block is on the table."
     last_action = "Pick up the blue block."
     if "Pick" in last_action: 
-            world_update_prompt = prompts["world_update_pickup"].format(last_state, last_action)
+        world_update_prompt = prompts["world_update_pickup"].format(last_state, last_action)
     elif "Unstack" in last_action:
         world_update_prompt = prompts["world_update_unstack"].format(last_state, last_action)
     elif "Put" in last_action:
@@ -162,6 +162,6 @@ if __name__ == '__main__':
     
     # API 2: world_model.llamamodel.get_ll
     last_base_state = prompts["last_base_state"]
-    baseline_prompt = prompts["baseline_action"]
+    baseline_prompt = prompts["baseline_prompt"]
     log_probs = world_model.llamamodel.get_ll(baseline_prompt, last_base_state)
     print(f'log_probs={log_probs}')
