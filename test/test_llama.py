@@ -161,7 +161,7 @@ if __name__ == '__main__':
     
     
     # API 2: world_model.llamamodel.get_ll
-    last_base_state = prompts["last_base_state"]
+    ll_prompt = prompts["ll_prompt"]
     baseline_prompt = prompts["baseline_prompt"]
-    log_probs = world_model.llamamodel.get_ll(baseline_prompt, last_base_state)
+    log_probs = world_model.llamamodel.get_ll(baseline_prompt, )
     print(f'log_probs={list(log_probs)}')
