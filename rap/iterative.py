@@ -152,6 +152,7 @@ class PITERS(ITERS):
         self.sample_per_node = sample_per_node
 
     def _lookahead(self, node: ITERSNode):
+        print('yesyes')
         paths = []
         def route(node, path):
             self._expand(node)
