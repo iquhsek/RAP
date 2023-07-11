@@ -10,7 +10,6 @@ import warnings
 from copy import deepcopy
 from collections import defaultdict
 from abc import ABC, abstractmethod
-from rap.iterative import ITERSNode
 sys.path.append("gpt-plan-benchmark/gpt_plan_test")
 from utils import *
 from tqdm import tqdm
