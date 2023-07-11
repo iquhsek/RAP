@@ -28,16 +28,26 @@ def main(args):
     )
 
     # TODO:
-    print (f'{Fore.CYAN}Info about the model: {Style.RESET_ALL}{model.__class__, model.__class__.__name__}')
+    print (f'|#|#|#|#|#|#|{Fore.CYAN}Info about the model: {Style.RESET_ALL}{Fore.RED}{model.__class__, model.__class__.__name__}{Style.RESET_ALL}')
 
     msg = args.message
+
+    # TODO:
+    print (f'|#|#|#|#|#|#|{Fore.CYAN}msg = {Style.RESET_ALL}{Fore.RED}{msg}{Style.RESET_ALL}')
 
     conv = get_conversation_template(args.model_path)
     conv.append_message(conv.roles[0], msg)
     conv.append_message(conv.roles[1], None)
     prompt = conv.get_prompt()
+    
+    # TODO:
+    print (f'|#|#|#|#|#|#|{Fore.CYAN}PROMPT = {Style.RESET_ALL}{Fore.RED}{prompt}{Style.RESET_ALL}')
 
     input_ids = tokenizer([prompt]).input_ids
+    
+    # TODO:
+    print (f'|#|#|#|#|#|#|{Fore.CYAN}input_ids = {Style.RESET_ALL}{Fore.RED}{input_ids}{Style.RESET_ALL}')
+    
     output_ids = model.generate(
         torch.as_tensor(input_ids).cuda(),
         do_sample=True,
