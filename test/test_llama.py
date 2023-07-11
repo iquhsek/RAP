@@ -163,5 +163,5 @@ if __name__ == '__main__':
     # API 2: world_model.llamamodel.get_ll
     ll_prompt = prompts["ll_prompt"]
     baseline_prompt = prompts["baseline_prompt"]
-    log_probs = world_model.llamamodel.get_ll(baseline_prompt, )
+    log_probs = world_model.llamamodel.get_ll(baseline_prompt, ll_prompt)
     print(f'log_probs={list(log_probs)}')
