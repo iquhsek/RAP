@@ -36,8 +36,14 @@ def main(args):
     print (f'|#|#|#|#|#|#|{Fore.CYAN}msg = {Style.RESET_ALL}{Fore.RED}{msg}{Style.RESET_ALL}')
 
     conv = get_conversation_template(args.model_path)
+    # TODO: delete
+    print (f'|#|#|#|#|#|#|{Fore.CYAN}conv = {Style.RESET_ALL}{Fore.RED}{conv}{Style.RESET_ALL}')
     conv.append_message(conv.roles[0], msg)
+    # TODO: delete
+    print (f'|#|#|#|#|#|#|{Fore.CYAN}conv.roles[0] = {Style.RESET_ALL}{Fore.RED}{conv.roles[0]}{Style.RESET_ALL}')
     conv.append_message(conv.roles[1], None)
+    # TODO: delete
+    print (f'|#|#|#|#|#|#|{Fore.CYAN}conv.roles[1] = {Style.RESET_ALL}{Fore.RED}{conv.roles[1]}{Style.RESET_ALL}')
     # TODO: We need to tailor this prompt to tasks{blocksworld,gsm8k,prontoqa}
     prompt = conv.get_prompt()
     
@@ -56,6 +62,9 @@ def main(args):
         repetition_penalty=args.repetition_penalty,
         max_new_tokens=args.max_new_tokens,
     )
+    
+    # TODO: delete
+    print (f'|#|#|#|#|#|#|{Fore.CYAN}output_ids = {Style.RESET_ALL}{Fore.RED}{output_ids}{Style.RESET_ALL}')
 
     if model.config.is_encoder_decoder:
         output_ids = output_ids[0]
@@ -64,6 +73,9 @@ def main(args):
     outputs = tokenizer.decode(
         output_ids, skip_special_tokens=True, spaces_between_special_tokens=False
     )
+
+    # TODO: delete
+    print (f'|#|#|#|#|#|#|{Fore.CYAN}outputs = {Style.RESET_ALL}{Fore.RED}{outputs}{Style.RESET_ALL}')
 
     print(f"{conv.roles[0]}: {msg}")
     print(f"{conv.roles[1]}: {outputs}")
