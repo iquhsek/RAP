@@ -103,7 +103,7 @@ class QueryVicuna(QueryLM):
         prefix: str,
         prompts: List[str],
     ) -> List[str]:
-        params = self.model.params
+        params = self.llamamodel.params
         bsz = len(prompts)
         assert bsz <= params.max_batch_size, (bsz, params.max_batch_size)
         prefix_tokens = self.tokenizer.encode(prefix, bos=True, eos=False)
@@ -125,8 +125,8 @@ class QueryVicuna(QueryLM):
         for k, t in enumerate(prompts_tokens):
             tokens[k, : len(t)] = torch.tensor(t)[:params.max_seq_len].long()
 
-        _, h = self.model.forward(tokens[:, :], 0)
-        logits = self.model.output(h)
+        _, h = self.llamamodel.forward(tokens[:, :], 0)
+        logits = self.llamamodel.output(h)
         acc_probs = torch.zeros(bsz).cuda()
         for i in range(len(prefix_tokens), max_prompt_size):
             probs = torch.softmax(logits[:, i - 1, :], dim=-1)
