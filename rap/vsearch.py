@@ -110,7 +110,7 @@ class ReasoningITERSNode(ITERSNode):
             pprint("=" * 12)
 
 
-def policy_search(initial_state: str,
+def vicuna_search(initial_state: str,
                           goal: str,
                           prompts,
                           world_model: QueryLM,
