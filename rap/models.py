@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+from typing import List
+
 import torch
 
 from llama import LLaMA
@@ -94,3 +96,42 @@ class QueryVicuna(QueryLM):
 
     def query_next_token(self):
         raise NotImplementedError
+    
+    @torch.no_grad()
+    def get_ll(
+        self,
+        prefix: str,
+        prompts: List[str],
+    ) -> List[str]:
+        params = self.model.params
+        bsz = len(prompts)
+        assert bsz <= params.max_batch_size, (bsz, params.max_batch_size)
+        prefix_tokens = self.tokenizer.encode(prefix, bos=True, eos=False)
+        # print(prompts)
+        prompts_tokens = [self.tokenizer.encode(x, bos=True, eos=False) for x in prompts]
+        print("prefix length:", len(prefix_tokens))
+        for prompt_tokens in prompts_tokens:
+            print("prompt length:", len(prompt_tokens))
+            assert prompt_tokens[: len(prefix_tokens)] == prefix_tokens
+
+
+        min_prompt_size = min([len(t) for t in prompts_tokens])
+        max_prompt_size = max([len(t) for t in prompts_tokens])
+
+        total_len = max_prompt_size
+
+        tokens = torch.full((bsz, total_len), self.tokenizer.eos_id).cuda().long()
+
+        for k, t in enumerate(prompts_tokens):
+            tokens[k, : len(t)] = torch.tensor(t)[:params.max_seq_len].long()
+
+        _, h = self.model.forward(tokens[:, :], 0)
+        logits = self.model.output(h)
+        acc_probs = torch.zeros(bsz).cuda()
+        for i in range(len(prefix_tokens), max_prompt_size):
+            probs = torch.softmax(logits[:, i - 1, :], dim=-1)
+            for j in range(bsz):
+                if tokens[j, i] != self.tokenizer.eos_id:
+                    acc_probs[j] += torch.log(probs[j, tokens[j, i]])
+
+        return acc_probs.cpu().numpy()# , concat_h

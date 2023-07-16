@@ -168,7 +168,10 @@ def vicuna_search(initial_state: str,
             with open('shit.txt', 'w') as f:
                 f.write('ll_prompts='+str(ll_prompts[idx: end_idx])+'\n')
                 f.write('baseline_prompt='+str([baseline_prompt]))
-            log_probs = world_model.llamamodel.get_ll(baseline_prompt, ll_prompts[idx: end_idx])
+            if world_model.__class__.__name__ == 'QueryVicuna':
+                log_probs = world_model.get_ll(baseline_prompt, ll_prompts[idx: end_idx])
+            else:
+                log_probs = world_model.llamamodel.get_ll(baseline_prompt, ll_prompts[idx: end_idx])
             scores += list(log_probs)
         # print("## log probs\n", scores)
 
