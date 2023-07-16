@@ -4,7 +4,7 @@ import torch
 
 from llama import LLaMA
 
-import fastchat
+from fastchat.model import load_model
 
 
 class QueryLM(ABC):
@@ -82,7 +82,7 @@ class QueryLlama(QueryLM):
 
 class QueryVicuna(QueryLM):
     def __init__(self) -> None:
-        self.llamamodel, self.tokenizer = fastchat.model.load_model(
+        self.llamamodel, self.tokenizer = load_model(
             model_path='lmsys/vicuna-7b-v1.3',
             device='cuda',
             num_gpus=1,
