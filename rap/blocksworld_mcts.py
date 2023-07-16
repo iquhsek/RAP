@@ -230,6 +230,7 @@ def reasoning_mcts_search(initial_state: str,
         # print(inp)
         last_state = inp.split(f"[STATE {depth-1}]")[-1].split(f"[ACTION {depth}]")[0]
         print("last state:\n", "\"" + last_state + "\"")
+        print('world_change###', world_change)
         new_state = apply_change(world_change, last_state)
         # print("==============new_state================")
         # print("\"" + new_state + "\"")
