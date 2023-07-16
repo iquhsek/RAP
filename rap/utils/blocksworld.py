@@ -1,6 +1,7 @@
 import re
 import torch
 
+
 def generate_all_actions(state):
     return_list = []
     if "hand is empty" in state:
@@ -22,6 +23,7 @@ def generate_all_actions(state):
             return_list.append(f"Stack the {c} block on top of the {c_} block")
         return_list.append(f"Put down the {c} block")
     return return_list
+
 
 def apply_change(change, state):
     # print("input state:", state)
@@ -119,3 +121,77 @@ def apply_change(change, state):
     sorted_states = [x.strip() for _, x in sorted(zip(priority_states, states))]
     sorted_states[-1] = "and " + sorted_states[-1]
     return ", ".join(sorted_states) + "."
+
+
+def get_world_change(last_state, last_action):
+    print('last_state###', last_state)
+
+    '''  solve the hand state. note that the sentence could end with "." or ","  '''
+    hand_pattern = r"(the hand is .*?[,\.])"
+    # find the last description of hand status
+    hand_last_state = re.findall(hand_pattern, last_state)[0][:-1]
+    # replace "is" with "was" for the world_change format
+    hand_last_state_past_tense = hand_last_state.replace('is', 'was')
+    # turn the string into a list to change "the" to "The"
+    hand_last_state_past_tense = list(hand_last_state_past_tense)
+    hand_last_state_past_tense[0] = 'T'
+    hand_last_state_past_tense = "".join(hand_last_state_past_tense)
+
+    print('hand_last_state_past_tense###', hand_last_state_past_tense)
+    print('last_action###', last_action)
+
+    '''  solve the manipulated block state. note that the sentence could end with "." or ","  '''
+    block_info_index1 = last_action.index('the')
+    block_info_index2 = last_action.index('block')
+    block_info = last_action[block_info_index1:block_info_index2+6]
+    # remove the ending spaces and '.'
+    block_info = block_info.replace('.', '')
+    block_info = block_info.rstrip()
+    print('block_info###', block_info, '#')
+    block_pattern = r"(" + block_info + r" is .*?[,\.])"
+    print('block_pattern###', block_pattern)
+    block_last_state = re.findall(block_pattern, last_state)[0][:-1]
+    # replace "is" with "was" for the world_change format
+    block_last_state_past_tense = block_last_state.replace('is', 'was')
+    
+    print('block_last_state_past_tense###', block_last_state_past_tense)
+
+    if "Pick" in last_action: 
+        hand_change = hand_last_state_past_tense + ' and is now holding ' + block_info
+        block_change = block_info + ' was on the table and is now in the hand'
+        table_change = 'and ' + block_info + ' is no longer clear'
+    elif "Unstack" in last_action:
+        hand_change = hand_last_state_past_tense + ' and is now holding ' + block_info
+        '''  solve the table related state'''
+        holder_info_index1 = last_action.index('on top of the ')
+        holder_info = last_action[holder_info_index1+10:]
+        holder_info_index2 = holder_info.index('block')
+        holder_info = holder_info[:holder_info_index2+6]
+        # remove the ending spaces and '.'
+        holder_info = holder_info.replace('.', '')
+        holder_info = holder_info.rstrip()
+        block_change = block_info + ' was on top of ' + holder_info + ' and is now in the hand, ' + block_info + ' is no longer clear'
+        table_change = holder_info + ' is now clear'
+    elif "Put" in last_action:
+        hand_change = hand_last_state_past_tense + ' and is now empty'
+        block_change = block_last_state_past_tense + ' and is now on the table'
+        table_change = 'and ' + block_info + ' is now clear'
+    elif "Stack" in last_action: 
+        hand_change = hand_last_state_past_tense + ' and is now empty'
+        '''  solve the table related state'''
+        holder_info_index1 = last_action.index('on top of the ')
+        holder_info = last_action[holder_info_index1+10:]
+        holder_info_index2 = holder_info.index('block')
+        holder_info = holder_info[:holder_info_index2+6]
+        # remove the ending spaces and '.'
+        holder_info = holder_info.replace('.', '')
+        holder_info = holder_info.rstrip()
+        block_change = block_last_state_past_tense + ' and is now on top of ' + holder_info + ', ' + holder_info + ' is no longer clear'
+        table_change = 'and ' + block_info + ' is now clear'
+
+    print('hand_change###', hand_change)
+    print('block_change###', block_change)
+    print('table_change###', table_change)
+    print('world_change###', hand_change + ', ' + block_change + ', ' + table_change + '.')
+
+    return hand_change + ', ' + block_change + ', ' + table_change + '.'
