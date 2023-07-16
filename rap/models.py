@@ -88,3 +88,9 @@ class QueryVicuna(QueryLM):
             num_gpus=1,
             max_gpu_memory='40GiB',
         )
+
+    def query_LM(self):
+        raise NotImplementedError
+
+    def query_next_token(self):
+        raise NotImplementedError
