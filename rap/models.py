@@ -4,6 +4,8 @@ import torch
 
 from llama import LLaMA
 
+import fastchat
+
 
 class QueryLM(ABC):
     @abstractmethod
@@ -77,3 +79,12 @@ class QueryLlama(QueryLM):
         dist = torch.softmax(filtered, dim=-1)
         return dist
 
+
+class QueryVicuna(QueryLM):
+    def __init__(self) -> None:
+        self.llamamodel, self.tokenizer = fastchat.model.load_model(
+            model_path='lmsys/vicuna-7b-v1.3',
+            device='cuda',
+            num_gpus=1,
+            max_gpu_memory='40GiB',
+        )

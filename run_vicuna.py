@@ -15,7 +15,7 @@ import random
 import numpy as np
 
 from rap.vsearch import vicuna_search
-from rap.models import QueryLlama
+from rap.models import QueryLlama, QueryVicuna
 
 import torch
 from llama import *
@@ -122,6 +122,8 @@ class ReasoningTasks():
             # print(tokenizer_path)
             llama = load(llm, tokenizer_path, local_rank, world_size, 3)
             self.model = QueryLlama(llama, max_response_length=100, log_file=log_file)
+        elif self.model_name == "Vicuna":
+            self.model = QueryVicuna()
         else:
             raise NotImplementedError
         
