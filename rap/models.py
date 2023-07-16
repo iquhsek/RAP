@@ -114,7 +114,7 @@ class QueryVicuna(QueryLM):
         logits = []
         for k, t in enumerate(prompts_tokens):
             tokens[k, : len(t.input_ids[0])] = torch.tensor(t.input_ids)[:self.tokenizer.model_max_length].long()
-            logits.append(self.llamamodel(tokens[k:k+1, :].to(self.model.device)).logits)
+            logits.append(self.llamamodel(tokens[k:k+1, :].to(self.llamamodel.device)).logits)
 
     #   logits = self.model(tokens.to(self.model.device)).logits
         logits = torch.cat(logits, dim=0)
