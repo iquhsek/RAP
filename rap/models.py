@@ -90,6 +90,7 @@ class QueryVicuna(QueryLM):
             num_gpus=1,
             max_gpu_memory='40GiB',
         )
+        self.tokenizer.eos_id = self.tokenizer.encode('\n')[0]
 
     def query_LM(self):
         raise NotImplementedError
