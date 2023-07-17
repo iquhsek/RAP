@@ -2,6 +2,7 @@
 # 2. Replace rap.blocksworld_mcts with rap.mybw_mcts
 
 import os
+os.environ['OPENAI_API_KEY'] = '0'
 import yaml
 import sys
 sys.path.append("gpt-plan-benchmark/gpt_plan_test")
