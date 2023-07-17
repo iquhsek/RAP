@@ -83,11 +83,11 @@ class QueryLlama(QueryLM):
 
 
 class QueryVicuna(QueryLM):
-    def __init__(self) -> None:
+    def __init__(self, model_path='lmsys/vicuna-7b-v1.3', num_gpus=1) -> None:
         self.llamamodel, self.tokenizer = load_model(
-            model_path='lmsys/vicuna-7b-v1.3',
+            model_path=model_path,
             device='cuda',
-            num_gpus=1,
+            num_gpus=num_gpus,
             max_gpu_memory='40GiB',
         )
         self.tokenizer.eos_id = self.tokenizer.encode('\n')[0]

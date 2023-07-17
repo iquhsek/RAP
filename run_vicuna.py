@@ -97,7 +97,8 @@ verbose_template="""
 
 class ReasoningTasks():
 
-    def __init__(self, verbose=False, model_name="LLaMA", ckpt_path="", data_path=""):
+    def __init__(self, verbose=False, model_name="LLaMA", ckpt_path="", data_path="",
+                 model_path='lmsys/vicuna-7b-v1.3', num_gpus=1):
         # self.engine = engine
         self.verbose = verbose
         self.max_gpt_response_length = 500
@@ -123,7 +124,7 @@ class ReasoningTasks():
             llama = load(llm, tokenizer_path, local_rank, world_size, 3)
             self.model = QueryLlama(llama, max_response_length=100, log_file=log_file)
         elif self.model_name == "Vicuna":
-            self.model = QueryVicuna()
+            self.model = QueryVicuna(model_path, num_gpus)
         else:
             raise NotImplementedError
         
@@ -337,6 +338,8 @@ if __name__ == '__main__':
     parser.add_argument('--ckpt_path', type=str, default="", help='path to LLaMA checkpoint')
     parser.add_argument('--resume_file_idx', type=int, default=0, help='resume experiment from a certain task')
     parser.add_argument('--sample_per_node', type=int, default=2, help='number of samples we take in the lookahead trajectory search')
+    parser.add_argument('--model_path', type=str, default='lmsys/vicuna-7b-v1.3')
+    parser.add_argument('--num_gpus', type=int, default=1)
 
 
     args = parser.parse_args()
@@ -354,7 +357,7 @@ if __name__ == '__main__':
     ckpt_path = args.ckpt_path
     max_iter = args.max_iter
 
-    tasks_obj = ReasoningTasks(verbose, model_name=model_name, data_path=data_path, ckpt_path=ckpt_path)
+    tasks_obj = ReasoningTasks(verbose, model_name=model_name, data_path=data_path, ckpt_path=ckpt_path, model_path=args.model_path, num_gpus=args.num_gpus)
 
     if task == 'mcts':
         config_file = 'data/blocksworld/bw_config.yaml'
