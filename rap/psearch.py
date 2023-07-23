@@ -82,7 +82,7 @@ class ReasoningITERSNode(ITERSNode):
 
     @property
     def reward(self):
-        return self._r0 * self._r_alpha + self._r1
+        return self._r0 * self._r_alpha + self._r1 if self.is_terminal else self._r0 * self._r_alpha
 
     def print(self, mcts, file=None):
         def pprint(*args):
