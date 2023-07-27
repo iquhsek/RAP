@@ -5,3 +5,4 @@ logs/
 gpt_sas_plan
 outputs/
 *.pyc
+.DS_Store
