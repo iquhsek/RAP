@@ -122,7 +122,6 @@ class ITERS:
         # print(f'{Fore.MAGENTA}Recursively generate paths...{Style.RESET_ALL}') # TODO: debug
         paths = []
         def route(node, path):
-            print('depth', node.depth)
             self._expand(node)
             if node.is_terminal:
                 paths.append(path)
