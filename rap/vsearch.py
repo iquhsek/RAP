@@ -80,9 +80,9 @@ class ReasoningITERSNode(ITERSNode):
     def is_terminal(self):
         return self._static_terminal() or self.reward < -1
 
-    @property
-    def reward(self):
-        return self._r0 * self._r_alpha + self._r1 if self.depth >= self.max_depth else self._r0 * self._r_alpha
+    # @property
+    # def reward(self):
+        # return self._r0 * self._r_alpha + self._r1 if self.depth >= self.max_depth else self._r0 * self._r_alpha
         # return self._r0 * self._r_alpha + self._r1
 
     def print(self, mcts, file=None):
@@ -124,7 +124,8 @@ def vicuna_search(initial_state: str,
                           eos_token_id,
                           speedup_action_batch_size=2,
                           w_exp=1,
-                          sample_per_node=2):
+                          sample_per_node=2,
+                          search_depth=6):
     def gen_fn(inp, depth): # for r0=Pr(a|s_t), the probability component
         # print("# in gen_fn")
         last_state = re.search(f'.*{re.escape(prompts["state_prefix"].format(depth))}(.*)', inp)[1]
@@ -262,7 +263,7 @@ def vicuna_search(initial_state: str,
     # print(f'{Fore.YELLOW}In this task, the maximum iteration step is ::::: {max_iter} :::::{Style.RESET_ALL}')
     # print(f'{Fore.YELLOW}In this task, the maximum lookahead step is ::::: {max_depth} :::::{Style.RESET_ALL}')
 
-    its = PITERS(w_exp=w_exp, prior=True, aggr_reward='mean', aggr_child='max', sample_per_node=sample_per_node)
+    its = PITERS(w_exp=w_exp, prior=True, aggr_reward='mean', aggr_child='max', sample_per_node=sample_per_node, search_depth=search_depth)
     start_node = ReasoningITERSNode(prompts["goal_prefix"] + goal.strip() + "\n" + prompts["state_prefix"].format(0) + " " + initial_state.strip() + "\n", gen_fn, reward_fn, depth=0, r1_default=r1_default, r_alpha=r_alpha, max_depth=max_depth)
 
     # TODO: debug

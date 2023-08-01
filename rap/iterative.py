@@ -48,7 +48,8 @@ class ITERSNode(ABC):
     @property
     @abstractmethod
     def reward(self):
-        return 0
+        raise NotImplementedError
+        # return 0
 
     @property
     @abstractmethod
@@ -106,7 +107,8 @@ class ITERS:
         # print(f'{Fore.RED}Start back-propagating a path in a reverse order{Style.RESET_ALL}', end='|||||')
         for node in reversed(path):
             # print(f'{Fore.RED}The current has prompt={Style.RESET_ALL}{node.prompt}', end='|||||')
-            reward = reward * self.discount + node.reward
+            reward = reward * self.discount + node._r0 * node._r_alpha
+            reward += node._r1 if node == path[-1] else 0 # add Vrand if this node is at the end of the forward search
             # print(f'{Fore.RED}Counted its return={Style.RESET_ALL}{reward}', end='|||||')
             coeff = coeff * self.discount + 1
             if self.aggr_reward == 'mean':
@@ -155,24 +157,25 @@ class ITERS:
 
 
 class PITERS(ITERS):
-    def __init__(self, w_exp=1, discount=1, prior=False, aggr_reward='sum', aggr_child='max', sample_per_node=2):
+    def __init__(self, w_exp=1, discount=1, prior=False, aggr_reward='sum', aggr_child='max', sample_per_node=2, search_depth=6):
         super().__init__(w_exp, discount, prior, aggr_reward, aggr_child)
         self.sample_per_node = sample_per_node
+        self.search_depth = search_depth
 
-    def _lookahead(self, node: ITERSNode):
+    def _lookahead(self, father_node: ITERSNode):
         paths = []
         def route(node, path):
             self._expand(node)
-            if node.is_terminal:
+            if node.depth - father_node.depth >= self.search_depth or node.terminal:
                 paths.append(path)
             else:
                 # print(f'Inside lookahead method, the current node has {len(self.children[node])} many children')
-                self.children[node].sort(reverse=True, key=lambda x: x.reward)
+                self.children[node].sort(reverse=True, key=lambda x: x._r0)
                 children_sample = self.children[node][:self.sample_per_node] if self.sample_per_node != 0 else self.children[node]
                 # print(f'Inside lookahead method, we sampled {len(children_sample)} many children')
                 for new_node in children_sample:
                     tmp_path = deepcopy(path)
                     tmp_path.append(new_node)
                     route(new_node, tmp_path)
-        route(node, [])
+        route(father_node, [])
         return paths

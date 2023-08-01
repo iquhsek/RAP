@@ -175,7 +175,7 @@ class ReasoningTasks():
             f.write(final_output)
     # ========================================== TASKS ========================================== #
 
-    def run_mcts(self, config_file, name="", prompts="", rollouts=10, max_iter=30, max_depth=4, alpha=0.5, prompt_path="", resume_file_idx=0, sample_per_node=2):
+    def run_mcts(self, config_file, name="", prompts="", rollouts=10, max_iter=30, max_depth=4, alpha=0.5, prompt_path="", resume_file_idx=0, sample_per_node=2, search_depth=6):
         self.read_config(config_file)
 
         # make directory for logs
@@ -254,7 +254,8 @@ class ReasoningTasks():
                 r1_default=0.5,
                 eos_token_id=self.model.tokenizer.encode('\n', bos=False, eos=False)[-1],
                 r_alpha=alpha,
-                sample_per_node=sample_per_node
+                sample_per_node=sample_per_node,
+                search_depth=search_depth
                 )
 
             torch.distributed.barrier()
@@ -332,6 +333,7 @@ if __name__ == '__main__':
     parser.add_argument('--data_path', type=str, default="data", help='Path to data')
     parser.add_argument('--rollouts', type=int, default=200, help='Number of rollouts')
     parser.add_argument('--max_iter', type=int, default=5)
+    parser.add_argument('--search_depth', type=int, default=5)
     parser.add_argument('--max_depth', type=int, default=4, help='Max depth of the tree')
     parser.add_argument('--alpha', type=float, default=0.1, help='Alpha for reward')
     parser.add_argument('--n_samples', type=int, default=10, help='Number of samples for t1')
@@ -362,6 +364,6 @@ if __name__ == '__main__':
 
     if task == 'mcts':
         config_file = 'data/blocksworld/bw_config.yaml'
-        tasks_obj.run_mcts(config_file, name=name, prompts="", rollouts=rollouts, max_iter=max_iter, max_depth=max_depth, alpha=alpha, prompt_path=prompt_path, resume_file_idx=args.resume_file_idx, sample_per_node=args.sample_per_node)
+        tasks_obj.run_mcts(config_file, name=name, prompts="", rollouts=rollouts, max_iter=max_iter, max_depth=max_depth, alpha=alpha, prompt_path=prompt_path, resume_file_idx=args.resume_file_idx, sample_per_node=args.sample_per_node, search_depth=args.search_depth)
     else:
         raise NotImplementedError
