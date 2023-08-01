@@ -73,12 +73,11 @@ class ITERS:
     def rollout(self, max_iter: int, node: ITERSNode):
         # TODO: debug
         # print(f'{Fore.BLUE}--------------BEGIN a rollout with {max_iter} loops--------------{Style.RESET_ALL}')
+        cur_node = deepcopy(node)
         for k in range(max_iter):
-            # print(f'{Fore.MAGENTA} Rollout # {k} --------------{Style.RESET_ALL}')
             # generate candidate lookahead paths
-            paths = self._lookahead(node)
+            paths = self._lookahead(cur_node)
             # calculate the return from each path
-            # print(f'{Fore.MAGENTA}Back propagate paths one by one...{Style.RESET_ALL}') # TODO: debug
             for path in paths:
                 self._back_propagate(path)
             # choose the path with maximum return
@@ -86,19 +85,13 @@ class ITERS:
                 max_path = self._rand_ahead(paths)
             else:
                 max_path = self._max_ahead(paths)
-            # TODO: debug. The GOAL is the same for all nodes so we don't have to print prompt["GOAL"]
-            # print(f'{Fore.MAGENTA}Now print the max path we chose in this step in the form (prompt, reward) node by node --> {Style.RESET_ALL}')
-            # for tmp_node in max_path:
-                # print('--------go node--------')
-                # print(tmp_node.prompt)
-                # print(f'reward={tmp_node.reward},r0={tmp_node._r0},r1={tmp_node._r1},max_return={self.M[tmp_node]}')
-                # print('-----------------------')
-            # the next node is the ending node of the chosen path
             next_node = max_path[-1]
             # stop iteration if we reached the goal
             if next_node.achieved_goal:
                 print('YES ACHIEVED')
                 break
+            cur_node = deepcopy(next_node)
+            print(f'depth={cur_node.depth}')
         # print(f'{Fore.BLUE}--------------Rollout END--------------{Style.RESET_ALL}')
         return next_node
 
