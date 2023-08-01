@@ -83,6 +83,7 @@ class ReasoningITERSNode(ITERSNode):
     @property
     def reward(self):
         print(f'depth={self.depth},max_depth={self.max_depth}')
+        print(f'reward={self._r0 * self._r_alpha + self._r1 if self.depth >= self.max_depth else self._r0 * self._r_alpha}')
         return self._r0 * self._r_alpha + self._r1 if self.depth >= self.max_depth else self._r0 * self._r_alpha
         # return self._r0 * self._r_alpha + self._r1
 
