@@ -150,6 +150,7 @@ class ITERS:
         return max(paths, key=lambda x: self.M[x[0]])
 
     def _rand_ahead(self, paths: list[list[ITERSNode]]):
+        print(f'weights={[self.M[path[0]] for path in paths]}')
         return random.choices(paths, weights=[self.M[path[0]] for path in paths])[0]
 
 
