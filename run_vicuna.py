@@ -333,7 +333,7 @@ if __name__ == '__main__':
     parser.add_argument('--rollouts', type=int, default=10, help='Number of rollouts')
     parser.add_argument('--max_iter', type=int, default=100)
     parser.add_argument('--max_depth', type=int, default=4, help='Max depth of the tree')
-    parser.add_argument('--alpha', type=float, default=0.5, help='Alpha for reward')
+    parser.add_argument('--alpha', type=float, default=0.1, help='Alpha for reward')
     parser.add_argument('--n_samples', type=int, default=10, help='Number of samples for t1')
     parser.add_argument('--prompt_path', type=str, default="data/blocksworld/my_mcts_prompts_update.json", help='Path to prompts')
     parser.add_argument('--ckpt_path', type=str, default="", help='path to LLaMA checkpoint')
