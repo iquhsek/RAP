@@ -86,6 +86,7 @@ class ITERS:
             else:
                 max_path = self._max_ahead(paths)
             next_node = max_path[-1]
+            print(f'depth of next node={next_node.depth}')
             # stop iteration if we reached the goal
             if next_node.achieved_goal:
                 print('YES ACHIEVED')
@@ -94,7 +95,6 @@ class ITERS:
                 print('EXCEEDED MAX_DEPTH')
                 break
             cur_node = deepcopy(next_node)
-            print(f'depth={cur_node.depth}')
         # print(f'{Fore.BLUE}--------------Rollout END--------------{Style.RESET_ALL}')
         return next_node
 
