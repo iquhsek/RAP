@@ -81,7 +81,11 @@ class ITERS:
             for path in paths:
                 self._back_propagate(path)
             # choose the path with maximum return
-            max_path = self._max_ahead(paths)
+            if all(path[-1]._r1 == paths[0][-1]._r1 for path in paths):
+                print('yes rand')
+                max_path = self._rand_ahead(paths)
+            else:
+                max_path = self._max_ahead(paths)
             # TODO: debug. The GOAL is the same for all nodes so we don't have to print prompt["GOAL"]
             # print(f'{Fore.MAGENTA}Now print the max path we chose in this step in the form (prompt, reward) node by node --> {Style.RESET_ALL}')
             # for tmp_node in max_path:
@@ -144,6 +148,9 @@ class ITERS:
         # print(f'{Fore.MAGENTA}Comparing M values of path lens {[len(x) for x in paths]}{Style.RESET_ALL}')
         # print(f'{Fore.MAGENTA}Comparing M values in {[self.M[x[0]] for x in paths]}{Style.RESET_ALL}')
         return max(paths, key=lambda x: self.M[x[0]])
+
+    def _rand_ahead(self, paths: list[list[ITERSNode]]):
+        return random.choices(paths, weights=[self.M[path[0]] for path in paths])[0]
 
 
 class PITERS(ITERS):
