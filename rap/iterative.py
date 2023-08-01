@@ -71,7 +71,7 @@ class ITERS:
 
     def rollout(self, max_iter: int, node: ITERSNode):
         # TODO: debug
-        print(f'{Fore.BLUE}--------------BEGIN a rollout with {max_iter} loops--------------{Style.RESET_ALL}')
+        # print(f'{Fore.BLUE}--------------BEGIN a rollout with {max_iter} loops--------------{Style.RESET_ALL}')
         for k in range(max_iter):
             # print(f'{Fore.MAGENTA} Rollout # {k} --------------{Style.RESET_ALL}')
             # generate candidate lookahead paths
@@ -103,11 +103,11 @@ class ITERS:
 
     def _back_propagate(self, path: list[ITERSNode], reward=0.):
         coeff = 1
-        print(f'{Fore.RED}Start back-propagating a path in a reverse order{Style.RESET_ALL}', end='|||||')
+        # print(f'{Fore.RED}Start back-propagating a path in a reverse order{Style.RESET_ALL}', end='|||||')
         for node in reversed(path):
-            print(f'{Fore.RED}The current has prompt={Style.RESET_ALL}{node.prompt}', end='|||||')
+            # print(f'{Fore.RED}The current has prompt={Style.RESET_ALL}{node.prompt}', end='|||||')
             reward = reward * self.discount + node.reward
-            print(f'{Fore.RED}Counted its return={Style.RESET_ALL}{reward}', end='|||||')
+            # print(f'{Fore.RED}Counted its return={Style.RESET_ALL}{reward}', end='|||||')
             coeff = coeff * self.discount + 1
             if self.aggr_reward == 'mean':
                 c_reward = reward / coeff
@@ -119,8 +119,8 @@ class ITERS:
                 self.Q[node] += c_reward
             self.N[node] += 1
             self.M[node] = max(self.M[node], c_reward)
-        print(f'{Fore.RED}End this back-propagating{Style.RESET_ALL}')
-        print()
+        # print(f'{Fore.RED}End this back-propagating{Style.RESET_ALL}')
+        # print()
 
     def _lookahead(self, node: ITERSNode):
         # print(f'{Fore.MAGENTA}----------------look ahead BEGIN----------------{Style.RESET_ALL}') # TODO: debug
