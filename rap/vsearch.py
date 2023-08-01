@@ -21,7 +21,7 @@ class ReasoningITERSNode(ITERSNode):
     def visited(self):
         return self._visited
 
-    def __init__(self, prompt, gen_fn, reward_fn, depth, r1_default, r_alpha, max_depth=100, parent: 'ReasoningITERSNode' = None, r0=0., ):
+    def __init__(self, prompt, gen_fn, reward_fn, depth, r_alpha, max_depth=100, parent: 'ReasoningITERSNode' = None, r0=0., ):
         # self.n_sample = n_sample
         self._conf = None
         self.children = []
@@ -40,7 +40,7 @@ class ReasoningITERSNode(ITERSNode):
 
     def _child_node(self, prompt, r0):
         """Produce a child node object given its prompt and prior probability as r0"""
-        return ReasoningITERSNode(prompt, self.gen_fn, self.reward_fn, self.depth + 1, self._r1_default, self._r_alpha, parent=self, r0=r0, max_depth=self.max_depth)
+        return ReasoningITERSNode(prompt, self.gen_fn, self.reward_fn, self.depth + 1, self._r_alpha, parent=self, r0=r0, max_depth=self.max_depth)
 
     def _get_children(self):
         # print("# in _get_children")
@@ -124,7 +124,6 @@ def vicuna_search(initial_state: str,
                           max_iter,
                           max_depth,
                           r_alpha,
-                          r1_default,
                           eos_token_id,
                           speedup_action_batch_size=2,
                           w_exp=1,
@@ -268,7 +267,7 @@ def vicuna_search(initial_state: str,
     # print(f'{Fore.YELLOW}In this task, the maximum lookahead step is ::::: {max_depth} :::::{Style.RESET_ALL}')
 
     its = PITERS(w_exp=w_exp, prior=True, aggr_reward='mean', aggr_child='max', sample_per_node=sample_per_node, search_depth=search_depth)
-    start_node = ReasoningITERSNode(prompts["goal_prefix"] + goal.strip() + "\n" + prompts["state_prefix"].format(0) + " " + initial_state.strip() + "\n", gen_fn, reward_fn, depth=0, r1_default=r1_default, r_alpha=r_alpha, max_depth=max_depth)
+    start_node = ReasoningITERSNode(prompts["goal_prefix"] + goal.strip() + "\n" + prompts["state_prefix"].format(0) + " " + initial_state.strip() + "\n", gen_fn, reward_fn, depth=0, r_alpha=r_alpha, max_depth=max_depth)
 
     # TODO: debug
     # print(f'{Fore.YELLOW}Created start_node. Its current ::::: reward={start_node.reward}, consisting of r0={start_node._r0} and r1={start_node._r1}. Num of children={len(start_node.children)}. Has parent? answer={start_node.parent is None} :::::{Style.RESET_ALL}')

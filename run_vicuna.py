@@ -251,7 +251,6 @@ class ReasoningTasks():
                 mcts_steps=mcts_steps,
                 max_iter=max_iter,
                 max_depth=max_depth,
-                r1_default=0.5,
                 eos_token_id=self.model.tokenizer.encode('\n', bos=False, eos=False)[-1],
                 r_alpha=alpha,
                 sample_per_node=sample_per_node,
