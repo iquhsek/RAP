@@ -80,8 +80,9 @@ class ReasoningITERSNode(ITERSNode):
     def is_terminal(self):
         return self._static_terminal() or self.reward < -1
 
-    # @property
-    # def reward(self):
+    @property
+    def reward(self):
+        raise NotImplementedError
         # return self._r0 * self._r_alpha + self._r1 if self.depth >= self.max_depth else self._r0 * self._r_alpha
         # return self._r0 * self._r_alpha + self._r1
 
