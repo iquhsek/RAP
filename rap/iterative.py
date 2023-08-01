@@ -159,9 +159,7 @@ class PITERS(ITERS):
             else:
                 # print(f'Inside lookahead method, the current node has {len(self.children[node])} many children')
                 self.children[node].sort(reverse=True, key=lambda x: x._r0)
-                print('children num = ', len(self.children[node]))
                 children_sample = self.children[node][:self.sample_per_node] if self.sample_per_node != 0 else self.children[node]
-                print('sample num = ', len(children_sample))
                 # print(f'Inside lookahead method, we sampled {len(children_sample)} many children')
                 for new_node in children_sample:
                     tmp_path = deepcopy(path)
