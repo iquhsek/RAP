@@ -331,7 +331,7 @@ if __name__ == '__main__':
     parser.add_argument('--name', type=str, default="unnamed", help='Name of the experiment')
     parser.add_argument('--data_path', type=str, default="data", help='Path to data')
     parser.add_argument('--rollouts', type=int, default=10, help='Number of rollouts')
-    parser.add_argument('--max_iter', type=int, default=30)
+    parser.add_argument('--max_iter', type=int, default=100)
     parser.add_argument('--max_depth', type=int, default=4, help='Max depth of the tree')
     parser.add_argument('--alpha', type=float, default=0.5, help='Alpha for reward')
     parser.add_argument('--n_samples', type=int, default=10, help='Number of samples for t1')
