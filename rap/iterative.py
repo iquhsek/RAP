@@ -83,7 +83,6 @@ class ITERS:
                 self._back_propagate(path)
             # choose the path with maximum return
             if all(path[-1]._r1 == paths[0][-1]._r1 for path in paths):
-                print('yes rand')
                 max_path = self._rand_ahead(paths)
             else:
                 max_path = self._max_ahead(paths)
@@ -98,6 +97,7 @@ class ITERS:
             next_node = max_path[-1]
             # stop iteration if we reached the goal
             if next_node.achieved_goal:
+                print('YES ACHIEVED')
                 break
         # print(f'{Fore.BLUE}--------------Rollout END--------------{Style.RESET_ALL}')
         return next_node
@@ -147,12 +147,9 @@ class ITERS:
             self.children[node] = node.find_children()
 
     def _max_ahead(self, paths: list[list[ITERSNode]]):
-        # print(f'{Fore.MAGENTA}Comparing M values of path lens {[len(x) for x in paths]}{Style.RESET_ALL}')
-        # print(f'{Fore.MAGENTA}Comparing M values in {[self.M[x[0]] for x in paths]}{Style.RESET_ALL}')
         return max(paths, key=lambda x: self.M[x[0]])
 
     def _rand_ahead(self, paths: list[list[ITERSNode]]):
-        print(f'weights={[self.M[path[0]] for path in paths]}')
         return random.choices(paths, weights=[self.M[path[0]] for path in paths])[0]
 
 
@@ -169,10 +166,8 @@ class PITERS(ITERS):
             if node.depth - father_node.depth >= self.search_depth or node.is_terminal:
                 paths.append(path)
             else:
-                # print(f'Inside lookahead method, the current node has {len(self.children[node])} many children')
                 self.children[node].sort(reverse=True, key=lambda x: x._r0)
                 children_sample = self.children[node][:self.sample_per_node] if self.sample_per_node != 0 else self.children[node]
-                # print(f'Inside lookahead method, we sampled {len(children_sample)} many children')
                 for new_node in children_sample:
                     tmp_path = deepcopy(path)
                     tmp_path.append(new_node)
