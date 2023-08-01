@@ -124,7 +124,6 @@ def apply_change(change, state):
 
 
 def get_world_change(last_state, last_action):
-    print('last_state###', last_state)
 
     '''  solve the hand state. note that the sentence could end with "." or ","  '''
     hand_pattern = r"(the hand is .*?[,\.])"
@@ -137,9 +136,6 @@ def get_world_change(last_state, last_action):
     hand_last_state_past_tense[0] = 'T'
     hand_last_state_past_tense = "".join(hand_last_state_past_tense)
 
-    print('hand_last_state_past_tense###', hand_last_state_past_tense)
-    print('last_action###', last_action)
-
     '''  solve the manipulated block state. note that the sentence could end with "." or ","  '''
     block_info_index1 = last_action.index('the')
     block_info_index2 = last_action.index('block')
@@ -147,14 +143,10 @@ def get_world_change(last_state, last_action):
     # remove the ending spaces and '.'
     block_info = block_info.replace('.', '')
     block_info = block_info.rstrip()
-    print('block_info###', block_info, '#')
     block_pattern = r"(" + block_info + r" is .*?[,\.])"
-    print('block_pattern###', block_pattern)
     block_last_state = re.findall(block_pattern, last_state)[0][:-1]
     # replace "is" with "was" for the world_change format
     block_last_state_past_tense = block_last_state.replace('is', 'was')
-    
-    print('block_last_state_past_tense###', block_last_state_past_tense)
 
     if "Pick" in last_action: 
         hand_change = hand_last_state_past_tense + ' and is now holding ' + block_info
@@ -188,10 +180,5 @@ def get_world_change(last_state, last_action):
         holder_info = holder_info.rstrip()
         block_change = block_last_state_past_tense + ' and is now on top of ' + holder_info + ', ' + holder_info + ' is no longer clear'
         table_change = 'and ' + block_info + ' is now clear'
-
-    print('hand_change###', hand_change)
-    print('block_change###', block_change)
-    print('table_change###', table_change)
-    print('world_change###', hand_change + ', ' + block_change + ', ' + table_change + '.')
 
     return hand_change + ', ' + block_change + ', ' + table_change + '.'

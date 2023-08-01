@@ -116,6 +116,7 @@ class ITERS:
             self.N[node] += 1
             self.M[node] = max(self.M[node], c_reward)
         print(f'{Fore.RED}End this back-propagating{Style.RESET_ALL}')
+        print()
 
     def _lookahead(self, node: ITERSNode):
         # print(f'{Fore.MAGENTA}----------------look ahead BEGIN----------------{Style.RESET_ALL}') # TODO: debug
