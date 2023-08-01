@@ -81,13 +81,12 @@ class ITERS:
             for path in paths:
                 self._back_propagate(path)
             # choose the path with maximum return
-            if all(path[-1]._r1 == paths[0][-1]._r1 for path in paths):
+            max_path = self._max_ahead(paths)
+            # if all(path[-1]._r1 == paths[0][-1]._r1 for path in paths):
                 # max_path = self._rand_ahead(paths)
-                max_path = self._max_ahead(paths)
-            else:
-                max_path = self._max_ahead(paths)
+            # else:
+                # max_path = self._max_ahead(paths)
             next_node = max_path[-1]
-            print(f'depth of next node={next_node.depth}')
             # stop iteration if we reached the goal
             if next_node.achieved_goal:
                 print('YES ACHIEVED')
