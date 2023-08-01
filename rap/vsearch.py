@@ -294,6 +294,6 @@ def vicuna_search(initial_state: str,
         iters.append(iter_copy)
 
     with io.StringIO() as f:
-        start_node.print(its, file=f)
+        # start_node.print(its, file=f)
         tree = f.getvalue()
     return trajs, tree, iters
