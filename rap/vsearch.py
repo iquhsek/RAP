@@ -30,13 +30,13 @@ class ReasoningITERSNode(ITERSNode):
         self.reward_fn = reward_fn
         self.depth = depth
         self._r0 = r0
-        self._r1 = None
-        self._calculate_reward()
         self._r_alpha = r_alpha
         self._ans_list = None
         self._visited = False
         self.parent = parent
         self.max_depth = max_depth
+        self._r1 = None
+        self._calculate_reward()
 
     def _child_node(self, prompt, r0):
         """Produce a child node object given its prompt and prior probability as r0"""
@@ -62,8 +62,9 @@ class ReasoningITERSNode(ITERSNode):
         # print("# in _calculate_reward")
         # print("## depth", self.depth)
         if self.depth == 0:
-            return
-        self.prompt, self._r1, self._ans_list = self.reward_fn(self.prompt, self.depth)
+            self._r1 = 0
+        else:
+            self.prompt, self._r1, self._ans_list = self.reward_fn(self.prompt, self.depth)
 
     def _static_terminal(self):
         if self._r1 > 50:
