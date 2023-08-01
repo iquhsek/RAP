@@ -81,6 +81,7 @@ class ITERS:
             for path in paths:
                 self._back_propagate(path)
             # choose the path with maximum return
+            print(f'paths searched={len(paths)}')
             if all(path[-1]._r1 == paths[0][-1]._r1 for path in paths):
                 max_path = self._rand_ahead(paths)
             else:
