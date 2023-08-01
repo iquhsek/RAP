@@ -82,10 +82,6 @@ class ReasoningITERSNode(ITERSNode):
 
     @property
     def reward(self):
-        print(f'depth={self.depth},max_depth={self.max_depth}')
-        print(f'r0={self._r0}')
-        print(f'r1={self._r1}')
-        print(f'reward={self._r0 * self._r_alpha + self._r1 if self.depth >= self.max_depth else self._r0 * self._r_alpha}')
         return self._r0 * self._r_alpha + self._r1 if self.depth >= self.max_depth else self._r0 * self._r_alpha
         # return self._r0 * self._r_alpha + self._r1
 
@@ -225,8 +221,6 @@ def vicuna_search(initial_state: str,
 
         last_state = inp.split(f"[STATE {depth-1}]")[-1].split(f"[ACTION {depth}]")[0]
         # print("last state:\n", "\"" + last_state + "\"")
-        print(f'{Fore.RED}The last state is ######{Style.RESET_ALL}  {last_state}')
-        print(f'{Fore.RED}The world change is ######{Style.RESET_ALL}  {world_change}')
         new_state = apply_change(world_change, last_state)
         # print("==============new_state================")
         # print("\"" + new_state + "\"")
