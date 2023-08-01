@@ -93,6 +93,9 @@ class ITERS:
             if next_node.achieved_goal:
                 print('YES ACHIEVED')
                 break
+            if next_node.is_terminal:
+                print('EXCEEDED MAX_DEPTH')
+                break
             cur_node = deepcopy(next_node)
             print(f'depth={cur_node.depth}')
         # print(f'{Fore.BLUE}--------------Rollout END--------------{Style.RESET_ALL}')
