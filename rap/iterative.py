@@ -166,7 +166,7 @@ class PITERS(ITERS):
         paths = []
         def route(node, path):
             self._expand(node)
-            if node.depth - father_node.depth >= self.search_depth or node.terminal:
+            if node.depth - father_node.depth >= self.search_depth or node.is_terminal:
                 paths.append(path)
             else:
                 # print(f'Inside lookahead method, the current node has {len(self.children[node])} many children')
