@@ -275,10 +275,13 @@ def vicuna_search(initial_state: str,
     trajs = []
     iters = []
     
+    tot_sample = 0
+    
     # TODO: debug
     # print(f'{Fore.YELLOW}Start a loop. ::::: Total loop range={mcts_steps} :::::{Style.RESET_ALL}')
     for _ in (pbar := trange(mcts_steps, disable=bool(int(os.environ.get("LOCAL_RANK", -1))), position=0)):
-        end_node = its.rollout(max_iter, start_node)
+        end_node, used_samples = its.rollout(max_iter, start_node)
+        tot_sample += used_samples
         # print(f'{Fore.BLUE}Got an end node. Its prompt is {Style.RESET_ALL}:::::{end_node.prompt}:::::. {Fore.BLUE}This prompt will be a "traj". Its depth={end_node.depth}. Its reward={start_node.reward}, consisting of r0={start_node._r0} and r1={start_node._r1}. Num of children={len(start_node.children)}. Has parent? answer={start_node.parent is None} :::::{Style.RESET_ALL}')
         trajs.append(traj := end_node.prompt)
         output = re.findall('The answer is .*?([.0-9,\\-]+).*\\.', traj)
@@ -297,4 +300,4 @@ def vicuna_search(initial_state: str,
     with io.StringIO() as f:
         # start_node.print(its, file=f)
         tree = f.getvalue()
-    return trajs, tree, iters
+    return trajs, tree, iters, tot_sample

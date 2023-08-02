@@ -182,6 +182,7 @@ class ReasoningTasks():
         os.makedirs(f"logs/mcts-{name}/json/", exist_ok=True)
         os.makedirs(f"logs/mcts-{name}/tree/", exist_ok=True)
         os.makedirs(f"logs/mcts-{name}/pkl/", exist_ok=True)
+        os.makedirs(f"logs/mcts-{name}/sample/", exist_ok=True)
 
         n_files = len(self.data_files)
         domain_pddl = f'gpt-plan-benchmark/gpt_plan_test/instances/{self.data["domain_file"]}'
@@ -242,7 +243,7 @@ class ReasoningTasks():
             # gt_plan = self.compute_plan(domain_pddl, cur_instance)
             query += fill_template(*instance_to_text_blocksworld(problem, False, self.data)) + "\n"
             
-            trajs, tree, trees = vicuna_search(
+            trajs, tree, trees, tot_sample = vicuna_search(
                 f'I have that, {INIT}.', 
                 f'My goal is to have that {GOAL}.',
                 prompts, 
@@ -261,11 +262,12 @@ class ReasoningTasks():
 
             if self.local_rank == 0:
                 json_logs = []
+                tmp_correct_count = 0
                 for rollout, traj in enumerate(trajs):
                     # print("evaluating one rollout")
                     # Extract actions from trace
                     # actions = re.findall('\[ACTION \d\](.*)', traj)
-                    # Do text_to_plan procedure
+                    # Do text_to_plan procedure, write down the plan to the file called by self.lm_plan_file
                     actions = re.findall('\[ACTION \d\](.*)', traj)
                     _, lm_plan = text_to_plan_blocksworld('\n'.join(actions), problem.actions, self.lm_plan_file, self.data)
                     # Apply VAL
@@ -280,10 +282,14 @@ class ReasoningTasks():
                         'traj': traj,
                     })
                     total_correct[rollout] += correct
+                    
+                    tmp_correct_count += correct
                 with open(os.path.join(f'./logs/mcts-{name}/json/', f'{i:04d}.json'), 'w') as f:
                     json.dump(json_logs, f, indent=2)
                 with open(os.path.join(f'./logs/mcts-{name}/tree/', f'{i:04d}.tree'), 'w') as f:
                     f.write(tree)
+                with open(os.path.join(f'./logs/mcts-{name}/sample/', f'{i:04d}.accn'), 'w') as f:
+                    f.write(f'{tmp_correct_count},{tot_sample}')
                 # with open(os.path.join(f'./logs/mcts-{name}/pkl/', f'{i:04d}.pkl'), 'wb') as f:
                 #     pickle.dump(trees, f)
 

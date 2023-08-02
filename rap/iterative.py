@@ -74,9 +74,12 @@ class ITERS:
         # TODO: debug
         # print(f'{Fore.BLUE}--------------BEGIN a rollout with {max_iter} loops--------------{Style.RESET_ALL}')
         cur_node = deepcopy(node)
+        used_samples = 0
         for k in range(max_iter):
             # generate candidate lookahead paths
             paths = self._lookahead(cur_node)
+            # count sample num
+            used_samples += sum(len(path) for path in paths)
             # calculate the return from each path
             for path in paths:
                 self._back_propagate(path)
@@ -96,7 +99,7 @@ class ITERS:
                 break
             cur_node = deepcopy(next_node)
         # print(f'{Fore.BLUE}--------------Rollout END--------------{Style.RESET_ALL}')
-        return next_node
+        return next_node, used_samples
 
     def _back_propagate(self, path: list[ITERSNode], reward=0.):
         coeff = 1
