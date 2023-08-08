@@ -1,6 +1,7 @@
 # Code revised from https://github.com/karthikv792/gpt-plan-benchmark/blob/main/gpt_plan_test/ReasoningTasks.py
 
 import os
+os.environ['OPENAI_API_KEY'] = '0'
 import yaml
 import sys
 sys.path.append("gpt-plan-benchmark/gpt_plan_test")
