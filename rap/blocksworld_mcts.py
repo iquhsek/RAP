@@ -9,7 +9,7 @@ import warnings
 from collections import defaultdict
 from copy import deepcopy
 import torch
-from rap.utils.blocksworld import apply_change, generate_all_actions
+from rap.utils.blocksworld import apply_change, generate_all_actions, get_world_change
 
 from rap.mcts import MCTS, MCTSNode
 from rap.models import QueryLM
@@ -179,7 +179,10 @@ def reasoning_mcts_search(initial_state: str,
         scores = []
         for idx in range(0, len(ll_prompts), speedup_action_batch_size):
             end_idx = min(idx + speedup_action_batch_size, len(ll_prompts))
-            log_probs = world_model.llamamodel.get_ll(baseline_prompt, ll_prompts[idx: end_idx])
+            if world_model.__class__.__name__ == 'QueryVicuna':
+                log_probs = world_model.get_ll(baseline_prompt, ll_prompts[idx: end_idx])
+            else:
+                log_probs = world_model.llamamodel.get_ll(baseline_prompt, ll_prompts[idx: end_idx])
             scores += list(log_probs)
         print("## log probs\n", scores)
 
@@ -220,11 +223,14 @@ def reasoning_mcts_search(initial_state: str,
         elif "Stack" in last_action: 
             world_update_prompt = prompts["world_update_stack"].format(last_state, last_action)
 
-        world_output = world_model.query_LM(world_update_prompt, do_sample=False, num_return_sequences=1,
-                                    eos_token_id=eos_token_id)[0]
+        if world_model.__class__.__name__ == 'QueryVicuna':
+            world_change = get_world_change(last_state, last_action)
+        else:
+            world_output = world_model.query_LM(world_update_prompt, do_sample=False, num_return_sequences=1,
+                                        eos_token_id=eos_token_id)[0]
 
 
-        world_change = world_output.split("[CHANGE]")[-1]
+            world_change = world_output.split("[CHANGE]")[-1]
         # print("world change:\n" + "\"" + world_change + "\"")     
         # print("==============inp================")
         # print(inp)
@@ -255,8 +261,10 @@ def reasoning_mcts_search(initial_state: str,
     root = ReasoningMCTSNode(prompts["goal_prefix"] + goal.strip() + "\n" + prompts["state_prefix"].format(0) + " " + initial_state.strip() + "\n", gen_fn, reward_fn, depth=0, r1_default=r1_default, r_alpha=r_alpha, max_depth=max_depth)
     trajs = []
     trees = []
+    tot_sample = 0
     for _ in (pbar := trange(mcts_steps, disable=bool(int(os.environ.get("LOCAL_RANK", -1))), position=0)):
-        mcts.rollout(root)
+        used_samples = mcts.rollout(root)
+        tot_sample += used_samples
         root.print(mcts)
         max_n, max_r = mcts.max_mean_terminal(root)
         trajs.append(traj := max_n.prompt)
@@ -275,4 +283,4 @@ def reasoning_mcts_search(initial_state: str,
     with io.StringIO() as f:
         root.print(mcts, file=f)
         tree = f.getvalue()
-    return trajs, tree, trees
+    return trajs, tree, trees, tot_sample

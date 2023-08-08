@@ -15,7 +15,7 @@ import numpy as np
 import subprocess
 
 from rap.blocksworld_mcts import reasoning_mcts_search
-from rap.models import QueryLlama
+from rap.models import QueryLlama, QueryVicuna
 
 import torch
 from llama import *
@@ -91,7 +91,7 @@ verbose_template="""
 
 class ReasoningTasks():
 
-    def __init__(self, verbose=False, model_name="LLaMA", ckpt_path="", data_path=""):
+    def __init__(self, verbose=False, model_name="LLaMA", ckpt_path="", data_path="", model_path='lmsys/vicuna-7b-v1.3', num_gpus=1):
         # self.engine = engine
         self.verbose = verbose
         self.max_gpt_response_length = 500
@@ -116,6 +116,8 @@ class ReasoningTasks():
             # print(tokenizer_path)
             llama = load(llm, tokenizer_path, local_rank, world_size, 3)
             self.model = QueryLlama(llama, max_response_length=100, log_file=log_file)
+        elif self.model_name == "Vicuna":
+            self.model = QueryVicuna(model_path, num_gpus)
         else:
             raise NotImplementedError
         
@@ -172,6 +174,7 @@ class ReasoningTasks():
         os.makedirs(f"logs/mcts-{name}/json/", exist_ok=True)
         os.makedirs(f"logs/mcts-{name}/tree/", exist_ok=True)
         os.makedirs(f"logs/mcts-{name}/pkl/", exist_ok=True)
+        os.makedirs(f"logs/mcts-{name}/sample/", exist_ok=True)
 
         n_files = len(self.data_files)
         domain_pddl = f'gpt-plan-benchmark/gpt_plan_test/instances/{self.data["domain_file"]}'
@@ -203,7 +206,7 @@ class ReasoningTasks():
             # gt_plan = self.compute_plan(domain_pddl, cur_instance)
             query += fill_template(*instance_to_text_blocksworld(problem, False, self.data)) + "\n"
             
-            trajs, tree, trees = reasoning_mcts_search(
+            trajs, tree, trees, tot_sample = reasoning_mcts_search(
                 f'I have that, {INIT}.', 
                 f'My goal is to have that {GOAL}.',
                 prompts, 
@@ -220,6 +223,7 @@ class ReasoningTasks():
 
             if self.local_rank == 0:
                 json_logs = []
+                tmp_correct_count = 0
                 for rollout, traj in enumerate(trajs):
                     print("evaluating one rollout")
                     #Extract actions from trace
@@ -239,12 +243,16 @@ class ReasoningTasks():
                         'traj': traj,
                     })
                     total_correct[rollout] += correct
+                    
+                    tmp_correct_count += correct
                 with open(os.path.join(f'./logs/mcts-{name}/json/', f'{i:04d}.json'), 'w') as f:
                     json.dump(json_logs, f, indent=2)
                 with open(os.path.join(f'./logs/mcts-{name}/tree/', f'{i:04d}.tree'), 'w') as f:
                     f.write(tree)
                 with open(os.path.join(f'./logs/mcts-{name}/pkl/', f'{i:04d}.pkl'), 'wb') as f:
                     pickle.dump(trees, f)
+                with open(os.path.join(f'./logs/mcts-{name}/sample/', f'{i:04d}.accn'), 'w') as f:
+                    f.write(f'{tmp_correct_count},{tot_sample}')
 
 
             torch.distributed.barrier()
@@ -295,6 +303,8 @@ if __name__ == '__main__':
     parser.add_argument('--n_samples', type=int, default=10, help='Number of samples for t1')
     parser.add_argument('--prompt_path', type=str, default="data/blocksworld/my_mcts_prompts_update.json", help='Path to prompts')
     parser.add_argument('--ckpt_path', type=str, default="", help='path to LLaMA checkpoint')
+    parser.add_argument('--model_path', type=str, default='lmsys/vicuna-7b-v1.3')
+    parser.add_argument('--num_gpus', type=int, default=1)
 
 
     args = parser.parse_args()
@@ -311,7 +321,7 @@ if __name__ == '__main__':
     prompt_path = args.prompt_path
     ckpt_path = args.ckpt_path
 
-    tasks_obj = ReasoningTasks(verbose, model_name=model_name, data_path=data_path, ckpt_path=ckpt_path)
+    tasks_obj = ReasoningTasks(verbose, model_name=model_name, data_path=data_path, ckpt_path=ckpt_path, model_path=args.model_path, num_gpus=args.num_gpus)
 
     if task == 'mcts':
         config_file = 'data/blocksworld/bw_config.yaml'

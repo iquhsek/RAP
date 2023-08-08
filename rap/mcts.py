@@ -43,6 +43,7 @@ class MCTS:
         self.aggr_child = aggr_child
 
     def rollout(self, node: MCTSNode):
+        used_samples = 0
         if self.prior:
             path = self._select_prior(node)
         else:
@@ -50,6 +51,8 @@ class MCTS:
             self._expand(path[-1])
             self._simulate(path)
         self._back_propagate(path)
+        used_samples += len(path)
+        return used_samples
 
     def _select_prior(self, node: MCTSNode):
         path = [node]
