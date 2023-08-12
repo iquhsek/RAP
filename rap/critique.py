@@ -188,6 +188,12 @@ def reflex_search(initial_state: str,
         elif "Stack" in last_action: 
             world_update_prompt = prompts["world_update_stack"].format(last_state, last_action)
 
+        print()
+        print()
+        print(world_update_prompt)
+        print()
+        print()
+
         # world_output = world_model.query_LM(world_update_prompt, do_sample=False, num_return_sequences=1,
         #                             eos_token_id=eos_token_id)[0]
         # world_change = world_output.split("[CHANGE]")[-1]
@@ -220,11 +226,6 @@ def reflex_search(initial_state: str,
     for _ in (pbar := trange(mcts_steps, disable=bool(int(os.environ.get("LOCAL_RANK", -1))), position=0)):
         end_node, used_samples = its.rollout(max_iter, start_node)
         tot_sample += used_samples
-        print()
-        print()
-        print(end_node.prompt)
-        print()
-        print()
         trajs.append(traj := end_node.prompt)
         output = re.findall('The answer is .*?([.0-9,\\-]+).*\\.', traj)
         if len(output) == 0:
