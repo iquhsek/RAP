@@ -16,7 +16,7 @@ import numpy as np
 import subprocess
 
 from rap.blocksworld_mcts import reasoning_mcts_search
-from rap.models import QueryLlama, QueryVicuna
+from rap.models import QueryLlama, QueryVicuna, QueryVicunaAuto
 
 import torch
 from llama import *
@@ -92,7 +92,7 @@ verbose_template="""
 
 class ReasoningTasks():
 
-    def __init__(self, verbose=False, model_name="LLaMA", ckpt_path="", data_path="", model_path='lmsys/vicuna-7b-v1.3', num_gpus=1):
+    def __init__(self, verbose=False, model_name="LLaMA", ckpt_path="", data_path="", model_path='lmsys/vicuna-7b-v1.3', num_gpus=1, controller_addr="http://localhost:21001", worker_address="http://localhost:21002"):
         # self.engine = engine
         self.verbose = verbose
         self.max_gpt_response_length = 500
@@ -119,6 +119,13 @@ class ReasoningTasks():
             self.model = QueryLlama(llama, max_response_length=100, log_file=log_file)
         elif self.model_name == "Vicuna":
             self.model = QueryVicuna(model_path, num_gpus)
+        elif self.model_name == "VicunaAuto":
+            self.model = QueryVicunaAuto(
+                controller_addr,
+                worker_address,
+                model_path,
+                num_gpus
+            )
         else:
             raise NotImplementedError
         
@@ -295,6 +302,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--task', type=str, default='mcts', help='Task to run t1 = Goal Directed Reasoning')
     parser.add_argument('--model_name', type=str, default='LLaMA', help='Model to use')
+    parser.add_argument("--controller-addr", type=str, default="http://localhost:21001")
+    parser.add_argument("--worker-address", type=str, default="http://localhost:21002")
     parser.add_argument('--verbose', type=str, default="False", help='Verbose')
     parser.add_argument('--name', type=str, default="unnamed", help='Name of the experiment')
     parser.add_argument('--data_path', type=str, default="data", help='Path to data')
@@ -322,7 +331,7 @@ if __name__ == '__main__':
     prompt_path = args.prompt_path
     ckpt_path = args.ckpt_path
 
-    tasks_obj = ReasoningTasks(verbose, model_name=model_name, data_path=data_path, ckpt_path=ckpt_path, model_path=args.model_path, num_gpus=args.num_gpus)
+    tasks_obj = ReasoningTasks(verbose, model_name=model_name, data_path=data_path, ckpt_path=ckpt_path, model_path=args.model_path, num_gpus=args.num_gpus, controller_addr="http://localhost:21001", worker_address="http://localhost:21002")
 
     if task == 'mcts':
         config_file = 'data/blocksworld/bw_config.yaml'
