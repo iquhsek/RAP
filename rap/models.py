@@ -9,7 +9,7 @@ import torch
 from llama import LLaMA
 
 from fastchat.model import load_model
-from fastchat.serve import ModelWorker
+from fastchat.serve.model_worker import ModelWorker
 
 
 class QueryLM(ABC):
