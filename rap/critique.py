@@ -190,7 +190,11 @@ def reflex_search(initial_state: str,
 
         print()
         print()
+        print()
+        print('-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#')
         print(world_update_prompt)
+        print('-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#')
+        print()
         print()
         print()
 
