@@ -92,10 +92,10 @@ class ITERS:
             next_node = max_path[-1]
             # stop iteration if we reached the goal
             if next_node.achieved_goal:
-                print('YES ACHIEVED')
+                # print('YES ACHIEVED')
                 break
             if next_node.is_terminal:
-                print('EXCEEDED MAX_DEPTH')
+                # print('EXCEEDED MAX_DEPTH')
                 break
             cur_node = deepcopy(next_node)
         # print(f'{Fore.BLUE}--------------Rollout END--------------{Style.RESET_ALL}')
