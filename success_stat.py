@@ -13,5 +13,5 @@ if __name__ == '__main__':
     for file_name in sample_files:
         with open(os.path.join(data_path, file_name), 'r') as f:
             data = json.load(f)
-            total_success += int(data[0]['correct'])
+            total_success += int(data[-1]['correct'])
     print(total_success/len(sample_files))
