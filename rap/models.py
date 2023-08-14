@@ -107,18 +107,6 @@ class QueryVicuna(QueryLM):
         prefix: str,
         prompts: List[str],
     ) -> List[str]:
-        # TODO:
-        print()
-        print()
-        print('-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#')
-        print('------------------------------------------------prefix')
-        print(prefix)
-        print('------------------------------------------------prompts')
-        print(prompts)
-        print('-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#')
-        print()
-        print()
-        # TODO:
         bsz = len(prompts)
         prefix_tokens = self.tokenizer(prefix, return_tensors="pt")
         prompts_tokens = [self.tokenizer(x, return_tensors="pt") for x in prompts]
