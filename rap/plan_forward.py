@@ -3,7 +3,7 @@ import torch
 import numpy as np
 from copy import deepcopy
 from typing import List, Tuple
-from forward_search import ForwardSearch, AbsNode
+from rap.forward_search import ForwardSearch, AbsNode
 from rap.utils.blocksworld import apply_change, generate_all_actions, get_world_change
 
 
