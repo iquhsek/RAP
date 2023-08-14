@@ -54,7 +54,7 @@ class ForwardSearch:
                 c_rwd = 0
                 for s in path:
                     c_rwd = c_rwd * self.discount + s._prob_r
-                c_rwd += node._v_rand * node.alpha # Add v_rand at the end
+                c_rwd += node._v_rand * node._alpha # Add v_rand at the end
                 assert c_rwd > 0
                 returns.append(c_rwd)
             else:
