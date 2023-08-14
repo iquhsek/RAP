@@ -1,0 +1,11 @@
+CUDA_VISIBLE_DEVICES=4,5,6,7 nohup python -m torch.distributed.run --master_port 42197 --nproc_per_node 1 run_planning.py \
+--name Aug13nf4 \
+--task forward \
+--model_name Vicuna \
+--model_path lmsys/vicuna-33b-v1.3 \
+--num_gpus 4 \
+--data data/blocksworld/step_4.json \
+--horizon 10 \
+--search_depth 2 \
+--sample_per_node 2 \
+--sampler heuristic

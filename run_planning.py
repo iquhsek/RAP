@@ -263,7 +263,7 @@ if __name__ == '__main__':
     parser.add_argument('--data_path', type=str, default="data", help='Path to data')
     parser.add_argument('--horizon', type=int, default=10)
     parser.add_argument('--search_depth', type=int, default=5)
-    parser.add_argument('--alpha', type=float, default=0.1, help='Alpha for reward')
+    parser.add_argument('--alpha', type=float, default=1, help='Alpha for reward')
     parser.add_argument('--prompt_path', type=str, default="data/blocksworld/my_mcts_prompts_update.json", help='Path to prompts')
     parser.add_argument('--ckpt_path', type=str, default="", help='path to LLaMA checkpoint')
     parser.add_argument('--resume_file_idx', type=int, default=0, help='resume experiment from a certain task')
