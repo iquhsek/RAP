@@ -136,4 +136,13 @@ def forward_plan(initial_state: str,
         new_node, tmp_sample = planner(cur_node)
         tot_sample += tmp_sample
         cur_node = deepcopy(new_node)
+    # TODO:
+    if not cur_node.achieved_goal:
+        print()
+        print()
+        print('-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#')
+        print(cur_node.prompt)
+        print('-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#')
+        print()
+        print()
     return cur_node.achieved_goal, tot_sample
