@@ -14,6 +14,9 @@ if __name__ == '__main__':
         with open(os.path.join(data_path, file_name), 'r') as f:
             line = f.readline()
             num_success, num_sample = line.split(',')
-            total_success += int(num_success)
+            try:
+                total_success += int(num_success)
+            except ValueError:
+                total_success += bool(num_success)
             total_sample += int(num_sample)
     print(total_success, total_sample)
