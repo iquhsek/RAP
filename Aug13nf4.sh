@@ -5,7 +5,7 @@ CUDA_VISIBLE_DEVICES=1 nohup python -m torch.distributed.run --master_port 42197
 --model_path lmsys/vicuna-13b-v1.3 \
 --num_gpus 1 \
 --data data/blocksworld/step_4.json \
---horizon 5 \
---search_depth 2 \
---sample_per_node 3 \
+--horizon 1 \
+--search_depth 4 \
+--sample_per_node 1 \
 --sampler heuristic
