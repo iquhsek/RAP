@@ -12,7 +12,8 @@ import time
 import random
 import numpy as np
 
-from rap.critique import reflex_search
+from rap.plan_reflex import reflex_plan
+from rap.plan_forward import forward_plan
 from rap.models import QueryLlama, QueryVicuna
 
 import torch
@@ -21,13 +22,6 @@ from typing import Tuple
 from fairscale.nn.model_parallel.initialize import initialize_model_parallel
 import json
 import time
-import re
-import pickle
-
-import colorama
-from colorama import Fore
-from colorama import Style
-colorama.init()
 
 
 def validate_plan(domain, instance, plan_file):
@@ -91,10 +85,9 @@ verbose_template="""
 
 class ReasoningTasks():
 
-    def __init__(self, verbose=False, model_name="LLaMA", ckpt_path="", data_path="",
+    def __init__(self, model_name="LLaMA", ckpt_path="", data_path="",
                  model_path='lmsys/vicuna-7b-v1.3', num_gpus=1):
         # self.engine = engine
-        self.verbose = verbose
         self.max_gpt_response_length = 500
         self.data_files = json.load(open(data_path, 'r'))
         self.model_name = model_name
@@ -166,7 +159,19 @@ class ReasoningTasks():
             f.write(final_output)
     # ========================================== TASKS ========================================== #
 
-    def run_mcts(self, config_file, name="", prompts="", rollouts=10, max_iter=30, max_depth=4, alpha=0.5, prompt_path="", resume_file_idx=0, sample_per_node=2, search_depth=6):
+    def run_mcts(self,
+                 plan_method,
+                 config_file,
+                 name="",
+                 prompts="",
+                 prompt_path="",
+                 resume_file_idx=0,
+                 alpha=0.5,
+                 horizon=10,
+                 search_depth=6,
+                 sample_per_node=2,
+                 sampler='heuristic',
+                 discount=1,):
         self.read_config(config_file)
 
         # make directory for logs
@@ -190,110 +195,46 @@ class ReasoningTasks():
 
         with open(prompt_path) as f:
             prompts = json.load(f)
-            '''
-            "prompts" here is a dictionary.
-            
-            It has keys: ['action_generation', 'world_update', 'world_update_pickup', 'world_update_unstack', 'world_update_putdown', 'world_update_stack', 'confidence', 'action_validity_pickup', 'action_validity_unstack', 'action_validity_putdown', 'action_validity_stack', 'complete_validity', 'state_extract', 'hand_state_extract', 'question_prefix', 'state_prefix', 'goal_prefix', 'action_prefix', 'action_gen_prefix', 'action_reason_prefix', 'state_gen_prefix', 'confidence_prefix', 'confidence_answer_prefix', 'validity_prefix', 'complete_validity_prefix', 'baseline_action']
-            
-            One can refer to ./data/blocksworld/my_mcts_prompts_update.json for an example of prompts.
 
-            It has several components and functionality:
-            1. It gives the llm few shot examples on the task. It tells llm the action-state transition rules.
-            2. Log the state, action ... at this node. Relevant keys are:
-                "question_prefix": "[SCENARIO 2]\n",
-                "state_prefix": "[STATE {}]",
-                "goal_prefix": "[GOAL] ",
-                "action_prefix": "[ACTION {}]",
-                "action_gen_prefix":  "[ACTIONS]",
-                "action_reason_prefix":  "[REASON]",
-                "state_gen_prefix":  "[STATE 1]",
-                "confidence_prefix": "[QUESTION] Is \"STATE 1\" closer to the goal than \"STATE 0\"?",
-                "confidence_answer_prefix": "[ANSWER]",
-                "validity_prefix": "[QUESTION] Is the action valid based on the state?",            
-            '''
-
-        mcts_steps = rollouts
-        total_correct = [0] * mcts_steps
-        print(f'{Fore.YELLOW}There are {n_files} files.{Style.RESET_ALL}')
+        print(f'There are {n_files} files.')
         for i in range(n_files):
-            print(f'{Fore.YELLOW}We are dealing with {i}-th file now.{Style.RESET_ALL}')
+            print(f'We are dealing with {i}-th file now.')
             if i < resume_file_idx:
                 if self.local_rank == 0:
                     correct_plans += 1
                 continue
 
-            # query = prompts
             cur_instance = self.data_files[i]
             problem = self.get_problem(cur_instance[0], domain_pddl)
-            gt_plan_text = cur_instance[1]
             INIT, GOAL, PLAN = instance_to_text_blocksworld(problem, False, self.data)
 
             query = prompts["baseline_action"]
-            # gt_plan = self.compute_plan(domain_pddl, cur_instance)
             query += fill_template(*instance_to_text_blocksworld(problem, False, self.data)) + "\n"
             
-            trajs, tree, trees, tot_sample = reflex_search(
+            result, tot_sample = plan_method(
                 f'I have that, {INIT}.', 
                 f'My goal is to have that {GOAL}.',
                 prompts, 
                 self.model, 
-                temperature=0.6,
-                mcts_steps=mcts_steps,
-                max_iter=max_iter,
-                max_depth=max_depth,
-                eos_token_id=self.model.tokenizer.encode('\n', bos=False, eos=False)[-1],
-                r_alpha=alpha,
+                alpha=alpha,
+                horizon=horizon,
+                search_depth=search_depth,
                 sample_per_node=sample_per_node,
-                search_depth=search_depth
-                )
+                sampler=sampler,
+                discount=discount,
+            )
 
             torch.distributed.barrier()
 
             if self.local_rank == 0:
                 json_logs = []
-                tmp_correct_count = 0
-                for rollout, traj in enumerate(trajs):
-                    # Extract actions from trace
-                    # actions = re.findall('\[ACTION \d\](.*)', traj)
-                    # Do text_to_plan procedure, write down the plan to the file called by self.lm_plan_file
-                    actions = re.findall('\[ACTION \d\](.*)', traj)
-                    _, lm_plan = text_to_plan_blocksworld('\n'.join(actions), problem.actions, self.lm_plan_file, self.data)
-                    # Apply VAL
-                    correct, response = validate_plan(domain_pddl, cur_instance[0], self.lm_plan_file)
-
-                    json_logs.append({
-                        'rollout': rollout + 1,
-                        'initial_state': INIT,
-                        'goal': GOAL,
-                        'output': response,
-                        'correct': correct,
-                        'traj': traj,
-                    })
-                    total_correct[rollout] += correct
-                    
-                    tmp_correct_count += correct
                 with open(os.path.join(f'./logs/mcts-{name}/json/', f'{i:04d}.json'), 'w') as f:
                     json.dump(json_logs, f, indent=2)
-                with open(os.path.join(f'./logs/mcts-{name}/tree/', f'{i:04d}.tree'), 'w') as f:
-                    f.write(tree)
                 with open(os.path.join(f'./logs/mcts-{name}/sample/', f'{i:04d}.accn'), 'w') as f:
-                    f.write(f'{tmp_correct_count},{tot_sample}')
-                # with open(os.path.join(f'./logs/mcts-{name}/pkl/', f'{i:04d}.pkl'), 'wb') as f:
-                #     pickle.dump(trees, f)
-
+                    f.write(f'{result},{tot_sample}')
 
             torch.distributed.barrier()
-            actions = re.findall('\[ACTION \d\](.*)', trajs[-1])
-            _, lm_plan = text_to_plan_blocksworld('\n'.join(actions), problem.actions, self.lm_plan_file, self.data)
-
-            correct, response = validate_plan(domain_pddl, cur_instance[0], self.lm_plan_file)
-            correct_plans += int(correct)
-
-            final_output += success_template.format('='*35, "MCTS", "SUCCESS" if correct else "FAILURE", '='*35)
-            final_output += response
-            final_output += verbose_template.format(f'I have that, {INIT}\n My goal is to have that {GOAL}', trajs[-1], lm_plan, gt_plan_text, '='*77) if self.verbose else ""
-
-            self.save_output("mcts-" + name, final_output)
+            correct_plans += int(result)
 
         if local_rank == 0:
             if os.path.exists(self.plan_file):
@@ -301,10 +242,8 @@ class ReasoningTasks():
             if os.path.exists(self.lm_plan_file):
                 os.remove(self.lm_plan_file)
 
-        # --------------- Add to final output --------------- #
         final_output += f"[+]: The number of correct plans is {correct_plans}/{n_files}={correct_plans / (n_files) * 100}%"
         print(f"[+]: The number of correct plans is {correct_plans}/{n_files}={correct_plans / (n_files) * 100}%")
-        print(total_correct)
         self.save_output("mcts-" + name, final_output)
 
 if __name__ == '__main__':
@@ -318,21 +257,19 @@ if __name__ == '__main__':
     local_rank, world_size = setup_model_parallel()
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--task', type=str, default='mcts', help='Task to run t1 = Goal Directed Reasoning')
+    parser.add_argument('--task', type=str, default='forward', help='Choose in {forward, reflex}')
     parser.add_argument('--model_name', type=str, default='LLaMA', help='Model to use')
-    parser.add_argument('--verbose', type=str, default="False", help='Verbose')
     parser.add_argument('--name', type=str, default="unnamed", help='Name of the experiment')
     parser.add_argument('--data_path', type=str, default="data", help='Path to data')
-    parser.add_argument('--rollouts', type=int, default=200, help='Number of rollouts')
-    parser.add_argument('--max_iter', type=int, default=5)
+    parser.add_argument('--horizon', type=int, default=10)
     parser.add_argument('--search_depth', type=int, default=5)
-    parser.add_argument('--max_depth', type=int, default=4, help='Max depth of the tree')
     parser.add_argument('--alpha', type=float, default=0.1, help='Alpha for reward')
-    parser.add_argument('--n_samples', type=int, default=10, help='Number of samples for t1')
     parser.add_argument('--prompt_path', type=str, default="data/blocksworld/my_mcts_prompts_update.json", help='Path to prompts')
     parser.add_argument('--ckpt_path', type=str, default="", help='path to LLaMA checkpoint')
     parser.add_argument('--resume_file_idx', type=int, default=0, help='resume experiment from a certain task')
     parser.add_argument('--sample_per_node', type=int, default=2, help='number of samples we take in the lookahead trajectory search')
+    parser.add_argument('--sampler', type=str, default='heuristic')
+    parser.add_argument('--discount', type=float, default=1)
     parser.add_argument('--model_path', type=str, default='lmsys/vicuna-7b-v1.3')
     parser.add_argument('--num_gpus', type=int, default=1)
 
@@ -341,21 +278,34 @@ if __name__ == '__main__':
     task = args.task
     model_name = args.model_name
     data_path = args.data_path
-    rollouts = args.rollouts
     alpha = args.alpha
     n_samples = args.n_samples
     # engine = args.engine
     name = args.name
-    max_depth = args.max_depth
-    verbose = eval(args.verbose)
     prompt_path = args.prompt_path
     ckpt_path = args.ckpt_path
-    max_iter = args.max_iter
 
-    tasks_obj = ReasoningTasks(verbose, model_name=model_name, data_path=data_path, ckpt_path=ckpt_path, model_path=args.model_path, num_gpus=args.num_gpus)
+    tasks_obj = ReasoningTasks(model_name=model_name, data_path=data_path, ckpt_path=ckpt_path, model_path=args.model_path, num_gpus=args.num_gpus)
+    config_file = 'data/blocksworld/bw_config.yaml'
 
-    if task == 'mcts':
-        config_file = 'data/blocksworld/bw_config.yaml'
-        tasks_obj.run_mcts(config_file, name=name, prompts="", rollouts=rollouts, max_iter=max_iter, max_depth=max_depth, alpha=alpha, prompt_path=prompt_path, resume_file_idx=args.resume_file_idx, sample_per_node=args.sample_per_node, search_depth=args.search_depth)
+    if task == 'forward':
+        plan_method=forward_plan
+    elif task == 'reflex':
+        plan_method=reflex_plan
     else:
         raise NotImplementedError
+
+    tasks_obj.run_mcts(
+        plan_method=plan_method,
+        config_file=config_file,
+        name=name,
+        prompts="",
+        prompt_path=prompt_path,
+        resume_file_idx=args.resume_file_idx,
+        alpha=alpha,
+        horizon=args.horizon,
+        search_depth=args.search_depth,
+        sample_per_node=args.sample_per_node,
+        sampler=args.sampler,
+        discount=args.discount,
+    )
