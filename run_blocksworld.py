@@ -175,7 +175,7 @@ class ReasoningTasks():
             f.write(final_output)
     # ========================================== TASKS ========================================== #
 
-    def run_mcts(self, config_file, name="", prompts="", rollouts=10, max_depth=4, alpha=0.5, prompt_path=""):
+    def run_mcts(self, config_file, name="", prompts="", single_run=10000, rollouts=10, max_depth=4, alpha=0.5, prompt_path=""):
         self.read_config(config_file)
 
         # make directory for logs
@@ -202,7 +202,8 @@ class ReasoningTasks():
 
         mcts_steps = rollouts
         total_correct = [0] * mcts_steps
-        for i in range(n_files):
+        task_pool = np.arange(n_files) if single_run == 10000 else [single_run]
+        for i in task_pool:
 
             # query = prompts
             cur_instance = self.data_files[i]
@@ -284,8 +285,8 @@ class ReasoningTasks():
                 os.remove(self.lm_plan_file)
 
         # --------------- Add to final output --------------- #
-        final_output += f"[+]: The number of correct plans is {correct_plans}/{n_files}={correct_plans / (n_files) * 100}%"
-        print(f"[+]: The number of correct plans is {correct_plans}/{n_files}={correct_plans / (n_files) * 100}%")
+        final_output += f"[+]: The number of correct plans is {correct_plans}/{len(task_pool)}={correct_plans / (len(task_pool)) * 100}%"
+        print(f"[+]: The number of correct plans is {correct_plans}/{len(task_pool)}={correct_plans / (len(task_pool)) * 100}%")
         print(total_correct)
         self.save_output("mcts-" + name, final_output)
 
@@ -315,6 +316,7 @@ if __name__ == '__main__':
     parser.add_argument('--ckpt_path', type=str, default="", help='path to LLaMA checkpoint')
     parser.add_argument('--model_path', type=str, default='lmsys/vicuna-7b-v1.3')
     parser.add_argument('--num_gpus', type=int, default=1)
+    parser.add_argument('--single_run', type=int, default=10000)
 
 
     args = parser.parse_args()
@@ -335,6 +337,6 @@ if __name__ == '__main__':
 
     if task == 'mcts':
         config_file = 'data/blocksworld/bw_config.yaml'
-        tasks_obj.run_mcts(config_file, name=name, prompts="", rollouts=rollouts, max_depth=max_depth, alpha=alpha, prompt_path=prompt_path)
+        tasks_obj.run_mcts(config_file, name=name, prompts="", single_run=args.single_run, rollouts=rollouts, max_depth=max_depth, alpha=alpha, prompt_path=prompt_path)
     else:
         raise NotImplementedError

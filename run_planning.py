@@ -166,6 +166,7 @@ class ReasoningTasks():
                  prompts="",
                  prompt_path="",
                  resume_file_idx=0,
+                 single_run=10000,
                  alpha=0.5,
                  horizon=10,
                  search_depth=6,
@@ -196,8 +197,9 @@ class ReasoningTasks():
         with open(prompt_path) as f:
             prompts = json.load(f)
 
-        print(f'There are {n_files} files.')
-        for i in range(n_files):
+        task_pool = np.arange(n_files) if single_run == 10000 else [single_run]
+        print(f'There are {len(task_pool)} files.')
+        for i in task_pool:
             print(f'We are dealing with {i}-th file now.')
             if i < resume_file_idx:
                 if self.local_rank == 0:
@@ -242,8 +244,8 @@ class ReasoningTasks():
             if os.path.exists(self.lm_plan_file):
                 os.remove(self.lm_plan_file)
 
-        final_output += f"[+]: The number of correct plans is {correct_plans}/{n_files}={correct_plans / (n_files) * 100}%"
-        print(f"[+]: The number of correct plans is {correct_plans}/{n_files}={correct_plans / (n_files) * 100}%")
+        final_output += f"[+]: The number of correct plans is {correct_plans}/{len(task_pool)}={correct_plans / (len(task_pool)) * 100}%"
+        print(f"[+]: The number of correct plans is {correct_plans}/{len(task_pool)}={correct_plans / (len(task_pool)) * 100}%")
         self.save_output("mcts-" + name, final_output)
 
 if __name__ == '__main__':
@@ -267,6 +269,7 @@ if __name__ == '__main__':
     parser.add_argument('--prompt_path', type=str, default="data/blocksworld/my_mcts_prompts_update.json", help='Path to prompts')
     parser.add_argument('--ckpt_path', type=str, default="", help='path to LLaMA checkpoint')
     parser.add_argument('--resume_file_idx', type=int, default=0, help='resume experiment from a certain task')
+    parser.add_argument('--single_run', type=int, default=10000)
     parser.add_argument('--sample_per_node', type=int, default=2, help='number of samples we take in the lookahead trajectory search')
     parser.add_argument('--sampler', type=str, default='heuristic')
     parser.add_argument('--discount', type=float, default=1)
@@ -300,6 +303,7 @@ if __name__ == '__main__':
         prompts="",
         prompt_path=prompt_path,
         resume_file_idx=args.resume_file_idx,
+        single_run=args.single_run,
         alpha=alpha,
         horizon=args.horizon,
         search_depth=args.search_depth,
