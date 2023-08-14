@@ -6,7 +6,7 @@ import argparse
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--run_name', type=str, default='mcts-run_1_Aug2_search_depth_3_alpha_01_rollouts_10')
-    parser.add_argument('--use_sample', action=True)
+    parser.add_argument('--use_sample', action='store_true')
     args = parser.parse_args()
     if args.use_sample:
         data_path = os.path.join('logs', args.run_name, 'sample')
