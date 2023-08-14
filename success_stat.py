@@ -25,6 +25,7 @@ if __name__ == '__main__':
         for i, file_name in enumerate(sample_files):
             with open(os.path.join(data_path, file_name), 'r') as f:
                 data = json.load(f)
+                print(data[-1]['rollout'])
                 total_success += int(data[-1]['correct'])
                 task_status.append([i, data[-1]['correct']])
         print(task_status)
