@@ -98,6 +98,7 @@ class QueryVicuna(QueryLM):
             max_gpu_memory='40GiB',
         )
         self.tokenizer.eos_id = self.tokenizer.encode('\n')[0]
+        self.tokenizer.eos_token_id = self.tokenizer.encode('\n')[0] # TODO: debug
         self.repetition_penalty = repetition_penalty
         self.max_new_tokens = max_new_tokens
 
@@ -111,6 +112,7 @@ class QueryVicuna(QueryLM):
             temperature=temperature,
             repetition_penalty=self.repetition_penalty,
             max_new_tokens=self.max_new_tokens,
+            eos_token_id=self.tokenizer.eos_token_id # TODO: debug
         )
         if self.llamamodel.config.is_encoder_decoder:
             output_ids = output_ids[0]
