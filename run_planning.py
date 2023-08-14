@@ -279,8 +279,6 @@ if __name__ == '__main__':
     model_name = args.model_name
     data_path = args.data_path
     alpha = args.alpha
-    n_samples = args.n_samples
-    # engine = args.engine
     name = args.name
     prompt_path = args.prompt_path
     ckpt_path = args.ckpt_path
