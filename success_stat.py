@@ -17,6 +17,7 @@ if __name__ == '__main__':
                 line = f.readline()
                 num_success, num_sample = line.split(',')
                 total_success += bool(num_success)
+                print(num_success, bool(num_success)) #TODO: debug
     else:
         data_path = os.path.join('logs', args.run_name, 'json')
         sample_files = os.listdir(data_path)
