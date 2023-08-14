@@ -9,7 +9,7 @@ import torch
 from llama import LLaMA
 
 from fastchat.model import load_model
-from fastchat.serve.model_worker import ModelWorker
+# from fastchat.serve.model_worker import ModelWorker
 
 
 class QueryLM(ABC):
@@ -129,22 +129,3 @@ class QueryVicuna(QueryLM):
                     acc_probs[j] += torch.log(probs[j, tokens[j, i]])
 
         return acc_probs.cpu().numpy()
-
-
-class QueryVicunaAuto(QueryVicuna):
-    def __init__(self, controller_addr, worker_address, model_path='lmsys/vicuna-7b-v1.3', num_gpus=1) -> None:
-        worker_id = str(uuid.uuid4())[:8]
-        self.modelworker = ModelWorker(
-            controller_addr,
-            worker_address,
-            worker_id,
-            model_path,
-            model_names=None,
-            limit_worker_concurrency=5,
-            no_register=False,
-            device="cuda",
-            num_gpus=num_gpus,
-            max_gpu_memory='40GiB',
-        )
-        self.llamamodel, self.tokenizer = self.modelworker.model, self.modelworker.tokenizer
-        self.tokenizer.eos_id = self.tokenizer.encode('\n')[0]

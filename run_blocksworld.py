@@ -16,7 +16,7 @@ import numpy as np
 import subprocess
 
 from rap.blocksworld_mcts import reasoning_mcts_search
-from rap.models import QueryLlama, QueryVicuna, QueryVicunaAuto
+from rap.models import QueryLlama, QueryVicuna
 
 import torch
 from llama import *
@@ -119,13 +119,6 @@ class ReasoningTasks():
             self.model = QueryLlama(llama, max_response_length=100, log_file=log_file)
         elif self.model_name == "Vicuna":
             self.model = QueryVicuna(model_path, num_gpus)
-        elif self.model_name == "VicunaAuto":
-            self.model = QueryVicunaAuto(
-                controller_addr,
-                worker_address,
-                model_path,
-                num_gpus
-            )
         else:
             raise NotImplementedError
         
