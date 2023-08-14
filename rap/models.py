@@ -86,7 +86,11 @@ class QueryLlama(QueryLM):
 
 
 class QueryVicuna(QueryLM):
-    def __init__(self, model_path='lmsys/vicuna-7b-v1.3', num_gpus=1) -> None:
+    def __init__(self,
+                 model_path='lmsys/vicuna-7b-v1.3',
+                 num_gpus=1,
+                 repetition_penalty=1e-3,
+                 max_new_tokens=300) -> None:
         self.llamamodel, self.tokenizer = load_model(
             model_path=model_path,
             device='cuda',
@@ -94,9 +98,28 @@ class QueryVicuna(QueryLM):
             max_gpu_memory='40GiB',
         )
         self.tokenizer.eos_id = self.tokenizer.encode('\n')[0]
+        self.repetition_penalty = repetition_penalty
+        self.max_new_tokens = max_new_tokens
 
-    def query_LM(self):
-        raise NotImplementedError
+    def query_LM(self, prompt, do_sample=True, temperature=0.8):
+        temperature = temperature if do_sample else 0
+        inputs = self.tokenizer([prompt])
+        inputs = {k: torch.tensor(v).cuda() for k, v in inputs.items()}
+        output_ids = self.llamamodel.generate(
+            **inputs,
+            do_sample=True if temperature > 1e-5 else False,
+            temperature=temperature,
+            repetition_penalty=self.repetition_penalty,
+            max_new_tokens=self.max_new_tokens,
+        )
+        if self.llamamodel.config.is_encoder_decoder:
+            output_ids = output_ids[0]
+        else:
+            output_ids = output_ids[0][len(inputs["input_ids"][0]) :]
+        response = self.tokenizer.decode(
+            output_ids, skip_special_tokens=True, spaces_between_special_tokens=False
+        )
+        return response
 
     def query_next_token(self):
         raise NotImplementedError
