@@ -38,7 +38,7 @@ class ForwardSearch:
         weights /= np.sum(weights)
         return np.random.choice(
             children,
-            size=self.sample_per_node,
+            size=min(len(children), self.sample_per_node),
             replace=False,
             p=weights
         )\
