@@ -5,4 +5,4 @@ CUDA_VISIBLE_DEVICES=0 nohup python -m torch.distributed.run --master_port 1034 
 --name Aug13dmcts \
 --rollouts $rollouts \
 --model_path lmsys/vicuna-13b-v1.3 \
---num_gpus 1 \
+--num_gpus 1
