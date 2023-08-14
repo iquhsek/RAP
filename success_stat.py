@@ -25,8 +25,7 @@ if __name__ == '__main__':
         for i, file_name in enumerate(sample_files):
             with open(os.path.join(data_path, file_name), 'r') as f:
                 data = json.load(f)
-                print(file_name, data[-1]['correct'])
                 total_success += int(data[-1]['correct'])
-                task_status.append([i, data[-1]['correct']])
+                task_status.append([i, file_name, data[-1]['correct']])
         print(task_status)
     print(total_success/len(sample_files))
