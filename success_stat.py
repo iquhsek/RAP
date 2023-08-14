@@ -21,8 +21,11 @@ if __name__ == '__main__':
         data_path = os.path.join('logs', args.run_name, 'json')
         sample_files = os.listdir(data_path)
         total_success = 0
-        for file_name in sample_files:
+        task_status = []
+        for i, file_name in enumerate(sample_files):
             with open(os.path.join(data_path, file_name), 'r') as f:
                 data = json.load(f)
                 total_success += int(data[-1]['correct'])
+                task_status.append([i, data[-1]['correct']])
+        print(task_status)
     print(total_success/len(sample_files))
