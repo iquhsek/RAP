@@ -1,15 +1,51 @@
 from abc import ABC, abstractmethod
 
-from typing import List
+from typing import List, Tuple
+
+import math
 
 import uuid
 
 import torch
 
+import openai
+from statistics import mean
+from tenacity import retry, stop_after_attempt, retry_if_not_exception_type
+
 from llama import LLaMA
 
 from fastchat.model import load_model
-# from fastchat.serve.model_worker import ModelWorker
+
+
+@retry(
+    stop=stop_after_attempt(4),
+    retry=retry_if_not_exception_type((ValueError, OSError))
+)
+def _call_openai_api(prompt, stop, n, temperature=0.0, chatcompletion=False):
+    if chatcompletion:
+        response = openai.ChatCompletion.create(
+            engine='gpt-35-turbo',
+            messages=[
+                {"role": "user", "content": prompt}],
+            temperature=temperature,
+            max_tokens=100,
+            top_p=0.8,
+            stop=stop,
+        )
+    else:
+        response = openai.Completion.create(
+            engine="text-davinci-003",
+            prompt=prompt,
+            logprobs=0,
+            temperature=temperature,
+            max_tokens=100,
+            top_p=0.8,
+            n=n,
+            frequency_penalty=0.0,
+            presence_penalty=0.0,
+            stop=stop,
+        )
+    return response
 
 
 class QueryLM(ABC):
@@ -148,3 +184,56 @@ class QueryVicuna(QueryLM):
                     acc_probs[j] += torch.log(probs[j, tokens[j, i]])
 
         return acc_probs.cpu().numpy()
+
+
+class QueryChatGPT(QueryLM):
+    def __init__(self) -> None: pass
+
+    def __call__(prompt, stop=["\n"], n=1, temperature=0.0, chatcompletion=False):
+        openai.api_key = "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"
+        openai.api_version = "2023-06-01-preview"
+        response = _call_openai_api(prompt, stop, n=n, temperature=temperature, chatcompletion=chatcompletion)
+        if chatcompletion:
+            for tries in range(4):
+                if response == {}:
+                    response = _call_openai_api(prompt, stop, n=n, temperature=temperature, chatcompletion=chatcompletion)
+                elif all(item["message"]['content'].strip() == '' for item in response["choices"]):
+                        response = _call_openai_api(prompt, stop, n=n, temperature=temperature, chatcompletion=chatcompletion)
+                else:
+                    break
+            return response["choices"][0]["message"]["content"].strip()
+        else:
+            for tries in range(1, 4):
+                if response == {}:
+                    response = _call_openai_api(prompt, stop, n=n, temperature=temperature, chatcompletion=chatcompletion)
+                elif all(item["text"].strip() == '' for item in response["choices"]):
+                        response = _call_openai_api(prompt, stop, n=n, temperature=temperature, chatcompletion=chatcompletion)
+                else:
+                    break
+            return response["choices"][0]["text"].strip()
+
+    def get_ll(self, prompt: str,
+               action_space_size: int,
+               stop=["\n"],
+               temperature=1.0) -> List[Tuple[str, float]]:
+        openai.api_key = "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"
+        openai.api_version = "2023-06-01-preview"
+        response = _call_openai_api(prompt, stop, n=action_space_size, temperature=temperature)
+        for tries in range(4):
+            if response == {}:
+                response = _call_openai_api(prompt, stop, n=action_space_size, temperature=temperature)
+            elif all(item["text"].strip() == '' for item in response["choices"]):
+                    response = _call_openai_api(prompt, stop, n=action_space_size, temperature=temperature)
+            else:
+                break
+        response_list = []
+        for choice in response["choices"]:
+            try:
+                response_text = choice["text"].strip()
+                response_prob = math.exp(mean(choice["logprobs"]["token_logprobs"]))
+                response_list.append((response_text, response_prob))
+            except Exception as e:
+                pass
+        if action_space_size > 1:
+            response_list = sorted(response_list, key=lambda x: x[1], reverse=True)
+        return response_list
