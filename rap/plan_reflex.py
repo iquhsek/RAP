@@ -103,6 +103,7 @@ def reflex_plan(initial_state: str,
         exp_scores = np.exp(scores)
         soft_scores = exp_scores / np.sum(exp_scores)
         # TODO:
+        print(scores.dtype)
         print(scores)
         print(exp_scores)
         print(np.sum(exp_scores))
