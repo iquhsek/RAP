@@ -41,6 +41,9 @@ def apply_change(change, state):
         success = 0
         # print("current change", c)
         if c.startswith("the hand"):
+            # 防止llm重复说话
+            if "and" not in c or "was" not in c or "now" not in c:
+                continue
             # print(c)
             old = c.split("was")[1].split("and")[0].strip()
             # print(old)
