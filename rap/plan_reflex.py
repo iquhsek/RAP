@@ -99,11 +99,10 @@ def reflex_plan(initial_state: str,
             else:
                 log_probs = world_model.llamamodel.get_ll(baseline_prompt, ll_prompts[idx: end_idx])
             scores += list(log_probs)
-        scores = np.array(scores)
+        scores = np.array(scores, dtype=np.dtype('float64'))
         exp_scores = np.exp(scores)
         soft_scores = exp_scores / np.sum(exp_scores)
         # TODO:
-        print(scores.dtype)
         print(scores)
         print(exp_scores)
         print(np.sum(exp_scores))
