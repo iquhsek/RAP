@@ -162,7 +162,7 @@ def reflex_plan(initial_state: str,
             prompt=reflexion_prompt,
             do_sample=False,
         )
-        memory = reflexion_prompt.split("[Goal]")[-1] + reflexion_output
+        memory = reflexion_prompt.split("[GOAL]")[-1] + reflexion_output
         # TODO:
         print()
         print()
