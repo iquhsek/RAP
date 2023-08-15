@@ -6,7 +6,7 @@ from typing import List, Tuple
 from rap.models import QueryLM
 from rap.plan_reflex import MemStateNode
 from rap.forward_search import ForwardSearch
-from rap.utils.blocksworld import apply_change, generate_all_actions, get_world_change
+from rap.utils.blocksworld import apply_change, generate_all_actions
 
 
 with open('data/blocksworld/critique_prompt.txt', 'r') as f:
