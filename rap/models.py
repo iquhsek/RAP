@@ -97,8 +97,7 @@ class QueryVicuna(QueryLM):
             num_gpus=num_gpus,
             max_gpu_memory='40GiB',
         )
-        self.tokenizer.eos_id = self.tokenizer.encode('\n')[0]
-        self.tokenizer.eos_token_id = self.tokenizer.encode('\n')[0] # TODO: debug
+        self.eos_token_id = self.tokenizer.encode('\n', bos=False, eos=False)[-1]
         self.repetition_penalty = repetition_penalty
         self.max_new_tokens = max_new_tokens
 
@@ -112,7 +111,7 @@ class QueryVicuna(QueryLM):
             temperature=temperature,
             repetition_penalty=self.repetition_penalty,
             max_new_tokens=self.max_new_tokens,
-            eos_token_id=self.tokenizer.eos_token_id # TODO: debug
+            eos_token_id=self.eos_token_id
         )
         if self.llamamodel.config.is_encoder_decoder:
             output_ids = output_ids[0]
@@ -137,7 +136,7 @@ class QueryVicuna(QueryLM):
         prompts_tokens = [self.tokenizer(x, return_tensors="pt") for x in prompts]
         max_prompt_size = max([len(t.input_ids[0]) for t in prompts_tokens])
         total_len = max_prompt_size
-        tokens = torch.full((bsz, total_len), self.tokenizer.eos_id).cuda().long()
+        tokens = torch.full((bsz, total_len), self.eos_token_id).cuda().long()
 
         logits = []
         for k, t in enumerate(prompts_tokens):
@@ -150,7 +149,7 @@ class QueryVicuna(QueryLM):
         for i in range(len(prefix_tokens.input_ids[0]), max_prompt_size):
             probs = torch.softmax(logits[:, i - 1, :], dim=-1)
             for j in range(bsz):    
-                if tokens[j, i] != self.tokenizer.eos_id:
+                if tokens[j, i] != self.eos_token_id:
                     acc_probs[j] += torch.log(probs[j, tokens[j, i]])
 
         return acc_probs.cpu().numpy()
