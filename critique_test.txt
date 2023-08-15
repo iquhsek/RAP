@@ -1,7 +1,7 @@
 > initializing model parallel with size 1
 > initializing ddp with size 1
 > initializing pipeline with size 1
-Loading checkpoint shards:   0%|          | 0/3 [00:00<?, ?it/s]Loading checkpoint shards:  33%|███▎      | 1/3 [00:18<00:36, 18.19s/it]Loading checkpoint shards:  67%|██████▋   | 2/3 [00:42<00:21, 21.93s/it]Loading checkpoint shards: 100%|██████████| 3/3 [00:55<00:00, 17.57s/it]Loading checkpoint shards: 100%|██████████| 3/3 [00:55<00:00, 18.37s/it]
+Loading checkpoint shards:   0%|          | 0/3 [00:00<?, ?it/s]Loading checkpoint shards:  33%|███▎      | 1/3 [00:14<00:29, 14.64s/it]Loading checkpoint shards:  67%|██████▋   | 2/3 [00:36<00:18, 18.77s/it]Loading checkpoint shards: 100%|██████████| 3/3 [00:47<00:00, 15.52s/it]Loading checkpoint shards: 100%|██████████| 3/3 [00:47<00:00, 15.99s/it]
 There are 57 files.
 We are dealing with 0-th file now.
 
@@ -796,215 +796,3287 @@ reflexion_prompt_last_part-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
 -@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
 
 
-╭───────────────────── Traceback (most recent call last) ──────────────────────╮
-│ /home/zhihanliu/shuqi_code/RAP/run_critique.py:291 in <module>               │
-│                                                                              │
-│   288 │   tasks_obj = ReasoningTasks(model_name=model_name, data_path=data_p │
-│   289 │   config_file = 'data/blocksworld/bw_config.yaml'                    │
-│   290 │                                                                      │
-│ ❱ 291 │   tasks_obj.run_mcts(                                                │
-│   292 │   │   plan_method=reflex_plan,                                       │
-│   293 │   │   config_file=config_file,                                       │
-│   294 │   │   name=name,                                                     │
-│                                                                              │
-│ /home/zhihanliu/shuqi_code/RAP/run_critique.py:215 in run_mcts               │
-│                                                                              │
-│   212 │   │   │   query = prompts["baseline_action"]                         │
-│   213 │   │   │   query += fill_template(*instance_to_text_blocksworld(probl │
-│   214 │   │   │                                                              │
-│ ❱ 215 │   │   │   result, tot_sample = plan_method(                          │
-│   216 │   │   │   │   f'I have that, {INIT}.',                               │
-│   217 │   │   │   │   f'My goal is to have that {GOAL}.',                    │
-│   218 │   │   │   │   prompts,                                               │
-│                                                                              │
-│ /home/zhihanliu/shuqi_code/RAP/rap/plan_reflex.py:170 in reflex_plan         │
-│                                                                              │
-│   167 │   │   print()                                                        │
-│   168 │   │   print()                                                        │
-│   169 │   │   # TODO:                                                        │
-│ ❱ 170 │   │   reflexion_output = world_model.query_LM(                       │
-│   171 │   │   │   prompt=reflexion_prompt,                                   │
-│   172 │   │   │   do_sample=False,                                           │
-│   173 │   │   )                                                              │
-│                                                                              │
-│ /home/zhihanliu/shuqi_code/RAP/rap/models.py:107 in query_LM                 │
-│                                                                              │
-│   104 │   def query_LM(self, prompt, do_sample=False, temperature=0.8):      │
-│   105 │   │   inputs = self.tokenizer([prompt])                              │
-│   106 │   │   inputs = {k: torch.tensor(v).cuda() for k, v in inputs.items() │
-│ ❱ 107 │   │   output_ids = self.llamamodel.generate(                         │
-│   108 │   │   │   **inputs,                                                  │
-│   109 │   │   │   do_sample=do_sample,                                       │
-│   110 │   │   │   temperature=temperature,                                   │
-│                                                                              │
-│ /home/zhihanliu/anaconda3/envs/shuqi/lib/python3.9/site-packages/torch/utils │
-│ /_contextlib.py:115 in decorate_context                                      │
-│                                                                              │
-│   112 │   @functools.wraps(func)                                             │
-│   113 │   def decorate_context(*args, **kwargs):                             │
-│   114 │   │   with ctx_factory():                                            │
-│ ❱ 115 │   │   │   return func(*args, **kwargs)                               │
-│   116 │                                                                      │
-│   117 │   return decorate_context                                            │
-│   118                                                                        │
-│                                                                              │
-│ /home/zhihanliu/anaconda3/envs/shuqi/lib/python3.9/site-packages/transformer │
-│ s/generation/utils.py:1437 in generate                                       │
-│                                                                              │
-│   1434 │   │   │   │   )                                                     │
-│   1435 │   │   │                                                             │
-│   1436 │   │   │   # 11. run greedy search                                   │
-│ ❱ 1437 │   │   │   return self.greedy_search(                                │
-│   1438 │   │   │   │   input_ids,                                            │
-│   1439 │   │   │   │   logits_processor=logits_processor,                    │
-│   1440 │   │   │   │   stopping_criteria=stopping_criteria,                  │
-│                                                                              │
-│ /home/zhihanliu/anaconda3/envs/shuqi/lib/python3.9/site-packages/transformer │
-│ s/generation/utils.py:2248 in greedy_search                                  │
-│                                                                              │
-│   2245 │   │   │   model_inputs = self.prepare_inputs_for_generation(input_i │
-│   2246 │   │   │                                                             │
-│   2247 │   │   │   # forward pass to get next token                          │
-│ ❱ 2248 │   │   │   outputs = self(                                           │
-│   2249 │   │   │   │   **model_inputs,                                       │
-│   2250 │   │   │   │   return_dict=True,                                     │
-│   2251 │   │   │   │   output_attentions=output_attentions,                  │
-│                                                                              │
-│ /home/zhihanliu/anaconda3/envs/shuqi/lib/python3.9/site-packages/torch/nn/mo │
-│ dules/module.py:1501 in _call_impl                                           │
-│                                                                              │
-│   1498 │   │   if not (self._backward_hooks or self._backward_pre_hooks or s │
-│   1499 │   │   │   │   or _global_backward_pre_hooks or _global_backward_hoo │
-│   1500 │   │   │   │   or _global_forward_hooks or _global_forward_pre_hooks │
-│ ❱ 1501 │   │   │   return forward_call(*args, **kwargs)                      │
-│   1502 │   │   # Do not call functions when jit is used                      │
-│   1503 │   │   full_backward_hooks, non_full_backward_hooks = [], []         │
-│   1504 │   │   backward_pre_hooks = []                                       │
-│                                                                              │
-│ /home/zhihanliu/anaconda3/envs/shuqi/lib/python3.9/site-packages/transformer │
-│ s/models/llama/modeling_llama.py:687 in forward                              │
-│                                                                              │
-│   684 │   │   return_dict = return_dict if return_dict is not None else self │
-│   685 │   │                                                                  │
-│   686 │   │   # decoder outputs consists of (dec_features, layer_state, dec_ │
-│ ❱ 687 │   │   outputs = self.model(                                          │
-│   688 │   │   │   input_ids=input_ids,                                       │
-│   689 │   │   │   attention_mask=attention_mask,                             │
-│   690 │   │   │   position_ids=position_ids,                                 │
-│                                                                              │
-│ /home/zhihanliu/anaconda3/envs/shuqi/lib/python3.9/site-packages/torch/nn/mo │
-│ dules/module.py:1501 in _call_impl                                           │
-│                                                                              │
-│   1498 │   │   if not (self._backward_hooks or self._backward_pre_hooks or s │
-│   1499 │   │   │   │   or _global_backward_pre_hooks or _global_backward_hoo │
-│   1500 │   │   │   │   or _global_forward_hooks or _global_forward_pre_hooks │
-│ ❱ 1501 │   │   │   return forward_call(*args, **kwargs)                      │
-│   1502 │   │   # Do not call functions when jit is used                      │
-│   1503 │   │   full_backward_hooks, non_full_backward_hooks = [], []         │
-│   1504 │   │   backward_pre_hooks = []                                       │
-│                                                                              │
-│ /home/zhihanliu/anaconda3/envs/shuqi/lib/python3.9/site-packages/transformer │
-│ s/models/llama/modeling_llama.py:577 in forward                              │
-│                                                                              │
-│   574 │   │   │   │   │   None,                                              │
-│   575 │   │   │   │   )                                                      │
-│   576 │   │   │   else:                                                      │
-│ ❱ 577 │   │   │   │   layer_outputs = decoder_layer(                         │
-│   578 │   │   │   │   │   hidden_states,                                     │
-│   579 │   │   │   │   │   attention_mask=attention_mask,                     │
-│   580 │   │   │   │   │   position_ids=position_ids,                         │
-│                                                                              │
-│ /home/zhihanliu/anaconda3/envs/shuqi/lib/python3.9/site-packages/torch/nn/mo │
-│ dules/module.py:1501 in _call_impl                                           │
-│                                                                              │
-│   1498 │   │   if not (self._backward_hooks or self._backward_pre_hooks or s │
-│   1499 │   │   │   │   or _global_backward_pre_hooks or _global_backward_hoo │
-│   1500 │   │   │   │   or _global_forward_hooks or _global_forward_pre_hooks │
-│ ❱ 1501 │   │   │   return forward_call(*args, **kwargs)                      │
-│   1502 │   │   # Do not call functions when jit is used                      │
-│   1503 │   │   full_backward_hooks, non_full_backward_hooks = [], []         │
-│   1504 │   │   backward_pre_hooks = []                                       │
-│                                                                              │
-│ /home/zhihanliu/anaconda3/envs/shuqi/lib/python3.9/site-packages/transformer │
-│ s/models/llama/modeling_llama.py:292 in forward                              │
-│                                                                              │
-│   289 │   │   hidden_states = self.input_layernorm(hidden_states)            │
-│   290 │   │                                                                  │
-│   291 │   │   # Self Attention                                               │
-│ ❱ 292 │   │   hidden_states, self_attn_weights, present_key_value = self.sel │
-│   293 │   │   │   hidden_states=hidden_states,                               │
-│   294 │   │   │   attention_mask=attention_mask,                             │
-│   295 │   │   │   position_ids=position_ids,                                 │
-│                                                                              │
-│ /home/zhihanliu/anaconda3/envs/shuqi/lib/python3.9/site-packages/torch/nn/mo │
-│ dules/module.py:1501 in _call_impl                                           │
-│                                                                              │
-│   1498 │   │   if not (self._backward_hooks or self._backward_pre_hooks or s │
-│   1499 │   │   │   │   or _global_backward_pre_hooks or _global_backward_hoo │
-│   1500 │   │   │   │   or _global_forward_hooks or _global_forward_pre_hooks │
-│ ❱ 1501 │   │   │   return forward_call(*args, **kwargs)                      │
-│   1502 │   │   # Do not call functions when jit is used                      │
-│   1503 │   │   full_backward_hooks, non_full_backward_hooks = [], []         │
-│   1504 │   │   backward_pre_hooks = []                                       │
-│                                                                              │
-│ /home/zhihanliu/anaconda3/envs/shuqi/lib/python3.9/site-packages/transformer │
-│ s/models/llama/modeling_llama.py:231 in forward                              │
-│                                                                              │
-│   228 │   │   │   attn_weights = torch.max(attn_weights, torch.tensor(torch. │
-│   229 │   │                                                                  │
-│   230 │   │   # upcast attention to fp32                                     │
-│ ❱ 231 │   │   attn_weights = nn.functional.softmax(attn_weights, dim=-1, dty │
-│   232 │   │   attn_output = torch.matmul(attn_weights, value_states)         │
-│   233 │   │                                                                  │
-│   234 │   │   if attn_output.size() != (bsz, self.num_heads, q_len, self.hea │
-│                                                                              │
-│ /home/zhihanliu/anaconda3/envs/shuqi/lib/python3.9/site-packages/torch/nn/fu │
-│ nctional.py:1845 in softmax                                                  │
-│                                                                              │
-│   1842 │   if dtype is None:                                                 │
-│   1843 │   │   ret = input.softmax(dim)                                      │
-│   1844 │   else:                                                             │
-│ ❱ 1845 │   │   ret = input.softmax(dim, dtype=dtype)                         │
-│   1846 │   return ret                                                        │
-│   1847                                                                       │
-│   1848                                                                       │
-╰──────────────────────────────────────────────────────────────────────────────╯
-OutOfMemoryError: CUDA out of memory. Tried to allocate 882.00 MiB (GPU 0; 47.54
-GiB total capacity; 26.23 GiB already allocated; 637.06 MiB free; 27.28 GiB 
-reserved in total by PyTorch) If reserved memory is >> allocated memory try 
-setting max_split_size_mb to avoid fragmentation.  See documentation for Memory 
-Management and PYTORCH_CUDA_ALLOC_CONF
-ERROR:torch.distributed.elastic.multiprocessing.api:failed (exitcode: 1) local_rank: 0 (pid: 2122574) of binary: /home/zhihanliu/anaconda3/envs/shuqi/bin/python
-Traceback (most recent call last):
-  File "/home/zhihanliu/anaconda3/envs/shuqi/lib/python3.9/runpy.py", line 197, in _run_module_as_main
-    return _run_code(code, main_globals, None,
-  File "/home/zhihanliu/anaconda3/envs/shuqi/lib/python3.9/runpy.py", line 87, in _run_code
-    exec(code, run_globals)
-  File "/home/zhihanliu/anaconda3/envs/shuqi/lib/python3.9/site-packages/torch/distributed/run.py", line 798, in <module>
-    main()
-  File "/home/zhihanliu/anaconda3/envs/shuqi/lib/python3.9/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 346, in wrapper
-    return f(*args, **kwargs)
-  File "/home/zhihanliu/anaconda3/envs/shuqi/lib/python3.9/site-packages/torch/distributed/run.py", line 794, in main
-    run(args)
-  File "/home/zhihanliu/anaconda3/envs/shuqi/lib/python3.9/site-packages/torch/distributed/run.py", line 785, in run
-    elastic_launch(
-  File "/home/zhihanliu/anaconda3/envs/shuqi/lib/python3.9/site-packages/torch/distributed/launcher/api.py", line 134, in __call__
-    return launch_agent(self._config, self._entrypoint, list(args))
-  File "/home/zhihanliu/anaconda3/envs/shuqi/lib/python3.9/site-packages/torch/distributed/launcher/api.py", line 250, in launch_agent
-    raise ChildFailedError(
-torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
-============================================================
-run_critique.py FAILED
-------------------------------------------------------------
-Failures:
-  <NO_OTHER_FAILURES>
-------------------------------------------------------------
-Root Cause (first observed failure):
-[0]:
-  time      : 2023-08-14_21:22:45
-  host      : nebula.osl.northwestern.edu
-  rank      : 0 (local_rank: 0)
-  exitcode  : 1 (pid: 2122574)
-  error_file: <N/A>
-  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
-============================================================
+
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+I am playing with a set of blocks where I need to arrange the blocks into stacks. Here are the actions I can do
+
+Pick up a block
+Unstack a block from on top of another block
+Put down a block
+Stack a block on top of another block
+
+I have the following restrictions on my actions:
+I can only pick up or unstack one block at a time.
+I can only pick up or unstack a block if my hand is empty.
+I can only pick up a block if the block is on the table and the block is clear. A block is clear if the block has no other blocks on top of it and if the block is not picked up.
+I can only unstack a block from on top of another block if the block I am unstacking was really on top of the other block.
+I can only unstack a block from on top of another block if the block I am unstacking is clear.
+Once I pick up or unstack a block, I am holding the block.
+I can only put down a block that I am holding.
+I can only stack a block on top of another block if I am holding the block being stacked.
+I can only stack a block on top of another block if the block onto which I am stacking the block is clear.
+Once I put down or stack a block, my hand becomes empty.
+
+Your memory for the task below:
+ My goal is to have that the orange block is on top of the blue block.
+[STATE 0] I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+[ACTION 1] Pick up the yellow block.
+[STATE 1] I have that, the blue block is clear, the red block is clear, the yellow block is in the hand, the hand is holding the yellow block, the blue block is on top of the orange block, the orange block is on the table, and the red block is on the table.
+[ACTION 2] Stack the yellow block on top of the red block.
+[STATE 2] I have that, the blue block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the yellow block is on top of the red block, the orange block is on the table, and the red block is on the table.
+[ACTION 3] Unstack the yellow block from on top of the red block.
+[STATE 3] I have that, the blue block is clear, the red block is clear, the yellow block is in the hand, the hand is holding the yellow block, the blue block is on top of the orange block, the orange block is on the table, and the red block is on the table.
+[ACTION 4] Stack the yellow block on top of the blue block.
+[STATE 4] I have that, the red block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the yellow block is on top of the blue block, the orange block is on the table, and the red block is on the table.
+[ACTION 5] Pick up the red block.
+[STATE 5] I have that, the red block is in the hand, the yellow block is clear, the hand is holding the red block, the blue block is on top of the orange block, the yellow block is on top of the blue block, and the orange block is on the table.
+
+[CRITIC] 5 and
+
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+put down the yellow block
+pick up the orange block
+stack the orange block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the red block, the orange block is on top of the blue block, the red block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the red block and the yellow block is on top of the orange block.
+
+My plan is as follows:
+
+[PLAN]
+pick up the yellow block
+stack the yellow block on top of the orange block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the blue block from on top of the yellow block
+stack the blue block on top of the orange block
+pick up the yellow block
+stack the yellow block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the yellow block is on top of the orange block, the red block is on the table, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the blue block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+stack the yellow block on top of the red block
+pick up the orange block
+stack the orange block on top of the blue block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the orange block is on top of the blue block.
+
+My plan is as follows:
+
+[PLAN]
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+[-3.31148529 -4.34081364 -2.64871216]
+[0.03646198 0.01302593 0.07074226]
+0.1202301616639183
+[0.30326813 0.10834158 0.58839029]
+
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+I am playing with a set of blocks where I need to arrange the blocks into stacks. Here are the actions I can do
+
+Pick up a block
+Unstack a block from on top of another block
+Put down a block
+Stack a block on top of another block
+
+I have the following restrictions on my actions:
+I can only pick up or unstack one block at a time.
+I can only pick up or unstack a block if my hand is empty.
+I can only pick up a block if the block is on the table and the block is clear. A block is clear if the block has no other blocks on top of it and if the block is not picked up.
+I can only unstack a block from on top of another block if the block I am unstacking was really on top of the other block.
+I can only unstack a block from on top of another block if the block I am unstacking is clear.
+Once I pick up or unstack a block, I am holding the block.
+I can only put down a block that I am holding.
+I can only stack a block on top of another block if I am holding the block being stacked.
+I can only stack a block on top of another block if the block onto which I am stacking the block is clear.
+Once I put down or stack a block, my hand becomes empty.
+
+Your memory for the task below:
+ My goal is to have that the orange block is on top of the blue block.
+[STATE 0] I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+[ACTION 1] Pick up the yellow block.
+[STATE 1] I have that, the blue block is clear, the red block is clear, the yellow block is in the hand, the hand is holding the yellow block, the blue block is on top of the orange block, the orange block is on the table, and the red block is on the table.
+[ACTION 2] Stack the yellow block on top of the red block.
+[STATE 2] I have that, the blue block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the yellow block is on top of the red block, the orange block is on the table, and the red block is on the table.
+[ACTION 3] Unstack the yellow block from on top of the red block.
+[STATE 3] I have that, the blue block is clear, the red block is clear, the yellow block is in the hand, the hand is holding the yellow block, the blue block is on top of the orange block, the orange block is on the table, and the red block is on the table.
+[ACTION 4] Stack the yellow block on top of the blue block.
+[STATE 4] I have that, the red block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the yellow block is on top of the blue block, the orange block is on the table, and the red block is on the table.
+[ACTION 5] Pick up the red block.
+[STATE 5] I have that, the red block is in the hand, the yellow block is clear, the hand is holding the red block, the blue block is on top of the orange block, the yellow block is on top of the blue block, and the orange block is on the table.
+
+[CRITIC] 5 and
+
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+put down the yellow block
+pick up the orange block
+stack the orange block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the red block, the orange block is on top of the blue block, the red block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the red block and the yellow block is on top of the orange block.
+
+My plan is as follows:
+
+[PLAN]
+pick up the yellow block
+stack the yellow block on top of the orange block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the blue block from on top of the yellow block
+stack the blue block on top of the orange block
+pick up the yellow block
+stack the yellow block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the yellow block is on top of the orange block, the red block is on the table, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the blue block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+stack the yellow block on top of the red block
+pick up the orange block
+stack the orange block on top of the blue block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the orange block is on top of the blue block.
+
+My plan is as follows:
+
+[PLAN]
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+[-4.38085938 -4.28069305 -7.78738403]
+[0.0125146  0.01383307 0.00041494]
+0.026762607886612624
+[0.46761509 0.51688056 0.01550435]
+
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+I am playing with a set of blocks where I need to arrange the blocks into stacks. Here are the actions I can do
+
+Pick up a block
+Unstack a block from on top of another block
+Put down a block
+Stack a block on top of another block
+
+I have the following restrictions on my actions:
+I can only pick up or unstack one block at a time.
+I can only pick up or unstack a block if my hand is empty.
+I can only pick up a block if the block is on the table and the block is clear. A block is clear if the block has no other blocks on top of it and if the block is not picked up.
+I can only unstack a block from on top of another block if the block I am unstacking was really on top of the other block.
+I can only unstack a block from on top of another block if the block I am unstacking is clear.
+Once I pick up or unstack a block, I am holding the block.
+I can only put down a block that I am holding.
+I can only stack a block on top of another block if I am holding the block being stacked.
+I can only stack a block on top of another block if the block onto which I am stacking the block is clear.
+Once I put down or stack a block, my hand becomes empty.
+
+Your memory for the task below:
+ My goal is to have that the orange block is on top of the blue block.
+[STATE 0] I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+[ACTION 1] Pick up the yellow block.
+[STATE 1] I have that, the blue block is clear, the red block is clear, the yellow block is in the hand, the hand is holding the yellow block, the blue block is on top of the orange block, the orange block is on the table, and the red block is on the table.
+[ACTION 2] Stack the yellow block on top of the red block.
+[STATE 2] I have that, the blue block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the yellow block is on top of the red block, the orange block is on the table, and the red block is on the table.
+[ACTION 3] Unstack the yellow block from on top of the red block.
+[STATE 3] I have that, the blue block is clear, the red block is clear, the yellow block is in the hand, the hand is holding the yellow block, the blue block is on top of the orange block, the orange block is on the table, and the red block is on the table.
+[ACTION 4] Stack the yellow block on top of the blue block.
+[STATE 4] I have that, the red block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the yellow block is on top of the blue block, the orange block is on the table, and the red block is on the table.
+[ACTION 5] Pick up the red block.
+[STATE 5] I have that, the red block is in the hand, the yellow block is clear, the hand is holding the red block, the blue block is on top of the orange block, the yellow block is on top of the blue block, and the orange block is on the table.
+
+[CRITIC] 5 and
+
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+put down the yellow block
+pick up the orange block
+stack the orange block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the red block, the orange block is on top of the blue block, the red block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the red block and the yellow block is on top of the orange block.
+
+My plan is as follows:
+
+[PLAN]
+pick up the yellow block
+stack the yellow block on top of the orange block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the blue block from on top of the yellow block
+stack the blue block on top of the orange block
+pick up the yellow block
+stack the yellow block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the yellow block is on top of the orange block, the red block is on the table, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the blue block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+stack the yellow block on top of the red block
+pick up the orange block
+stack the orange block on top of the blue block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the orange block is on top of the blue block.
+
+My plan is as follows:
+
+[PLAN]
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+[-3.68771744 -7.63801193 -7.06669617]
+[0.02502907 0.00048179 0.00085305]
+0.02636389939946602
+[0.94936894 0.01827443 0.03235662]
+
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+I am playing with a set of blocks where I need to arrange the blocks into stacks. Here are the actions I can do
+
+Pick up a block
+Unstack a block from on top of another block
+Put down a block
+Stack a block on top of another block
+
+I have the following restrictions on my actions:
+I can only pick up or unstack one block at a time.
+I can only pick up or unstack a block if my hand is empty.
+I can only pick up a block if the block is on the table and the block is clear. A block is clear if the block has no other blocks on top of it and if the block is not picked up.
+I can only unstack a block from on top of another block if the block I am unstacking was really on top of the other block.
+I can only unstack a block from on top of another block if the block I am unstacking is clear.
+Once I pick up or unstack a block, I am holding the block.
+I can only put down a block that I am holding.
+I can only stack a block on top of another block if I am holding the block being stacked.
+I can only stack a block on top of another block if the block onto which I am stacking the block is clear.
+Once I put down or stack a block, my hand becomes empty.
+
+Your memory for the task below:
+ My goal is to have that the orange block is on top of the blue block.
+[STATE 0] I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+[ACTION 1] Pick up the yellow block.
+[STATE 1] I have that, the blue block is clear, the red block is clear, the yellow block is in the hand, the hand is holding the yellow block, the blue block is on top of the orange block, the orange block is on the table, and the red block is on the table.
+[ACTION 2] Stack the yellow block on top of the red block.
+[STATE 2] I have that, the blue block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the yellow block is on top of the red block, the orange block is on the table, and the red block is on the table.
+[ACTION 3] Unstack the yellow block from on top of the red block.
+[STATE 3] I have that, the blue block is clear, the red block is clear, the yellow block is in the hand, the hand is holding the yellow block, the blue block is on top of the orange block, the orange block is on the table, and the red block is on the table.
+[ACTION 4] Stack the yellow block on top of the blue block.
+[STATE 4] I have that, the red block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the yellow block is on top of the blue block, the orange block is on the table, and the red block is on the table.
+[ACTION 5] Pick up the red block.
+[STATE 5] I have that, the red block is in the hand, the yellow block is clear, the hand is holding the red block, the blue block is on top of the orange block, the yellow block is on top of the blue block, and the orange block is on the table.
+
+[CRITIC] 5 and
+
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+put down the yellow block
+pick up the orange block
+stack the orange block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the red block, the orange block is on top of the blue block, the red block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the red block and the yellow block is on top of the orange block.
+
+My plan is as follows:
+
+[PLAN]
+pick up the yellow block
+stack the yellow block on top of the orange block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the blue block from on top of the yellow block
+stack the blue block on top of the orange block
+pick up the yellow block
+stack the yellow block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the yellow block is on top of the orange block, the red block is on the table, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the blue block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+stack the yellow block on top of the red block
+pick up the orange block
+stack the orange block on top of the blue block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the red block is on top of the blue block, the orange block is on the table, and the yellow block is on the table.
+My goal is to have that the orange block is on top of the blue block.
+
+My plan is as follows:
+
+[PLAN]
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+[-4.63561916 -2.78935242]
+[0.0097001 0.061461 ]
+0.07116110136226242
+[0.13631182 0.86368818]
+
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+I am playing with a set of blocks where I need to arrange the blocks into stacks. Here are the actions I can do
+
+Pick up a block
+Unstack a block from on top of another block
+Put down a block
+Stack a block on top of another block
+
+I have the following restrictions on my actions:
+I can only pick up or unstack one block at a time.
+I can only pick up or unstack a block if my hand is empty.
+I can only pick up a block if the block is on the table and the block is clear. A block is clear if the block has no other blocks on top of it and if the block is not picked up.
+I can only unstack a block from on top of another block if the block I am unstacking was really on top of the other block.
+I can only unstack a block from on top of another block if the block I am unstacking is clear.
+Once I pick up or unstack a block, I am holding the block.
+I can only put down a block that I am holding.
+I can only stack a block on top of another block if I am holding the block being stacked.
+I can only stack a block on top of another block if the block onto which I am stacking the block is clear.
+Once I put down or stack a block, my hand becomes empty.
+
+Your memory for the task below:
+ My goal is to have that the orange block is on top of the blue block.
+[STATE 0] I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+[ACTION 1] Pick up the yellow block.
+[STATE 1] I have that, the blue block is clear, the red block is clear, the yellow block is in the hand, the hand is holding the yellow block, the blue block is on top of the orange block, the orange block is on the table, and the red block is on the table.
+[ACTION 2] Stack the yellow block on top of the red block.
+[STATE 2] I have that, the blue block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the yellow block is on top of the red block, the orange block is on the table, and the red block is on the table.
+[ACTION 3] Unstack the yellow block from on top of the red block.
+[STATE 3] I have that, the blue block is clear, the red block is clear, the yellow block is in the hand, the hand is holding the yellow block, the blue block is on top of the orange block, the orange block is on the table, and the red block is on the table.
+[ACTION 4] Stack the yellow block on top of the blue block.
+[STATE 4] I have that, the red block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the yellow block is on top of the blue block, the orange block is on the table, and the red block is on the table.
+[ACTION 5] Pick up the red block.
+[STATE 5] I have that, the red block is in the hand, the yellow block is clear, the hand is holding the red block, the blue block is on top of the orange block, the yellow block is on top of the blue block, and the orange block is on the table.
+
+[CRITIC] 5 and
+
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+put down the yellow block
+pick up the orange block
+stack the orange block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the red block, the orange block is on top of the blue block, the red block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the red block and the yellow block is on top of the orange block.
+
+My plan is as follows:
+
+[PLAN]
+pick up the yellow block
+stack the yellow block on top of the orange block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the blue block from on top of the yellow block
+stack the blue block on top of the orange block
+pick up the yellow block
+stack the yellow block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the yellow block is on top of the orange block, the red block is on the table, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the blue block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+stack the yellow block on top of the red block
+pick up the orange block
+stack the orange block on top of the blue block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the blue block is clear, the red block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the orange block is on the table, the red block is on the table, and the yellow block is on the table.
+My goal is to have that the orange block is on top of the blue block.
+
+My plan is as follows:
+
+[PLAN]
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+[-5.10797787 -4.02919006 -1.94243622]
+[0.0060483  0.01778873 0.14335428]
+0.16719131459646205
+[0.03617593 0.10639746 0.85742661]
+
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+I am playing with a set of blocks where I need to arrange the blocks into stacks. Here are the actions I can do
+
+Pick up a block
+Unstack a block from on top of another block
+Put down a block
+Stack a block on top of another block
+
+I have the following restrictions on my actions:
+I can only pick up or unstack one block at a time.
+I can only pick up or unstack a block if my hand is empty.
+I can only pick up a block if the block is on the table and the block is clear. A block is clear if the block has no other blocks on top of it and if the block is not picked up.
+I can only unstack a block from on top of another block if the block I am unstacking was really on top of the other block.
+I can only unstack a block from on top of another block if the block I am unstacking is clear.
+Once I pick up or unstack a block, I am holding the block.
+I can only put down a block that I am holding.
+I can only stack a block on top of another block if I am holding the block being stacked.
+I can only stack a block on top of another block if the block onto which I am stacking the block is clear.
+Once I put down or stack a block, my hand becomes empty.
+
+Your memory for the task below:
+ My goal is to have that the orange block is on top of the blue block.
+[STATE 0] I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+[ACTION 1] Pick up the yellow block.
+[STATE 1] I have that, the blue block is clear, the red block is clear, the yellow block is in the hand, the hand is holding the yellow block, the blue block is on top of the orange block, the orange block is on the table, and the red block is on the table.
+[ACTION 2] Stack the yellow block on top of the red block.
+[STATE 2] I have that, the blue block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the yellow block is on top of the red block, the orange block is on the table, and the red block is on the table.
+[ACTION 3] Unstack the yellow block from on top of the red block.
+[STATE 3] I have that, the blue block is clear, the red block is clear, the yellow block is in the hand, the hand is holding the yellow block, the blue block is on top of the orange block, the orange block is on the table, and the red block is on the table.
+[ACTION 4] Stack the yellow block on top of the blue block.
+[STATE 4] I have that, the red block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the yellow block is on top of the blue block, the orange block is on the table, and the red block is on the table.
+[ACTION 5] Pick up the red block.
+[STATE 5] I have that, the red block is in the hand, the yellow block is clear, the hand is holding the red block, the blue block is on top of the orange block, the yellow block is on top of the blue block, and the orange block is on the table.
+
+[CRITIC] 5 and
+
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+put down the yellow block
+pick up the orange block
+stack the orange block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the red block, the orange block is on top of the blue block, the red block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the red block and the yellow block is on top of the orange block.
+
+My plan is as follows:
+
+[PLAN]
+pick up the yellow block
+stack the yellow block on top of the orange block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the blue block from on top of the yellow block
+stack the blue block on top of the orange block
+pick up the yellow block
+stack the yellow block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the yellow block is on top of the orange block, the red block is on the table, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the blue block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+stack the yellow block on top of the red block
+pick up the orange block
+stack the orange block on top of the blue block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the red block is on top of the blue block, the orange block is on the table, and the yellow block is on the table.
+My goal is to have that the orange block is on top of the blue block.
+
+My plan is as follows:
+
+[PLAN]
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+[-4.09923553 -7.42879486]
+[0.01658535 0.0005939 ]
+0.017179252297736335
+[0.96542906 0.03457094]
+
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+I am playing with a set of blocks where I need to arrange the blocks into stacks. Here are the actions I can do
+
+Pick up a block
+Unstack a block from on top of another block
+Put down a block
+Stack a block on top of another block
+
+I have the following restrictions on my actions:
+I can only pick up or unstack one block at a time.
+I can only pick up or unstack a block if my hand is empty.
+I can only pick up a block if the block is on the table and the block is clear. A block is clear if the block has no other blocks on top of it and if the block is not picked up.
+I can only unstack a block from on top of another block if the block I am unstacking was really on top of the other block.
+I can only unstack a block from on top of another block if the block I am unstacking is clear.
+Once I pick up or unstack a block, I am holding the block.
+I can only put down a block that I am holding.
+I can only stack a block on top of another block if I am holding the block being stacked.
+I can only stack a block on top of another block if the block onto which I am stacking the block is clear.
+Once I put down or stack a block, my hand becomes empty.
+
+Your memory for the task below:
+ My goal is to have that the orange block is on top of the blue block.
+[STATE 0] I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+[ACTION 1] Pick up the yellow block.
+[STATE 1] I have that, the blue block is clear, the red block is clear, the yellow block is in the hand, the hand is holding the yellow block, the blue block is on top of the orange block, the orange block is on the table, and the red block is on the table.
+[ACTION 2] Stack the yellow block on top of the red block.
+[STATE 2] I have that, the blue block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the yellow block is on top of the red block, the orange block is on the table, and the red block is on the table.
+[ACTION 3] Unstack the yellow block from on top of the red block.
+[STATE 3] I have that, the blue block is clear, the red block is clear, the yellow block is in the hand, the hand is holding the yellow block, the blue block is on top of the orange block, the orange block is on the table, and the red block is on the table.
+[ACTION 4] Stack the yellow block on top of the blue block.
+[STATE 4] I have that, the red block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the yellow block is on top of the blue block, the orange block is on the table, and the red block is on the table.
+[ACTION 5] Pick up the red block.
+[STATE 5] I have that, the red block is in the hand, the yellow block is clear, the hand is holding the red block, the blue block is on top of the orange block, the yellow block is on top of the blue block, and the orange block is on the table.
+
+[CRITIC] 5 and
+
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+put down the yellow block
+pick up the orange block
+stack the orange block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the red block, the orange block is on top of the blue block, the red block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the red block and the yellow block is on top of the orange block.
+
+My plan is as follows:
+
+[PLAN]
+pick up the yellow block
+stack the yellow block on top of the orange block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the blue block from on top of the yellow block
+stack the blue block on top of the orange block
+pick up the yellow block
+stack the yellow block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the yellow block is on top of the orange block, the red block is on the table, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the blue block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+stack the yellow block on top of the red block
+pick up the orange block
+stack the orange block on top of the blue block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the red block is on top of the blue block, the orange block is on the table, and the yellow block is on the table.
+My goal is to have that the orange block is on top of the blue block.
+
+My plan is as follows:
+
+[PLAN]
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+[-7.79152966 -7.43659496 -6.9192915 ]
+[0.00041322 0.00058929 0.00098853]
+0.0019910387190713603
+[0.20754007 0.2959703  0.49648963]
+
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+I am playing with a set of blocks where I need to arrange the blocks into stacks. Here are the actions I can do
+
+Pick up a block
+Unstack a block from on top of another block
+Put down a block
+Stack a block on top of another block
+
+I have the following restrictions on my actions:
+I can only pick up or unstack one block at a time.
+I can only pick up or unstack a block if my hand is empty.
+I can only pick up a block if the block is on the table and the block is clear. A block is clear if the block has no other blocks on top of it and if the block is not picked up.
+I can only unstack a block from on top of another block if the block I am unstacking was really on top of the other block.
+I can only unstack a block from on top of another block if the block I am unstacking is clear.
+Once I pick up or unstack a block, I am holding the block.
+I can only put down a block that I am holding.
+I can only stack a block on top of another block if I am holding the block being stacked.
+I can only stack a block on top of another block if the block onto which I am stacking the block is clear.
+Once I put down or stack a block, my hand becomes empty.
+
+Your memory for the task below:
+ My goal is to have that the orange block is on top of the blue block.
+[STATE 0] I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+[ACTION 1] Pick up the yellow block.
+[STATE 1] I have that, the blue block is clear, the red block is clear, the yellow block is in the hand, the hand is holding the yellow block, the blue block is on top of the orange block, the orange block is on the table, and the red block is on the table.
+[ACTION 2] Stack the yellow block on top of the red block.
+[STATE 2] I have that, the blue block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the yellow block is on top of the red block, the orange block is on the table, and the red block is on the table.
+[ACTION 3] Unstack the yellow block from on top of the red block.
+[STATE 3] I have that, the blue block is clear, the red block is clear, the yellow block is in the hand, the hand is holding the yellow block, the blue block is on top of the orange block, the orange block is on the table, and the red block is on the table.
+[ACTION 4] Stack the yellow block on top of the blue block.
+[STATE 4] I have that, the red block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the yellow block is on top of the blue block, the orange block is on the table, and the red block is on the table.
+[ACTION 5] Pick up the red block.
+[STATE 5] I have that, the red block is in the hand, the yellow block is clear, the hand is holding the red block, the blue block is on top of the orange block, the yellow block is on top of the blue block, and the orange block is on the table.
+
+[CRITIC] 5 and
+
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+put down the yellow block
+pick up the orange block
+stack the orange block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the red block, the orange block is on top of the blue block, the red block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the red block and the yellow block is on top of the orange block.
+
+My plan is as follows:
+
+[PLAN]
+pick up the yellow block
+stack the yellow block on top of the orange block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the blue block from on top of the yellow block
+stack the blue block on top of the orange block
+pick up the yellow block
+stack the yellow block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the yellow block is on top of the orange block, the red block is on the table, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the blue block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+stack the yellow block on top of the red block
+pick up the orange block
+stack the orange block on top of the blue block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the red block is on top of the blue block, the yellow block is on top of the red block, and the orange block is on the table.
+My goal is to have that the orange block is on top of the blue block.
+
+My plan is as follows:
+
+[PLAN]
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+[-6.73504829]
+[0.00118852]
+0.0011885178004126587
+[1.]
+
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+I am playing with a set of blocks where I need to arrange the blocks into stacks. Here are the actions I can do
+
+Pick up a block
+Unstack a block from on top of another block
+Put down a block
+Stack a block on top of another block
+
+I have the following restrictions on my actions:
+I can only pick up or unstack one block at a time.
+I can only pick up or unstack a block if my hand is empty.
+I can only pick up a block if the block is on the table and the block is clear. A block is clear if the block has no other blocks on top of it and if the block is not picked up.
+I can only unstack a block from on top of another block if the block I am unstacking was really on top of the other block.
+I can only unstack a block from on top of another block if the block I am unstacking is clear.
+Once I pick up or unstack a block, I am holding the block.
+I can only put down a block that I am holding.
+I can only stack a block on top of another block if I am holding the block being stacked.
+I can only stack a block on top of another block if the block onto which I am stacking the block is clear.
+Once I put down or stack a block, my hand becomes empty.
+
+Your memory for the task below:
+ My goal is to have that the orange block is on top of the blue block.
+[STATE 0] I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+[ACTION 1] Pick up the yellow block.
+[STATE 1] I have that, the blue block is clear, the red block is clear, the yellow block is in the hand, the hand is holding the yellow block, the blue block is on top of the orange block, the orange block is on the table, and the red block is on the table.
+[ACTION 2] Stack the yellow block on top of the red block.
+[STATE 2] I have that, the blue block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the yellow block is on top of the red block, the orange block is on the table, and the red block is on the table.
+[ACTION 3] Unstack the yellow block from on top of the red block.
+[STATE 3] I have that, the blue block is clear, the red block is clear, the yellow block is in the hand, the hand is holding the yellow block, the blue block is on top of the orange block, the orange block is on the table, and the red block is on the table.
+[ACTION 4] Stack the yellow block on top of the blue block.
+[STATE 4] I have that, the red block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the yellow block is on top of the blue block, the orange block is on the table, and the red block is on the table.
+[ACTION 5] Pick up the red block.
+[STATE 5] I have that, the red block is in the hand, the yellow block is clear, the hand is holding the red block, the blue block is on top of the orange block, the yellow block is on top of the blue block, and the orange block is on the table.
+
+[CRITIC] 5 and
+
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+put down the yellow block
+pick up the orange block
+stack the orange block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the red block, the orange block is on top of the blue block, the red block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the red block and the yellow block is on top of the orange block.
+
+My plan is as follows:
+
+[PLAN]
+pick up the yellow block
+stack the yellow block on top of the orange block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the blue block from on top of the yellow block
+stack the blue block on top of the orange block
+pick up the yellow block
+stack the yellow block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the yellow block is on top of the orange block, the red block is on the table, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the blue block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+stack the yellow block on top of the red block
+pick up the orange block
+stack the orange block on top of the blue block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the red block is on top of the blue block, the orange block is on the table, and the yellow block is on the table.
+My goal is to have that the orange block is on top of the blue block.
+
+My plan is as follows:
+
+[PLAN]
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+[-4.63561916 -2.78935242]
+[0.0097001 0.061461 ]
+0.07116110136226242
+[0.13631182 0.86368818]
+
+
+reflexion_prompt_last_part-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+ 
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+We are dealing with 1-th file now.
+
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+I am playing with a set of blocks where I need to arrange the blocks into stacks. Here are the actions I can do
+
+Pick up a block
+Unstack a block from on top of another block
+Put down a block
+Stack a block on top of another block
+
+I have the following restrictions on my actions:
+I can only pick up or unstack one block at a time.
+I can only pick up or unstack a block if my hand is empty.
+I can only pick up a block if the block is on the table and the block is clear. A block is clear if the block has no other blocks on top of it and if the block is not picked up.
+I can only unstack a block from on top of another block if the block I am unstacking was really on top of the other block.
+I can only unstack a block from on top of another block if the block I am unstacking is clear.
+Once I pick up or unstack a block, I am holding the block.
+I can only put down a block that I am holding.
+I can only stack a block on top of another block if I am holding the block being stacked.
+I can only stack a block on top of another block if the block onto which I am stacking the block is clear.
+Once I put down or stack a block, my hand becomes empty.
+
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+put down the yellow block
+pick up the orange block
+stack the orange block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the red block, the orange block is on top of the blue block, the red block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the red block and the yellow block is on top of the orange block.
+
+My plan is as follows:
+
+[PLAN]
+pick up the yellow block
+stack the yellow block on top of the orange block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the blue block from on top of the yellow block
+stack the blue block on top of the orange block
+pick up the yellow block
+stack the yellow block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the yellow block is on top of the orange block, the red block is on the table, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the blue block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+stack the yellow block on top of the red block
+pick up the orange block
+stack the orange block on top of the blue block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+[-4.77078724 -3.38016796]
+[0.00847371 0.03404174]
+0.042515443266648446
+
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+I am playing with a set of blocks where I need to arrange the blocks into stacks. Here are the actions I can do
+
+Pick up a block
+Unstack a block from on top of another block
+Put down a block
+Stack a block on top of another block
+
+I have the following restrictions on my actions:
+I can only pick up or unstack one block at a time.
+I can only pick up or unstack a block if my hand is empty.
+I can only pick up a block if the block is on the table and the block is clear. A block is clear if the block has no other blocks on top of it and if the block is not picked up.
+I can only unstack a block from on top of another block if the block I am unstacking was really on top of the other block.
+I can only unstack a block from on top of another block if the block I am unstacking is clear.
+Once I pick up or unstack a block, I am holding the block.
+I can only put down a block that I am holding.
+I can only stack a block on top of another block if I am holding the block being stacked.
+I can only stack a block on top of another block if the block onto which I am stacking the block is clear.
+Once I put down or stack a block, my hand becomes empty.
+
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+put down the yellow block
+pick up the orange block
+stack the orange block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the red block, the orange block is on top of the blue block, the red block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the red block and the yellow block is on top of the orange block.
+
+My plan is as follows:
+
+[PLAN]
+pick up the yellow block
+stack the yellow block on top of the orange block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the blue block from on top of the yellow block
+stack the blue block on top of the orange block
+pick up the yellow block
+stack the yellow block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the yellow block is on top of the orange block, the red block is on the table, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the blue block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+stack the yellow block on top of the red block
+pick up the orange block
+stack the orange block on top of the blue block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+[-8.15193462 -3.90022564 -6.13616085]
+[0.00028818 0.02023734 0.00216321]
+0.02268873448809148
+
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+I am playing with a set of blocks where I need to arrange the blocks into stacks. Here are the actions I can do
+
+Pick up a block
+Unstack a block from on top of another block
+Put down a block
+Stack a block on top of another block
+
+I have the following restrictions on my actions:
+I can only pick up or unstack one block at a time.
+I can only pick up or unstack a block if my hand is empty.
+I can only pick up a block if the block is on the table and the block is clear. A block is clear if the block has no other blocks on top of it and if the block is not picked up.
+I can only unstack a block from on top of another block if the block I am unstacking was really on top of the other block.
+I can only unstack a block from on top of another block if the block I am unstacking is clear.
+Once I pick up or unstack a block, I am holding the block.
+I can only put down a block that I am holding.
+I can only stack a block on top of another block if I am holding the block being stacked.
+I can only stack a block on top of another block if the block onto which I am stacking the block is clear.
+Once I put down or stack a block, my hand becomes empty.
+
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+put down the yellow block
+pick up the orange block
+stack the orange block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the red block, the orange block is on top of the blue block, the red block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the red block and the yellow block is on top of the orange block.
+
+My plan is as follows:
+
+[PLAN]
+pick up the yellow block
+stack the yellow block on top of the orange block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the blue block from on top of the yellow block
+stack the blue block on top of the orange block
+pick up the yellow block
+stack the yellow block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the yellow block is on top of the orange block, the red block is on the table, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the blue block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+stack the yellow block on top of the red block
+pick up the orange block
+stack the orange block on top of the blue block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+[-10.27702618  -6.29017544  -7.59191227]
+[3.44147201e-05 1.85443458e-03 5.04515362e-04]
+0.002393364661756057
+
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+I am playing with a set of blocks where I need to arrange the blocks into stacks. Here are the actions I can do
+
+Pick up a block
+Unstack a block from on top of another block
+Put down a block
+Stack a block on top of another block
+
+I have the following restrictions on my actions:
+I can only pick up or unstack one block at a time.
+I can only pick up or unstack a block if my hand is empty.
+I can only pick up a block if the block is on the table and the block is clear. A block is clear if the block has no other blocks on top of it and if the block is not picked up.
+I can only unstack a block from on top of another block if the block I am unstacking was really on top of the other block.
+I can only unstack a block from on top of another block if the block I am unstacking is clear.
+Once I pick up or unstack a block, I am holding the block.
+I can only put down a block that I am holding.
+I can only stack a block on top of another block if I am holding the block being stacked.
+I can only stack a block on top of another block if the block onto which I am stacking the block is clear.
+Once I put down or stack a block, my hand becomes empty.
+
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+put down the yellow block
+pick up the orange block
+stack the orange block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the red block, the orange block is on top of the blue block, the red block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the red block and the yellow block is on top of the orange block.
+
+My plan is as follows:
+
+[PLAN]
+pick up the yellow block
+stack the yellow block on top of the orange block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the blue block from on top of the yellow block
+stack the blue block on top of the orange block
+pick up the yellow block
+stack the yellow block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the yellow block is on top of the orange block, the red block is on the table, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the blue block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+stack the yellow block on top of the red block
+pick up the orange block
+stack the orange block on top of the blue block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the red block, the blue block is on the table, and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+[-0.75792313 -5.66430473]
+[0.46863872 0.00346756]
+0.4721062782778962
+
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+I am playing with a set of blocks where I need to arrange the blocks into stacks. Here are the actions I can do
+
+Pick up a block
+Unstack a block from on top of another block
+Put down a block
+Stack a block on top of another block
+
+I have the following restrictions on my actions:
+I can only pick up or unstack one block at a time.
+I can only pick up or unstack a block if my hand is empty.
+I can only pick up a block if the block is on the table and the block is clear. A block is clear if the block has no other blocks on top of it and if the block is not picked up.
+I can only unstack a block from on top of another block if the block I am unstacking was really on top of the other block.
+I can only unstack a block from on top of another block if the block I am unstacking is clear.
+Once I pick up or unstack a block, I am holding the block.
+I can only put down a block that I am holding.
+I can only stack a block on top of another block if I am holding the block being stacked.
+I can only stack a block on top of another block if the block onto which I am stacking the block is clear.
+Once I put down or stack a block, my hand becomes empty.
+
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+put down the yellow block
+pick up the orange block
+stack the orange block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the red block, the orange block is on top of the blue block, the red block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the red block and the yellow block is on top of the orange block.
+
+My plan is as follows:
+
+[PLAN]
+pick up the yellow block
+stack the yellow block on top of the orange block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the blue block from on top of the yellow block
+stack the blue block on top of the orange block
+pick up the yellow block
+stack the yellow block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the yellow block is on top of the orange block, the red block is on the table, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the blue block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+stack the yellow block on top of the red block
+pick up the orange block
+stack the orange block on top of the blue block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the blue block is on the table, the orange block is on the table, and the yellow block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+[-0.72994995 -5.92945194 -1.82563019]
+[0.48193311 0.00265994 0.16111608]
+0.6457091277762055
+
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+I am playing with a set of blocks where I need to arrange the blocks into stacks. Here are the actions I can do
+
+Pick up a block
+Unstack a block from on top of another block
+Put down a block
+Stack a block on top of another block
+
+I have the following restrictions on my actions:
+I can only pick up or unstack one block at a time.
+I can only pick up or unstack a block if my hand is empty.
+I can only pick up a block if the block is on the table and the block is clear. A block is clear if the block has no other blocks on top of it and if the block is not picked up.
+I can only unstack a block from on top of another block if the block I am unstacking was really on top of the other block.
+I can only unstack a block from on top of another block if the block I am unstacking is clear.
+Once I pick up or unstack a block, I am holding the block.
+I can only put down a block that I am holding.
+I can only stack a block on top of another block if I am holding the block being stacked.
+I can only stack a block on top of another block if the block onto which I am stacking the block is clear.
+Once I put down or stack a block, my hand becomes empty.
+
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+put down the yellow block
+pick up the orange block
+stack the orange block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the red block, the orange block is on top of the blue block, the red block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the red block and the yellow block is on top of the orange block.
+
+My plan is as follows:
+
+[PLAN]
+pick up the yellow block
+stack the yellow block on top of the orange block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the blue block from on top of the yellow block
+stack the blue block on top of the orange block
+pick up the yellow block
+stack the yellow block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the yellow block is on top of the orange block, the red block is on the table, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the blue block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+stack the yellow block on top of the red block
+pick up the orange block
+stack the orange block on top of the blue block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the red block, the blue block is on the table, and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+[-2.76141167 -4.23324203]
+[0.06320248 0.01450529]
+0.07770777208764067
+
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+I am playing with a set of blocks where I need to arrange the blocks into stacks. Here are the actions I can do
+
+Pick up a block
+Unstack a block from on top of another block
+Put down a block
+Stack a block on top of another block
+
+I have the following restrictions on my actions:
+I can only pick up or unstack one block at a time.
+I can only pick up or unstack a block if my hand is empty.
+I can only pick up a block if the block is on the table and the block is clear. A block is clear if the block has no other blocks on top of it and if the block is not picked up.
+I can only unstack a block from on top of another block if the block I am unstacking was really on top of the other block.
+I can only unstack a block from on top of another block if the block I am unstacking is clear.
+Once I pick up or unstack a block, I am holding the block.
+I can only put down a block that I am holding.
+I can only stack a block on top of another block if I am holding the block being stacked.
+I can only stack a block on top of another block if the block onto which I am stacking the block is clear.
+Once I put down or stack a block, my hand becomes empty.
+
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+put down the yellow block
+pick up the orange block
+stack the orange block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the red block, the orange block is on top of the blue block, the red block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the red block and the yellow block is on top of the orange block.
+
+My plan is as follows:
+
+[PLAN]
+pick up the yellow block
+stack the yellow block on top of the orange block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the blue block from on top of the yellow block
+stack the blue block on top of the orange block
+pick up the yellow block
+stack the yellow block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the yellow block is on top of the orange block, the red block is on the table, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the blue block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+stack the yellow block on top of the red block
+pick up the orange block
+stack the orange block on top of the blue block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the red block, the blue block is on the table, and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+[ -7.40136719 -10.9331131   -8.51792336]
+[6.10417635e-04 1.78570334e-05 1.99854021e-04]
+0.0008281286889972392
+
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+I am playing with a set of blocks where I need to arrange the blocks into stacks. Here are the actions I can do
+
+Pick up a block
+Unstack a block from on top of another block
+Put down a block
+Stack a block on top of another block
+
+I have the following restrictions on my actions:
+I can only pick up or unstack one block at a time.
+I can only pick up or unstack a block if my hand is empty.
+I can only pick up a block if the block is on the table and the block is clear. A block is clear if the block has no other blocks on top of it and if the block is not picked up.
+I can only unstack a block from on top of another block if the block I am unstacking was really on top of the other block.
+I can only unstack a block from on top of another block if the block I am unstacking is clear.
+Once I pick up or unstack a block, I am holding the block.
+I can only put down a block that I am holding.
+I can only stack a block on top of another block if I am holding the block being stacked.
+I can only stack a block on top of another block if the block onto which I am stacking the block is clear.
+Once I put down or stack a block, my hand becomes empty.
+
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+put down the yellow block
+pick up the orange block
+stack the orange block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the red block, the orange block is on top of the blue block, the red block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the red block and the yellow block is on top of the orange block.
+
+My plan is as follows:
+
+[PLAN]
+pick up the yellow block
+stack the yellow block on top of the orange block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the blue block from on top of the yellow block
+stack the blue block on top of the orange block
+pick up the yellow block
+stack the yellow block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the yellow block is on top of the orange block, the red block is on the table, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the blue block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+stack the yellow block on top of the red block
+pick up the orange block
+stack the orange block on top of the blue block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the hand is empty, the orange block is on top of the yellow block, the red block is on top of the blue block, the yellow block is on top of the red block, and the blue block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+[-6.99183846]
+[0.00091935]
+0.0009193547844608329
+
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+I am playing with a set of blocks where I need to arrange the blocks into stacks. Here are the actions I can do
+
+Pick up a block
+Unstack a block from on top of another block
+Put down a block
+Stack a block on top of another block
+
+I have the following restrictions on my actions:
+I can only pick up or unstack one block at a time.
+I can only pick up or unstack a block if my hand is empty.
+I can only pick up a block if the block is on the table and the block is clear. A block is clear if the block has no other blocks on top of it and if the block is not picked up.
+I can only unstack a block from on top of another block if the block I am unstacking was really on top of the other block.
+I can only unstack a block from on top of another block if the block I am unstacking is clear.
+Once I pick up or unstack a block, I am holding the block.
+I can only put down a block that I am holding.
+I can only stack a block on top of another block if I am holding the block being stacked.
+I can only stack a block on top of another block if the block onto which I am stacking the block is clear.
+Once I put down or stack a block, my hand becomes empty.
+
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+put down the yellow block
+pick up the orange block
+stack the orange block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the red block, the orange block is on top of the blue block, the red block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the red block and the yellow block is on top of the orange block.
+
+My plan is as follows:
+
+[PLAN]
+pick up the yellow block
+stack the yellow block on top of the orange block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the blue block from on top of the yellow block
+stack the blue block on top of the orange block
+pick up the yellow block
+stack the yellow block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the yellow block is on top of the orange block, the red block is on the table, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the blue block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+stack the yellow block on top of the red block
+pick up the orange block
+stack the orange block on top of the blue block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the red block, the blue block is on the table, and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+[-0.75792313 -5.66430473]
+[0.46863872 0.00346756]
+0.4721062782778962
+
+
+reflexion_prompt_last_part-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+ 
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+I am playing with a set of blocks where I need to arrange the blocks into stacks. Here are the actions I can do
+
+Pick up a block
+Unstack a block from on top of another block
+Put down a block
+Stack a block on top of another block
+
+I have the following restrictions on my actions:
+I can only pick up or unstack one block at a time.
+I can only pick up or unstack a block if my hand is empty.
+I can only pick up a block if the block is on the table and the block is clear. A block is clear if the block has no other blocks on top of it and if the block is not picked up.
+I can only unstack a block from on top of another block if the block I am unstacking was really on top of the other block.
+I can only unstack a block from on top of another block if the block I am unstacking is clear.
+Once I pick up or unstack a block, I am holding the block.
+I can only put down a block that I am holding.
+I can only stack a block on top of another block if I am holding the block being stacked.
+I can only stack a block on top of another block if the block onto which I am stacking the block is clear.
+Once I put down or stack a block, my hand becomes empty.
+
+Your memory for the task below:
+ My goal is to have that the orange block is on top of the red block.
+[STATE 0] I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+[ACTION 1] Unstack the yellow block from on top of the orange block.
+[STATE 1] I have that, the orange block is clear, the red block is clear, the yellow block is in the hand, the hand is holding the yellow block, the red block is on top of the blue block, the blue block is on the table, and the orange block is on the table.
+[ACTION 2] Stack the yellow block on top of the red block.
+[STATE 2] I have that, the orange block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the red block, the blue block is on the table, and the orange block is on the table.
+[ACTION 3] Pick up the orange block.
+[STATE 3] I have that, the orange block is in the hand, the yellow block is clear, the hand is holding the orange block, the red block is on top of the blue block, the yellow block is on top of the red block, and the blue block is on the table.
+[ACTION 4] Stack the orange block on top of the yellow block.
+[STATE 4] I have that, the orange block is clear, the hand is empty, the orange block is on top of the yellow block, the red block is on top of the blue block, the yellow block is on top of the red block, and the blue block is on the table.
+[ACTION 5] Unstack the orange block from on top of the yellow block.
+[STATE 5] I have that, the orange block is in the hand, the yellow block is clear, the hand is holding the orange block, the red block is on top of the blue block, the yellow block is on top of the red block, and the blue block is on the table.
+
+[CRITIC] 1.
+
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+put down the yellow block
+pick up the orange block
+stack the orange block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the red block, the orange block is on top of the blue block, the red block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the red block and the yellow block is on top of the orange block.
+
+My plan is as follows:
+
+[PLAN]
+pick up the yellow block
+stack the yellow block on top of the orange block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the blue block from on top of the yellow block
+stack the blue block on top of the orange block
+pick up the yellow block
+stack the yellow block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the yellow block is on top of the orange block, the red block is on the table, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the blue block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+stack the yellow block on top of the red block
+pick up the orange block
+stack the orange block on top of the blue block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+[-5.96236134 -2.53136253]
+[0.00257383 0.07955056]
+0.0821243832271415
+[0.0313406 0.9686594]
+
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+I am playing with a set of blocks where I need to arrange the blocks into stacks. Here are the actions I can do
+
+Pick up a block
+Unstack a block from on top of another block
+Put down a block
+Stack a block on top of another block
+
+I have the following restrictions on my actions:
+I can only pick up or unstack one block at a time.
+I can only pick up or unstack a block if my hand is empty.
+I can only pick up a block if the block is on the table and the block is clear. A block is clear if the block has no other blocks on top of it and if the block is not picked up.
+I can only unstack a block from on top of another block if the block I am unstacking was really on top of the other block.
+I can only unstack a block from on top of another block if the block I am unstacking is clear.
+Once I pick up or unstack a block, I am holding the block.
+I can only put down a block that I am holding.
+I can only stack a block on top of another block if I am holding the block being stacked.
+I can only stack a block on top of another block if the block onto which I am stacking the block is clear.
+Once I put down or stack a block, my hand becomes empty.
+
+Your memory for the task below:
+ My goal is to have that the orange block is on top of the red block.
+[STATE 0] I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+[ACTION 1] Unstack the yellow block from on top of the orange block.
+[STATE 1] I have that, the orange block is clear, the red block is clear, the yellow block is in the hand, the hand is holding the yellow block, the red block is on top of the blue block, the blue block is on the table, and the orange block is on the table.
+[ACTION 2] Stack the yellow block on top of the red block.
+[STATE 2] I have that, the orange block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the red block, the blue block is on the table, and the orange block is on the table.
+[ACTION 3] Pick up the orange block.
+[STATE 3] I have that, the orange block is in the hand, the yellow block is clear, the hand is holding the orange block, the red block is on top of the blue block, the yellow block is on top of the red block, and the blue block is on the table.
+[ACTION 4] Stack the orange block on top of the yellow block.
+[STATE 4] I have that, the orange block is clear, the hand is empty, the orange block is on top of the yellow block, the red block is on top of the blue block, the yellow block is on top of the red block, and the blue block is on the table.
+[ACTION 5] Unstack the orange block from on top of the yellow block.
+[STATE 5] I have that, the orange block is in the hand, the yellow block is clear, the hand is holding the orange block, the red block is on top of the blue block, the yellow block is on top of the red block, and the blue block is on the table.
+
+[CRITIC] 1.
+
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+put down the yellow block
+pick up the orange block
+stack the orange block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the red block, the orange block is on top of the blue block, the red block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the red block and the yellow block is on top of the orange block.
+
+My plan is as follows:
+
+[PLAN]
+pick up the yellow block
+stack the yellow block on top of the orange block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the blue block from on top of the yellow block
+stack the blue block on top of the orange block
+pick up the yellow block
+stack the yellow block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the yellow block is on top of the orange block, the red block is on the table, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the blue block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+stack the yellow block on top of the red block
+pick up the orange block
+stack the orange block on top of the blue block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+[-9.08221626 -3.21559334 -4.30069923]
+[0.00011367 0.04013152 0.01355907]
+0.05380425934194949
+[0.00211265 0.74587989 0.25200746]
+
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+I am playing with a set of blocks where I need to arrange the blocks into stacks. Here are the actions I can do
+
+Pick up a block
+Unstack a block from on top of another block
+Put down a block
+Stack a block on top of another block
+
+I have the following restrictions on my actions:
+I can only pick up or unstack one block at a time.
+I can only pick up or unstack a block if my hand is empty.
+I can only pick up a block if the block is on the table and the block is clear. A block is clear if the block has no other blocks on top of it and if the block is not picked up.
+I can only unstack a block from on top of another block if the block I am unstacking was really on top of the other block.
+I can only unstack a block from on top of another block if the block I am unstacking is clear.
+Once I pick up or unstack a block, I am holding the block.
+I can only put down a block that I am holding.
+I can only stack a block on top of another block if I am holding the block being stacked.
+I can only stack a block on top of another block if the block onto which I am stacking the block is clear.
+Once I put down or stack a block, my hand becomes empty.
+
+Your memory for the task below:
+ My goal is to have that the orange block is on top of the red block.
+[STATE 0] I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+[ACTION 1] Unstack the yellow block from on top of the orange block.
+[STATE 1] I have that, the orange block is clear, the red block is clear, the yellow block is in the hand, the hand is holding the yellow block, the red block is on top of the blue block, the blue block is on the table, and the orange block is on the table.
+[ACTION 2] Stack the yellow block on top of the red block.
+[STATE 2] I have that, the orange block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the red block, the blue block is on the table, and the orange block is on the table.
+[ACTION 3] Pick up the orange block.
+[STATE 3] I have that, the orange block is in the hand, the yellow block is clear, the hand is holding the orange block, the red block is on top of the blue block, the yellow block is on top of the red block, and the blue block is on the table.
+[ACTION 4] Stack the orange block on top of the yellow block.
+[STATE 4] I have that, the orange block is clear, the hand is empty, the orange block is on top of the yellow block, the red block is on top of the blue block, the yellow block is on top of the red block, and the blue block is on the table.
+[ACTION 5] Unstack the orange block from on top of the yellow block.
+[STATE 5] I have that, the orange block is in the hand, the yellow block is clear, the hand is holding the orange block, the red block is on top of the blue block, the yellow block is on top of the red block, and the blue block is on the table.
+
+[CRITIC] 1.
+
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+put down the yellow block
+pick up the orange block
+stack the orange block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the red block, the orange block is on top of the blue block, the red block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the red block and the yellow block is on top of the orange block.
+
+My plan is as follows:
+
+[PLAN]
+pick up the yellow block
+stack the yellow block on top of the orange block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the blue block from on top of the yellow block
+stack the blue block on top of the orange block
+pick up the yellow block
+stack the yellow block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the yellow block is on top of the orange block, the red block is on the table, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the blue block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+stack the yellow block on top of the red block
+pick up the orange block
+stack the orange block on top of the blue block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+[-10.59015751  -8.0100565   -8.00498295]
+[2.51624562e-05 3.32105956e-04 3.33795193e-04]
+0.0006910636048689515
+[0.0364112 0.4805722 0.4830166]
+
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+I am playing with a set of blocks where I need to arrange the blocks into stacks. Here are the actions I can do
+
+Pick up a block
+Unstack a block from on top of another block
+Put down a block
+Stack a block on top of another block
+
+I have the following restrictions on my actions:
+I can only pick up or unstack one block at a time.
+I can only pick up or unstack a block if my hand is empty.
+I can only pick up a block if the block is on the table and the block is clear. A block is clear if the block has no other blocks on top of it and if the block is not picked up.
+I can only unstack a block from on top of another block if the block I am unstacking was really on top of the other block.
+I can only unstack a block from on top of another block if the block I am unstacking is clear.
+Once I pick up or unstack a block, I am holding the block.
+I can only put down a block that I am holding.
+I can only stack a block on top of another block if I am holding the block being stacked.
+I can only stack a block on top of another block if the block onto which I am stacking the block is clear.
+Once I put down or stack a block, my hand becomes empty.
+
+Your memory for the task below:
+ My goal is to have that the orange block is on top of the red block.
+[STATE 0] I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+[ACTION 1] Unstack the yellow block from on top of the orange block.
+[STATE 1] I have that, the orange block is clear, the red block is clear, the yellow block is in the hand, the hand is holding the yellow block, the red block is on top of the blue block, the blue block is on the table, and the orange block is on the table.
+[ACTION 2] Stack the yellow block on top of the red block.
+[STATE 2] I have that, the orange block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the red block, the blue block is on the table, and the orange block is on the table.
+[ACTION 3] Pick up the orange block.
+[STATE 3] I have that, the orange block is in the hand, the yellow block is clear, the hand is holding the orange block, the red block is on top of the blue block, the yellow block is on top of the red block, and the blue block is on the table.
+[ACTION 4] Stack the orange block on top of the yellow block.
+[STATE 4] I have that, the orange block is clear, the hand is empty, the orange block is on top of the yellow block, the red block is on top of the blue block, the yellow block is on top of the red block, and the blue block is on the table.
+[ACTION 5] Unstack the orange block from on top of the yellow block.
+[STATE 5] I have that, the orange block is in the hand, the yellow block is clear, the hand is holding the orange block, the red block is on top of the blue block, the yellow block is on top of the red block, and the blue block is on the table.
+
+[CRITIC] 1.
+
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+put down the yellow block
+pick up the orange block
+stack the orange block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the red block, the orange block is on top of the blue block, the red block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the red block and the yellow block is on top of the orange block.
+
+My plan is as follows:
+
+[PLAN]
+pick up the yellow block
+stack the yellow block on top of the orange block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the blue block from on top of the yellow block
+stack the blue block on top of the orange block
+pick up the yellow block
+stack the yellow block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the yellow block is on top of the orange block, the red block is on the table, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the blue block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+stack the yellow block on top of the red block
+pick up the orange block
+stack the orange block on top of the blue block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the red block, the blue block is on the table, and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+[-0.30119324 -7.28009987]
+[7.39934776e-01 6.89116739e-04]
+0.7406238926682597
+[9.99069546e-01 9.30454372e-04]
+
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+I am playing with a set of blocks where I need to arrange the blocks into stacks. Here are the actions I can do
+
+Pick up a block
+Unstack a block from on top of another block
+Put down a block
+Stack a block on top of another block
+
+I have the following restrictions on my actions:
+I can only pick up or unstack one block at a time.
+I can only pick up or unstack a block if my hand is empty.
+I can only pick up a block if the block is on the table and the block is clear. A block is clear if the block has no other blocks on top of it and if the block is not picked up.
+I can only unstack a block from on top of another block if the block I am unstacking was really on top of the other block.
+I can only unstack a block from on top of another block if the block I am unstacking is clear.
+Once I pick up or unstack a block, I am holding the block.
+I can only put down a block that I am holding.
+I can only stack a block on top of another block if I am holding the block being stacked.
+I can only stack a block on top of another block if the block onto which I am stacking the block is clear.
+Once I put down or stack a block, my hand becomes empty.
+
+Your memory for the task below:
+ My goal is to have that the orange block is on top of the red block.
+[STATE 0] I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+[ACTION 1] Unstack the yellow block from on top of the orange block.
+[STATE 1] I have that, the orange block is clear, the red block is clear, the yellow block is in the hand, the hand is holding the yellow block, the red block is on top of the blue block, the blue block is on the table, and the orange block is on the table.
+[ACTION 2] Stack the yellow block on top of the red block.
+[STATE 2] I have that, the orange block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the red block, the blue block is on the table, and the orange block is on the table.
+[ACTION 3] Pick up the orange block.
+[STATE 3] I have that, the orange block is in the hand, the yellow block is clear, the hand is holding the orange block, the red block is on top of the blue block, the yellow block is on top of the red block, and the blue block is on the table.
+[ACTION 4] Stack the orange block on top of the yellow block.
+[STATE 4] I have that, the orange block is clear, the hand is empty, the orange block is on top of the yellow block, the red block is on top of the blue block, the yellow block is on top of the red block, and the blue block is on the table.
+[ACTION 5] Unstack the orange block from on top of the yellow block.
+[STATE 5] I have that, the orange block is in the hand, the yellow block is clear, the hand is holding the orange block, the red block is on top of the blue block, the yellow block is on top of the red block, and the blue block is on the table.
+
+[CRITIC] 1.
+
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+put down the yellow block
+pick up the orange block
+stack the orange block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the red block, the orange block is on top of the blue block, the red block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the red block and the yellow block is on top of the orange block.
+
+My plan is as follows:
+
+[PLAN]
+pick up the yellow block
+stack the yellow block on top of the orange block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the blue block from on top of the yellow block
+stack the blue block on top of the orange block
+pick up the yellow block
+stack the yellow block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the yellow block is on top of the orange block, the red block is on the table, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the blue block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+stack the yellow block on top of the red block
+pick up the orange block
+stack the orange block on top of the blue block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the blue block is on the table, the orange block is on the table, and the yellow block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+[-0.30075073 -7.06958866 -3.75780487]
+[0.74026227 0.00085058 0.02333491]
+0.7644477633860628
+[0.96836214 0.00111268 0.03052518]
+
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+I am playing with a set of blocks where I need to arrange the blocks into stacks. Here are the actions I can do
+
+Pick up a block
+Unstack a block from on top of another block
+Put down a block
+Stack a block on top of another block
+
+I have the following restrictions on my actions:
+I can only pick up or unstack one block at a time.
+I can only pick up or unstack a block if my hand is empty.
+I can only pick up a block if the block is on the table and the block is clear. A block is clear if the block has no other blocks on top of it and if the block is not picked up.
+I can only unstack a block from on top of another block if the block I am unstacking was really on top of the other block.
+I can only unstack a block from on top of another block if the block I am unstacking is clear.
+Once I pick up or unstack a block, I am holding the block.
+I can only put down a block that I am holding.
+I can only stack a block on top of another block if I am holding the block being stacked.
+I can only stack a block on top of another block if the block onto which I am stacking the block is clear.
+Once I put down or stack a block, my hand becomes empty.
+
+Your memory for the task below:
+ My goal is to have that the orange block is on top of the red block.
+[STATE 0] I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+[ACTION 1] Unstack the yellow block from on top of the orange block.
+[STATE 1] I have that, the orange block is clear, the red block is clear, the yellow block is in the hand, the hand is holding the yellow block, the red block is on top of the blue block, the blue block is on the table, and the orange block is on the table.
+[ACTION 2] Stack the yellow block on top of the red block.
+[STATE 2] I have that, the orange block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the red block, the blue block is on the table, and the orange block is on the table.
+[ACTION 3] Pick up the orange block.
+[STATE 3] I have that, the orange block is in the hand, the yellow block is clear, the hand is holding the orange block, the red block is on top of the blue block, the yellow block is on top of the red block, and the blue block is on the table.
+[ACTION 4] Stack the orange block on top of the yellow block.
+[STATE 4] I have that, the orange block is clear, the hand is empty, the orange block is on top of the yellow block, the red block is on top of the blue block, the yellow block is on top of the red block, and the blue block is on the table.
+[ACTION 5] Unstack the orange block from on top of the yellow block.
+[STATE 5] I have that, the orange block is in the hand, the yellow block is clear, the hand is holding the orange block, the red block is on top of the blue block, the yellow block is on top of the red block, and the blue block is on the table.
+
+[CRITIC] 1.
+
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+put down the yellow block
+pick up the orange block
+stack the orange block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the red block, the orange block is on top of the blue block, the red block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the red block and the yellow block is on top of the orange block.
+
+My plan is as follows:
+
+[PLAN]
+pick up the yellow block
+stack the yellow block on top of the orange block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the blue block from on top of the yellow block
+stack the blue block on top of the orange block
+pick up the yellow block
+stack the yellow block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the yellow block is on top of the orange block, the red block is on the table, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the blue block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+stack the yellow block on top of the red block
+pick up the orange block
+stack the orange block on top of the blue block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the red block, the blue block is on the table, and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+[-3.41535187 -5.48651886]
+[0.03286484 0.00414224]
+0.037007079410327895
+[0.88806902 0.11193098]
+
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+I am playing with a set of blocks where I need to arrange the blocks into stacks. Here are the actions I can do
+
+Pick up a block
+Unstack a block from on top of another block
+Put down a block
+Stack a block on top of another block
+
+I have the following restrictions on my actions:
+I can only pick up or unstack one block at a time.
+I can only pick up or unstack a block if my hand is empty.
+I can only pick up a block if the block is on the table and the block is clear. A block is clear if the block has no other blocks on top of it and if the block is not picked up.
+I can only unstack a block from on top of another block if the block I am unstacking was really on top of the other block.
+I can only unstack a block from on top of another block if the block I am unstacking is clear.
+Once I pick up or unstack a block, I am holding the block.
+I can only put down a block that I am holding.
+I can only stack a block on top of another block if I am holding the block being stacked.
+I can only stack a block on top of another block if the block onto which I am stacking the block is clear.
+Once I put down or stack a block, my hand becomes empty.
+
+Your memory for the task below:
+ My goal is to have that the orange block is on top of the red block.
+[STATE 0] I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+[ACTION 1] Unstack the yellow block from on top of the orange block.
+[STATE 1] I have that, the orange block is clear, the red block is clear, the yellow block is in the hand, the hand is holding the yellow block, the red block is on top of the blue block, the blue block is on the table, and the orange block is on the table.
+[ACTION 2] Stack the yellow block on top of the red block.
+[STATE 2] I have that, the orange block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the red block, the blue block is on the table, and the orange block is on the table.
+[ACTION 3] Pick up the orange block.
+[STATE 3] I have that, the orange block is in the hand, the yellow block is clear, the hand is holding the orange block, the red block is on top of the blue block, the yellow block is on top of the red block, and the blue block is on the table.
+[ACTION 4] Stack the orange block on top of the yellow block.
+[STATE 4] I have that, the orange block is clear, the hand is empty, the orange block is on top of the yellow block, the red block is on top of the blue block, the yellow block is on top of the red block, and the blue block is on the table.
+[ACTION 5] Unstack the orange block from on top of the yellow block.
+[STATE 5] I have that, the orange block is in the hand, the yellow block is clear, the hand is holding the orange block, the red block is on top of the blue block, the yellow block is on top of the red block, and the blue block is on the table.
+
+[CRITIC] 1.
+
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+put down the yellow block
+pick up the orange block
+stack the orange block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the red block, the orange block is on top of the blue block, the red block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the red block and the yellow block is on top of the orange block.
+
+My plan is as follows:
+
+[PLAN]
+pick up the yellow block
+stack the yellow block on top of the orange block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the blue block from on top of the yellow block
+stack the blue block on top of the orange block
+pick up the yellow block
+stack the yellow block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the yellow block is on top of the orange block, the red block is on the table, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the blue block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+stack the yellow block on top of the red block
+pick up the orange block
+stack the orange block on top of the blue block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the red block, the blue block is on the table, and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+[ -8.81913948 -12.16829109  -9.52166176]
+[1.47875555e-04 5.19252175e-06 7.32478429e-05]
+0.00022631591997531337
+[0.65340324 0.02294369 0.32365307]
+
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+I am playing with a set of blocks where I need to arrange the blocks into stacks. Here are the actions I can do
+
+Pick up a block
+Unstack a block from on top of another block
+Put down a block
+Stack a block on top of another block
+
+I have the following restrictions on my actions:
+I can only pick up or unstack one block at a time.
+I can only pick up or unstack a block if my hand is empty.
+I can only pick up a block if the block is on the table and the block is clear. A block is clear if the block has no other blocks on top of it and if the block is not picked up.
+I can only unstack a block from on top of another block if the block I am unstacking was really on top of the other block.
+I can only unstack a block from on top of another block if the block I am unstacking is clear.
+Once I pick up or unstack a block, I am holding the block.
+I can only put down a block that I am holding.
+I can only stack a block on top of another block if I am holding the block being stacked.
+I can only stack a block on top of another block if the block onto which I am stacking the block is clear.
+Once I put down or stack a block, my hand becomes empty.
+
+Your memory for the task below:
+ My goal is to have that the orange block is on top of the red block.
+[STATE 0] I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+[ACTION 1] Unstack the yellow block from on top of the orange block.
+[STATE 1] I have that, the orange block is clear, the red block is clear, the yellow block is in the hand, the hand is holding the yellow block, the red block is on top of the blue block, the blue block is on the table, and the orange block is on the table.
+[ACTION 2] Stack the yellow block on top of the red block.
+[STATE 2] I have that, the orange block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the red block, the blue block is on the table, and the orange block is on the table.
+[ACTION 3] Pick up the orange block.
+[STATE 3] I have that, the orange block is in the hand, the yellow block is clear, the hand is holding the orange block, the red block is on top of the blue block, the yellow block is on top of the red block, and the blue block is on the table.
+[ACTION 4] Stack the orange block on top of the yellow block.
+[STATE 4] I have that, the orange block is clear, the hand is empty, the orange block is on top of the yellow block, the red block is on top of the blue block, the yellow block is on top of the red block, and the blue block is on the table.
+[ACTION 5] Unstack the orange block from on top of the yellow block.
+[STATE 5] I have that, the orange block is in the hand, the yellow block is clear, the hand is holding the orange block, the red block is on top of the blue block, the yellow block is on top of the red block, and the blue block is on the table.
+
+[CRITIC] 1.
+
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+put down the yellow block
+pick up the orange block
+stack the orange block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the red block, the orange block is on top of the blue block, the red block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the red block and the yellow block is on top of the orange block.
+
+My plan is as follows:
+
+[PLAN]
+pick up the yellow block
+stack the yellow block on top of the orange block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the blue block from on top of the yellow block
+stack the blue block on top of the orange block
+pick up the yellow block
+stack the yellow block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the yellow block is on top of the orange block, the red block is on the table, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the blue block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+stack the yellow block on top of the red block
+pick up the orange block
+stack the orange block on top of the blue block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the hand is empty, the orange block is on top of the yellow block, the red block is on top of the blue block, the yellow block is on top of the red block, and the blue block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+[-5.39210987]
+[0.00455236]
+0.004552358307699688
+[1.]
+
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+I am playing with a set of blocks where I need to arrange the blocks into stacks. Here are the actions I can do
+
+Pick up a block
+Unstack a block from on top of another block
+Put down a block
+Stack a block on top of another block
+
+I have the following restrictions on my actions:
+I can only pick up or unstack one block at a time.
+I can only pick up or unstack a block if my hand is empty.
+I can only pick up a block if the block is on the table and the block is clear. A block is clear if the block has no other blocks on top of it and if the block is not picked up.
+I can only unstack a block from on top of another block if the block I am unstacking was really on top of the other block.
+I can only unstack a block from on top of another block if the block I am unstacking is clear.
+Once I pick up or unstack a block, I am holding the block.
+I can only put down a block that I am holding.
+I can only stack a block on top of another block if I am holding the block being stacked.
+I can only stack a block on top of another block if the block onto which I am stacking the block is clear.
+Once I put down or stack a block, my hand becomes empty.
+
+Your memory for the task below:
+ My goal is to have that the orange block is on top of the red block.
+[STATE 0] I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+[ACTION 1] Unstack the yellow block from on top of the orange block.
+[STATE 1] I have that, the orange block is clear, the red block is clear, the yellow block is in the hand, the hand is holding the yellow block, the red block is on top of the blue block, the blue block is on the table, and the orange block is on the table.
+[ACTION 2] Stack the yellow block on top of the red block.
+[STATE 2] I have that, the orange block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the red block, the blue block is on the table, and the orange block is on the table.
+[ACTION 3] Pick up the orange block.
+[STATE 3] I have that, the orange block is in the hand, the yellow block is clear, the hand is holding the orange block, the red block is on top of the blue block, the yellow block is on top of the red block, and the blue block is on the table.
+[ACTION 4] Stack the orange block on top of the yellow block.
+[STATE 4] I have that, the orange block is clear, the hand is empty, the orange block is on top of the yellow block, the red block is on top of the blue block, the yellow block is on top of the red block, and the blue block is on the table.
+[ACTION 5] Unstack the orange block from on top of the yellow block.
+[STATE 5] I have that, the orange block is in the hand, the yellow block is clear, the hand is holding the orange block, the red block is on top of the blue block, the yellow block is on top of the red block, and the blue block is on the table.
+
+[CRITIC] 1.
+
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+put down the yellow block
+pick up the orange block
+stack the orange block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the red block, the orange block is on top of the blue block, the red block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the red block and the yellow block is on top of the orange block.
+
+My plan is as follows:
+
+[PLAN]
+pick up the yellow block
+stack the yellow block on top of the orange block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the blue block from on top of the yellow block
+stack the blue block on top of the orange block
+pick up the yellow block
+stack the yellow block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the yellow block is on top of the orange block, the red block is on the table, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the blue block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+stack the yellow block on top of the red block
+pick up the orange block
+stack the orange block on top of the blue block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the red block, the blue block is on the table, and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+[-0.30119324 -7.28009987]
+[7.39934776e-01 6.89116739e-04]
+0.7406238926682597
+[9.99069546e-01 9.30454372e-04]
+
+
+reflexion_prompt_last_part-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+ 
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+We are dealing with 2-th file now.
+
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+I am playing with a set of blocks where I need to arrange the blocks into stacks. Here are the actions I can do
+
+Pick up a block
+Unstack a block from on top of another block
+Put down a block
+Stack a block on top of another block
+
+I have the following restrictions on my actions:
+I can only pick up or unstack one block at a time.
+I can only pick up or unstack a block if my hand is empty.
+I can only pick up a block if the block is on the table and the block is clear. A block is clear if the block has no other blocks on top of it and if the block is not picked up.
+I can only unstack a block from on top of another block if the block I am unstacking was really on top of the other block.
+I can only unstack a block from on top of another block if the block I am unstacking is clear.
+Once I pick up or unstack a block, I am holding the block.
+I can only put down a block that I am holding.
+I can only stack a block on top of another block if I am holding the block being stacked.
+I can only stack a block on top of another block if the block onto which I am stacking the block is clear.
+Once I put down or stack a block, my hand becomes empty.
+
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+put down the yellow block
+pick up the orange block
+stack the orange block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the red block, the orange block is on top of the blue block, the red block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the red block and the yellow block is on top of the orange block.
+
+My plan is as follows:
+
+[PLAN]
+pick up the yellow block
+stack the yellow block on top of the orange block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the blue block from on top of the yellow block
+stack the blue block on top of the orange block
+pick up the yellow block
+stack the yellow block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the yellow block is on top of the orange block, the red block is on the table, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the blue block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+stack the yellow block on top of the red block
+pick up the orange block
+stack the orange block on top of the blue block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+[-4.72290039 -3.10571766 -2.37609863]
+[0.00888936 0.04479236 0.09291236]
+0.14659407644513123
+
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+I am playing with a set of blocks where I need to arrange the blocks into stacks. Here are the actions I can do
+
+Pick up a block
+Unstack a block from on top of another block
+Put down a block
+Stack a block on top of another block
+
+I have the following restrictions on my actions:
+I can only pick up or unstack one block at a time.
+I can only pick up or unstack a block if my hand is empty.
+I can only pick up a block if the block is on the table and the block is clear. A block is clear if the block has no other blocks on top of it and if the block is not picked up.
+I can only unstack a block from on top of another block if the block I am unstacking was really on top of the other block.
+I can only unstack a block from on top of another block if the block I am unstacking is clear.
+Once I pick up or unstack a block, I am holding the block.
+I can only put down a block that I am holding.
+I can only stack a block on top of another block if I am holding the block being stacked.
+I can only stack a block on top of another block if the block onto which I am stacking the block is clear.
+Once I put down or stack a block, my hand becomes empty.
+
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+put down the yellow block
+pick up the orange block
+stack the orange block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the red block, the orange block is on top of the blue block, the red block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the red block and the yellow block is on top of the orange block.
+
+My plan is as follows:
+
+[PLAN]
+pick up the yellow block
+stack the yellow block on top of the orange block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the blue block from on top of the yellow block
+stack the blue block on top of the orange block
+pick up the yellow block
+stack the yellow block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the yellow block is on top of the orange block, the red block is on the table, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the blue block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+stack the yellow block on top of the red block
+pick up the orange block
+stack the orange block on top of the blue block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+[-2.63177872 -5.58637238 -7.8436203 ]
+[0.07195037 0.0037486  0.00039225]
+0.07609121717041503
+
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+I am playing with a set of blocks where I need to arrange the blocks into stacks. Here are the actions I can do
+
+Pick up a block
+Unstack a block from on top of another block
+Put down a block
+Stack a block on top of another block
+
+I have the following restrictions on my actions:
+I can only pick up or unstack one block at a time.
+I can only pick up or unstack a block if my hand is empty.
+I can only pick up a block if the block is on the table and the block is clear. A block is clear if the block has no other blocks on top of it and if the block is not picked up.
+I can only unstack a block from on top of another block if the block I am unstacking was really on top of the other block.
+I can only unstack a block from on top of another block if the block I am unstacking is clear.
+Once I pick up or unstack a block, I am holding the block.
+I can only put down a block that I am holding.
+I can only stack a block on top of another block if I am holding the block being stacked.
+I can only stack a block on top of another block if the block onto which I am stacking the block is clear.
+Once I put down or stack a block, my hand becomes empty.
+
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+put down the yellow block
+pick up the orange block
+stack the orange block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the red block, the orange block is on top of the blue block, the red block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the red block and the yellow block is on top of the orange block.
+
+My plan is as follows:
+
+[PLAN]
+pick up the yellow block
+stack the yellow block on top of the orange block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the blue block from on top of the yellow block
+stack the blue block on top of the orange block
+pick up the yellow block
+stack the yellow block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the yellow block is on top of the orange block, the red block is on the table, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the blue block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+stack the yellow block on top of the red block
+pick up the orange block
+stack the orange block on top of the blue block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+[ -3.40439701  -6.77964115 -10.17032337  -8.34267139]
+[3.32268495e-02 1.13668272e-03 3.82899395e-05 2.38135339e-04]
+0.03463995747461636
+
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+I am playing with a set of blocks where I need to arrange the blocks into stacks. Here are the actions I can do
+
+Pick up a block
+Unstack a block from on top of another block
+Put down a block
+Stack a block on top of another block
+
+I have the following restrictions on my actions:
+I can only pick up or unstack one block at a time.
+I can only pick up or unstack a block if my hand is empty.
+I can only pick up a block if the block is on the table and the block is clear. A block is clear if the block has no other blocks on top of it and if the block is not picked up.
+I can only unstack a block from on top of another block if the block I am unstacking was really on top of the other block.
+I can only unstack a block from on top of another block if the block I am unstacking is clear.
+Once I pick up or unstack a block, I am holding the block.
+I can only put down a block that I am holding.
+I can only stack a block on top of another block if I am holding the block being stacked.
+I can only stack a block on top of another block if the block onto which I am stacking the block is clear.
+Once I put down or stack a block, my hand becomes empty.
+
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+put down the yellow block
+pick up the orange block
+stack the orange block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the red block, the orange block is on top of the blue block, the red block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the red block and the yellow block is on top of the orange block.
+
+My plan is as follows:
+
+[PLAN]
+pick up the yellow block
+stack the yellow block on top of the orange block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the blue block from on top of the yellow block
+stack the blue block on top of the orange block
+pick up the yellow block
+stack the yellow block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the yellow block is on top of the orange block, the red block is on the table, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the blue block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+stack the yellow block on top of the red block
+pick up the orange block
+stack the orange block on top of the blue block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the blue block is clear, the red block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the orange block is on the table, the red block is on the table, and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+[-4.82281971 -2.9527359  -1.05186462]
+[0.00804407 0.05219671 0.34928585]
+0.409526633322031
+
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+I am playing with a set of blocks where I need to arrange the blocks into stacks. Here are the actions I can do
+
+Pick up a block
+Unstack a block from on top of another block
+Put down a block
+Stack a block on top of another block
+
+I have the following restrictions on my actions:
+I can only pick up or unstack one block at a time.
+I can only pick up or unstack a block if my hand is empty.
+I can only pick up a block if the block is on the table and the block is clear. A block is clear if the block has no other blocks on top of it and if the block is not picked up.
+I can only unstack a block from on top of another block if the block I am unstacking was really on top of the other block.
+I can only unstack a block from on top of another block if the block I am unstacking is clear.
+Once I pick up or unstack a block, I am holding the block.
+I can only put down a block that I am holding.
+I can only stack a block on top of another block if I am holding the block being stacked.
+I can only stack a block on top of another block if the block onto which I am stacking the block is clear.
+Once I put down or stack a block, my hand becomes empty.
+
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+put down the yellow block
+pick up the orange block
+stack the orange block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the red block, the orange block is on top of the blue block, the red block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the red block and the yellow block is on top of the orange block.
+
+My plan is as follows:
+
+[PLAN]
+pick up the yellow block
+stack the yellow block on top of the orange block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the blue block from on top of the yellow block
+stack the blue block on top of the orange block
+pick up the yellow block
+stack the yellow block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the yellow block is on top of the orange block, the red block is on the table, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the blue block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+stack the yellow block on top of the red block
+pick up the orange block
+stack the orange block on top of the blue block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the blue block is clear, the orange block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the red block, the orange block is on the table, the red block is on the table, and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+[-5.02144337 -1.53107452 -1.20217896]
+[0.006595   0.21630312 0.30053864]
+0.5234367580992194
+
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+I am playing with a set of blocks where I need to arrange the blocks into stacks. Here are the actions I can do
+
+Pick up a block
+Unstack a block from on top of another block
+Put down a block
+Stack a block on top of another block
+
+I have the following restrictions on my actions:
+I can only pick up or unstack one block at a time.
+I can only pick up or unstack a block if my hand is empty.
+I can only pick up a block if the block is on the table and the block is clear. A block is clear if the block has no other blocks on top of it and if the block is not picked up.
+I can only unstack a block from on top of another block if the block I am unstacking was really on top of the other block.
+I can only unstack a block from on top of another block if the block I am unstacking is clear.
+Once I pick up or unstack a block, I am holding the block.
+I can only put down a block that I am holding.
+I can only stack a block on top of another block if I am holding the block being stacked.
+I can only stack a block on top of another block if the block onto which I am stacking the block is clear.
+Once I put down or stack a block, my hand becomes empty.
+
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+put down the yellow block
+pick up the orange block
+stack the orange block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the red block, the orange block is on top of the blue block, the red block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the red block and the yellow block is on top of the orange block.
+
+My plan is as follows:
+
+[PLAN]
+pick up the yellow block
+stack the yellow block on top of the orange block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the blue block from on top of the yellow block
+stack the blue block on top of the orange block
+pick up the yellow block
+stack the yellow block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the yellow block is on top of the orange block, the red block is on the table, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the blue block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+stack the yellow block on top of the red block
+pick up the orange block
+stack the orange block on top of the blue block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the blue block is clear, the red block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the orange block is on the table, the red block is on the table, and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
+[-3.48532104 -1.62545395 -6.39230347]
+[0.03064392 0.19682231 0.00167439]
+0.22914062125505005
+
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+I am playing with a set of blocks where I need to arrange the blocks into stacks. Here are the actions I can do
+
+Pick up a block
+Unstack a block from on top of another block
+Put down a block
+Stack a block on top of another block
+
+I have the following restrictions on my actions:
+I can only pick up or unstack one block at a time.
+I can only pick up or unstack a block if my hand is empty.
+I can only pick up a block if the block is on the table and the block is clear. A block is clear if the block has no other blocks on top of it and if the block is not picked up.
+I can only unstack a block from on top of another block if the block I am unstacking was really on top of the other block.
+I can only unstack a block from on top of another block if the block I am unstacking is clear.
+Once I pick up or unstack a block, I am holding the block.
+I can only put down a block that I am holding.
+I can only stack a block on top of another block if I am holding the block being stacked.
+I can only stack a block on top of another block if the block onto which I am stacking the block is clear.
+Once I put down or stack a block, my hand becomes empty.
+
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the yellow block is on top of the orange block, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+put down the yellow block
+pick up the orange block
+stack the orange block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the orange block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the red block, the orange block is on top of the blue block, the red block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the red block and the yellow block is on top of the orange block.
+
+My plan is as follows:
+
+[PLAN]
+pick up the yellow block
+stack the yellow block on top of the orange block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the red block is on the table, the orange block is on the table and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the blue block from on top of the yellow block
+stack the blue block on top of the orange block
+pick up the yellow block
+stack the yellow block on top of the red block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the red block is clear, the blue block is clear, the yellow block is clear, the hand is empty, the yellow block is on top of the orange block, the red block is on the table, the blue block is on the table and the orange block is on the table.
+My goal is to have that the orange block is on top of the blue block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+unstack the yellow block from on top of the orange block
+stack the yellow block on top of the red block
+pick up the orange block
+stack the orange block on top of the blue block
+[PLAN END]
+
+[STATEMENT]
+As initial conditions I have that, the blue block is clear, the red block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the orange block is on the table, the red block is on the table, and the yellow block is on the table.
+My goal is to have that the blue block is on top of the orange block and the yellow block is on top of the red block.
+
+My plan is as follows:
+
+[PLAN]
+
+-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@
+
+
