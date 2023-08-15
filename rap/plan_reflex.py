@@ -161,6 +161,7 @@ def reflex_plan(initial_state: str,
         # TODO:
         print()
         print()
+        print(reflexion_prompt[-50:])
         print('reflexion_prompt_last_part-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@')
         print(reflexion_prompt.split("[CRITIC]")[-1])
         print('-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@')
