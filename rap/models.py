@@ -101,6 +101,7 @@ class QueryVicuna(QueryLM):
         self.repetition_penalty = repetition_penalty
         self.max_new_tokens = max_new_tokens
 
+    @torch.inference_mode()
     def query_LM(self, prompt, do_sample=False, temperature=0.8):
         # TODO:
         print()
