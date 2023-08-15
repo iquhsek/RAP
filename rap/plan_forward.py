@@ -131,17 +131,16 @@ def forward_plan(initial_state: str,
         depth=0,
         max_depth=horizon
     )
+    print()
+    print()
+    print('-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#')
+    print(cur_node.prompt)
+    print('-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#')
+    print()
+    print()
     tot_sample = 0
     while not cur_node.is_terminal:
         new_node, tmp_sample = planner(cur_node)
         tot_sample += tmp_sample
         cur_node = deepcopy(new_node)
-    print()
-    print()
-    print('-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#')
-    print(type(cur_node.prompt))
-    print(cur_node.prompt)
-    print('#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-')
-    print()
-    print()
     return cur_node.achieved_goal, tot_sample
