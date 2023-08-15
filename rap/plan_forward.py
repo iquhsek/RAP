@@ -95,6 +95,9 @@ def forward_plan(initial_state: str,
         scores = np.array(scores)
         exp_scores = np.exp(scores)
         soft_scores = exp_scores / np.sum(exp_scores)
+        # TODO:
+        print(soft_scores)
+        # TODO:
         return new_action_output, soft_scores
 
     '''-----------------------------------------------------'''
@@ -131,13 +134,6 @@ def forward_plan(initial_state: str,
         depth=0,
         max_depth=horizon
     )
-    print()
-    print()
-    print('-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#')
-    print(cur_node.prompt)
-    print('-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#')
-    print()
-    print()
     tot_sample = 0
     while not cur_node.is_terminal:
         new_node, tmp_sample = planner(cur_node)
