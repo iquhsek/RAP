@@ -89,7 +89,7 @@ class QueryVicuna(QueryLM):
     def __init__(self,
                  model_path='lmsys/vicuna-7b-v1.3',
                  num_gpus=1,
-                 repetition_penalty=1e-3,
+                 repetition_penalty=0.5,
                  max_new_tokens=300) -> None:
         self.llamamodel, self.tokenizer = load_model(
             model_path=model_path,
@@ -101,13 +101,13 @@ class QueryVicuna(QueryLM):
         self.repetition_penalty = repetition_penalty
         self.max_new_tokens = max_new_tokens
 
-    def query_LM(self, prompt, do_sample=True, temperature=0.8):
+    def query_LM(self, prompt, do_sample=False, temperature=0.8):
         temperature = temperature if do_sample else 0
         inputs = self.tokenizer([prompt])
         inputs = {k: torch.tensor(v).cuda() for k, v in inputs.items()}
         output_ids = self.llamamodel.generate(
             **inputs,
-            do_sample=True if temperature > 1e-5 else False,
+            do_sample=do_sample,
             temperature=temperature,
             repetition_penalty=self.repetition_penalty,
             max_new_tokens=self.max_new_tokens,

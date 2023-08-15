@@ -60,7 +60,7 @@ def reflex_plan(initial_state: str,
         # Add memory
         if memory is not None:
             assert type(memory) is str
-            baseline_prompt += "\nYour memory for the task below:\n\n"
+            baseline_prompt += "\nYour memory for the task below:\n"
             baseline_prompt += memory
         # Add baseline statements
         baseline_prompt += "\n\n"
@@ -69,6 +69,7 @@ def reflex_plan(initial_state: str,
         baseline_prompt += "\n[STATEMENT]\n"
         baseline_prompt += "As initial conditions " + last_base_state.strip() + "\n" + inp.split("[GOAL]")[-1].split("[STATE 0]")[0].strip() + "\n\nMy plan is as follows:\n\n[PLAN]\n"
 
+        # TODO:
         print()
         print()
         print('-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@')
@@ -76,6 +77,7 @@ def reflex_plan(initial_state: str,
         print('-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@')
         print()
         print()
+        # TODO:
 
         action_list = []
         lastest_list = []
@@ -161,6 +163,15 @@ def reflex_plan(initial_state: str,
             do_sample=False,
         )
         memory = reflexion_prompt.split("[Goal]")[-1] + reflexion_output
+        # TODO:
+        print()
+        print()
+        print('memory-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@')
+        print(memory)
+        print('-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@')
+        print()
+        print()
+        # TODO:
         # Renew and restart the node
         cur_node = MemStateNode(
             prompt=prompts["goal_prefix"] + goal.strip() + "\n" + prompts["state_prefix"].format(0) + " " + initial_state.strip() + "\n",
