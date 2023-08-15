@@ -119,15 +119,10 @@ class QueryVicuna(QueryLM):
             temperature=temperature,
             repetition_penalty=self.repetition_penalty,
             max_new_tokens=self.max_new_tokens,
-            eos_token_id=self.eos_token_id
+            eos_token_id=self.tokenizer.encode('\n', bos=False, eos=False)[-1]
         )
-        if self.llamamodel.config.is_encoder_decoder:
-            output_ids = output_ids[0]
-        else:
-            output_ids = output_ids[0][len(inputs["input_ids"][0]) :]
-        response = self.tokenizer.decode(
-            output_ids
-        )
+        output_ids = output_ids[0][len(inputs["input_ids"][0]) :]
+        response = self.tokenizer.decode(output_ids)
         return response
 
     def query_next_token(self):
