@@ -218,6 +218,7 @@ class ReasoningTasks():
                 prompts, 
                 self.model, 
                 alpha=alpha,
+                num_trial=num_trial,
                 horizon=horizon,
                 search_depth=search_depth,
                 sample_per_node=sample_per_node,
