@@ -69,16 +69,6 @@ def reflex_plan(initial_state: str,
         baseline_prompt += "\n[STATEMENT]\n"
         baseline_prompt += "As initial conditions " + last_base_state.strip() + "\n" + inp.split("[GOAL]")[-1].split("[STATE 0]")[0].strip() + "\n\nMy plan is as follows:\n\n[PLAN]\n"
 
-        # TODO:
-        print()
-        print()
-        print('-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@')
-        print(baseline_prompt)
-        print('-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@')
-        print()
-        print()
-        # TODO:
-
         action_list = []
         lastest_list = []
         new_action_output = []
@@ -104,12 +94,6 @@ def reflex_plan(initial_state: str,
         scores = np.array(scores, dtype=np.dtype('float64'))
         exp_scores = np.exp(scores)
         soft_scores = exp_scores / np.sum(exp_scores)
-        # TODO:
-        print(scores)
-        print(exp_scores)
-        print(np.sum(exp_scores))
-        if memory is not None: print(soft_scores)
-        # TODO:
         return new_action_output, soft_scores
 
     '''-----------------------------------------------------'''
