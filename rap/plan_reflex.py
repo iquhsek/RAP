@@ -141,7 +141,7 @@ def reflex_plan(initial_state: str,
         if cur_node.achieved_goal:
             return True, tot_sample
         # Keep the failure as a memory
-        reflexion_prompt = REFLEX_PREFIX.format(cur_node.prompt)
+        reflexion_prompt = REFLEX_PREFIX.format(cur_node.prompt.rstrip('\n'))
         reflexion_output = world_model.query_LM(
             prompt=reflexion_prompt,
             do_sample=False,
