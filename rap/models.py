@@ -118,7 +118,7 @@ class QueryVicuna(QueryLM):
         else:
             output_ids = output_ids[0][len(inputs["input_ids"][0]) :]
         response = self.tokenizer.decode(
-            output_ids, skip_special_tokens=True, spaces_between_special_tokens=False
+            output_ids
         )
         return response
 
