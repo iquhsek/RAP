@@ -102,16 +102,7 @@ class QueryVicuna(QueryLM):
         self.max_new_tokens = max_new_tokens
 
     @torch.inference_mode()
-    def query_LM(self, prompt, do_sample=False, temperature=0.8):
-        # TODO:
-        print()
-        print()
-        print('reflexion_prompt-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@')
-        print(prompt)
-        print('-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@')
-        print()
-        print()
-        # TODO:
+    def query_LM(self, prompt: str, do_sample: bool=False, temperature: float=0.8) -> str:
         inputs = self.tokenizer([prompt])
         inputs = {k: torch.tensor(v).cuda() for k, v in inputs.items()}
         output_ids = self.llamamodel.generate(

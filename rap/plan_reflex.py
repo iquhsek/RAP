@@ -146,15 +146,6 @@ def reflex_plan(initial_state: str,
             prompt=reflexion_prompt,
             do_sample=False,
         )
-        # TODO:
-        print()
-        print()
-        print('reflexion_output-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@')
-        print(reflexion_output)
-        print('-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@')
-        print()
-        print()
-        # TODO:
         memory = reflexion_prompt.split("[GOAL]")[-1] + reflexion_output
         # Renew and restart the node
         cur_node = MemStateNode(
