@@ -158,20 +158,19 @@ def reflex_plan(initial_state: str,
             return True, tot_sample
         # Keep the failure as a memory
         reflexion_prompt = REFLEX_PREFIX.format(cur_node.prompt)
-        # TODO:
-        print()
-        print()
-        print(reflexion_prompt[-50:])
-        print('reflexion_prompt_last_part-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@')
-        print(reflexion_prompt.split("[CRITIC]")[-1])
-        print('-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@')
-        print()
-        print()
-        # TODO:
         reflexion_output = world_model.query_LM(
             prompt=reflexion_prompt,
             do_sample=False,
         )
+        # TODO:
+        print()
+        print()
+        print('reflexion_output-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@')
+        print(reflexion_output)
+        print('-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@-@')
+        print()
+        print()
+        # TODO:
         memory = reflexion_prompt.split("[GOAL]")[-1] + reflexion_output
         # Renew and restart the node
         cur_node = MemStateNode(
