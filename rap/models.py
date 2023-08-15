@@ -102,7 +102,6 @@ class QueryVicuna(QueryLM):
         self.max_new_tokens = max_new_tokens
 
     def query_LM(self, prompt, do_sample=False, temperature=0.8):
-        temperature = temperature if do_sample else 0
         inputs = self.tokenizer([prompt])
         inputs = {k: torch.tensor(v).cuda() for k, v in inputs.items()}
         output_ids = self.llamamodel.generate(
