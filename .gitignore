@@ -6,3 +6,4 @@ gpt_sas_plan
 outputs/
 *.pyc
 .DS_Store
+test/test_gpt3.py
