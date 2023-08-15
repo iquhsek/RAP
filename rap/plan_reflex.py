@@ -104,6 +104,8 @@ def reflex_plan(initial_state: str,
         soft_scores = exp_scores / np.sum(exp_scores)
         # TODO:
         print(scores)
+        print(exp_scores)
+        print(np.sum(exp_scores))
         if memory is not None: print(soft_scores)
         # TODO:
         return new_action_output, soft_scores
