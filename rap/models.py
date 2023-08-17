@@ -23,7 +23,7 @@ class FakeTokenizer:
 
 
 @retry(
-    stop=stop_after_attempt(4),
+    stop=stop_after_attempt(10),
     retry=retry_if_not_exception_type((ValueError, OSError))
 )
 def _call_openai_api(prompt, stop, n, temperature=0.0, chatcompletion=False):
@@ -207,7 +207,7 @@ class QueryChatGPT(QueryLM):
         openai.api_version = "2023-06-01-preview"
         response = _call_openai_api(prompt, stop, n=n, temperature=temperature, chatcompletion=chatcompletion)
         if chatcompletion:
-            for tries in range(4):
+            for tries in range(10):
                 if response == {}:
                     response = _call_openai_api(prompt, stop, n=n, temperature=temperature, chatcompletion=chatcompletion)
                 elif all(item["message"]['content'].strip() == '' for item in response["choices"]):
@@ -216,7 +216,7 @@ class QueryChatGPT(QueryLM):
                     break
             return response["choices"][0]["message"]["content"].strip()
         else:
-            for tries in range(1, 4):
+            for tries in range(10):
                 if response == {}:
                     response = _call_openai_api(prompt, stop, n=n, temperature=temperature, chatcompletion=chatcompletion)
                 elif all(item["text"].strip() == '' for item in response["choices"]):
@@ -227,12 +227,12 @@ class QueryChatGPT(QueryLM):
 
     def smp_get_ll(self, prompt: str, completions: List[str]) -> List[float]:
         @retry(
-            stop=stop_after_attempt(4),
+            stop=stop_after_attempt(10),
             retry=retry_if_not_exception_type((ValueError, OSError))
         )
         def smp_api(prompt, completion):
             return openai.Completion.create(
-                engine="davinci",
+                engine="text-davinci-003",
                 prompt=prompt,
                 max_tokens=len(completion.split()),  # Only predict as many tokens as are in the completion
                 n=1,  # We only want one prediction
@@ -262,7 +262,7 @@ class QueryChatGPT(QueryLM):
                temperature=1.0) -> List[Tuple[str, float]]:
         openai.api_version = "2023-06-01-preview"
         response = _call_openai_api(prompt, stop, n=action_space_size, temperature=temperature)
-        for tries in range(4):
+        for tries in range(10):
             if response == {}:
                 response = _call_openai_api(prompt, stop, n=action_space_size, temperature=temperature)
             elif all(item["text"].strip() == '' for item in response["choices"]):
