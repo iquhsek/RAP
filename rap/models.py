@@ -18,7 +18,7 @@ from fastchat.model import load_model
 
 
 class FakeTokenizer:
-    def encode(s, bos, eos):
+    def encode(self, s: str="", bos=False, eos=False):
         return [[]]
 
 
