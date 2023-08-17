@@ -189,7 +189,7 @@ class QueryVicuna(QueryLM):
 class QueryChatGPT(QueryLM):
     def __init__(self) -> None:
         with open('data/openai_api_key', 'r') as f:
-            openai.api_key = f.read()
+            openai.api_key = f.read().strip('\n')
 
     def query_LM(self, prompt, **gen_kwargs):
         raise NotImplementedError
