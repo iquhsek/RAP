@@ -274,7 +274,7 @@ if __name__ == '__main__':
     parser.add_argument('--sample_per_node', type=int, default=2, help='number of samples we take in the lookahead trajectory search')
     parser.add_argument('--sampler', type=str, default='heuristic')
     parser.add_argument('--discount', type=float, default=1)
-    parser.add_argument('--model_path', type=str, default='lmsys/vicuna-7b-v1.3')
+    parser.add_argument('--model_path', type=str, required=True, choices=['lmsys/vicuna-7b-v1.3', 'lmsys/vicuna-13b-v1.3', 'lmsys/vicuna-33b-v1.3', 'text-davinci-003', 'davinci', 'gpt-3.5-turbo', 'gpt-4'])
     parser.add_argument('--num_gpus', type=int, default=1)
 
 
