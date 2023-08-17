@@ -268,10 +268,10 @@ def reasoning_mcts_search(initial_state: str,
     trees = []
     tot_sample = 0
     for _ in (pbar := trange(mcts_steps, disable=bool(int(os.environ.get("LOCAL_RANK", -1))), position=0)):
-        used_samples = mcts.rollout(root)
-        tot_sample += used_samples
+        mcts.rollout(root)
         root.print(mcts)
         max_n, max_r = mcts.max_mean_terminal(root)
+        tot_sample += mcts.num_samples
         trajs.append(traj := max_n.prompt)
         output = re.findall('The answer is .*?([.0-9,\\-]+).*\\.', traj)
         if len(output) == 0:

@@ -2,7 +2,6 @@ import math
 import random
 from collections import defaultdict
 from abc import ABC, abstractmethod
-from typing import Optional
 
 
 class MCTSNode(ABC):
@@ -43,7 +42,6 @@ class MCTS:
         self.aggr_child = aggr_child
 
     def rollout(self, node: MCTSNode):
-        used_samples = 0
         if self.prior:
             path = self._select_prior(node)
         else:
@@ -51,8 +49,6 @@ class MCTS:
             self._expand(path[-1])
             self._simulate(path)
         self._back_propagate(path)
-        used_samples += len(path)
-        return used_samples
 
     def _select_prior(self, node: MCTSNode):
         path = [node]
@@ -77,7 +73,7 @@ class MCTS:
                     return path
             node = self._uct_select(node)
 
-    def _expand(self, node: MCTSNode):
+    def _expand(self, node: MCTSNode) -> int:
         if node not in self.children:
             self.children[node] = node.find_children()
 
@@ -105,14 +101,23 @@ class MCTS:
     def max_mean_terminal(self, cur: MCTSNode, sum=0., cnt=0):
         if cur.is_terminal:
             if cur.visited:
+                self._num_samples += 1 # is leaf node and is visited
                 return cur, (sum + cur.reward) / (cnt + 1)
             else:
                 return cur, -math.inf
         if cur not in self.children or not self.children[cur]:
             return cur, -math.inf
         
+        # not leaf node and visited
+        self._num_samples += 1
         
         return max((self.max_mean_terminal(child, sum + cur.reward, cnt + 1) for child in self.children[cur]), key=lambda x: x[1])
+
+    @property
+    def num_samples(self):
+        response = int(self._num_samples)
+        self._num_samples = 0 # clear sample accountant
+        return response
 
     def _back_propagate(self, path: list[MCTSNode], reward=0.):
         coeff = 1
