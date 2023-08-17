@@ -187,10 +187,11 @@ class QueryVicuna(QueryLM):
 
 
 class QueryChatGPT(QueryLM):
-    def __init__(self) -> None: pass
+    def __init__(self) -> None:
+        with open('data/openai_api_key', 'r') as f:
+            openai.api_key = f.read()
 
     def __call__(prompt, stop=["\n"], n=1, temperature=0.0, chatcompletion=False):
-        openai.api_key = "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"
         openai.api_version = "2023-06-01-preview"
         response = _call_openai_api(prompt, stop, n=n, temperature=temperature, chatcompletion=chatcompletion)
         if chatcompletion:
@@ -212,11 +213,41 @@ class QueryChatGPT(QueryLM):
                     break
             return response["choices"][0]["text"].strip()
 
-    def get_ll(self, prompt: str,
+    def smp_get_ll(self, prompt: str, completions: List[str]) -> List[float]:
+        @retry(
+            stop=stop_after_attempt(4),
+            retry=retry_if_not_exception_type((ValueError, OSError))
+        )
+        def smp_api(prompt, completion):
+            return openai.Completion.create(
+                engine="davinci",
+                prompt=prompt,
+                max_tokens=len(completion.split()),  # Only predict as many tokens as are in the completion
+                n=1,  # We only want one prediction
+                logprobs=100,  # This gets the top 100 token log probabilities; adjust as needed
+                stop=None  # We don't want it to stop early; we want the full token prediction
+            )
+
+        log_probs = []
+        for completion in completions:
+            response = smp_api(prompt, completion)
+            tokens = response.choices[0]['logprobs']['tokens']
+            token_logprobs = response.choices[0]['logprobs']['token_logprobs']
+            # If the completion has multiple tokens, make sure they are all in the tokens returned by the API
+            for token in completion.split():
+                if token not in tokens:
+                    print(f"WARNING: Token not in predicted tokens for prompt")
+            # Calculate the total log probability for the given completion
+            a_logprob = sum(token_logprobs[:len(completion.split())])
+            # Collect the log probs
+            log_probs.append(a_logprob)
+
+        return log_probs
+
+    def clx_get_ll(self, prompt: str,
                action_space_size: int,
                stop=["\n"],
                temperature=1.0) -> List[Tuple[str, float]]:
-        openai.api_key = "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"
         openai.api_version = "2023-06-01-preview"
         response = _call_openai_api(prompt, stop, n=action_space_size, temperature=temperature)
         for tries in range(4):

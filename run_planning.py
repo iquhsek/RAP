@@ -14,7 +14,7 @@ import numpy as np
 
 from rap.plan_reflex import reflex_plan
 from rap.plan_forward import forward_plan
-from rap.models import QueryLlama, QueryVicuna
+from rap.models import QueryLlama, QueryVicuna, QueryChatGPT
 
 import torch
 from llama import *
@@ -111,6 +111,8 @@ class ReasoningTasks():
             self.model = QueryLlama(llama, max_response_length=100, log_file=log_file)
         elif self.model_name == "Vicuna":
             self.model = QueryVicuna(model_path, num_gpus)
+        elif self.model_name == "GPT":
+            self.model = QueryChatGPT()
         else:
             raise NotImplementedError
         
@@ -260,7 +262,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--task', type=str, default='forward', help='Choose in {forward, reflex}')
-    parser.add_argument('--model_name', type=str, default='LLaMA', help='Model to use')
+    parser.add_argument('--model_name', type=str, required=True, choices=['LLaMA', 'Vicuna', 'GPT'])
     parser.add_argument('--name', type=str, default="unnamed", help='Name of the experiment')
     parser.add_argument('--data_path', type=str, default="data", help='Path to data')
     parser.add_argument('--horizon', type=int, default=10)

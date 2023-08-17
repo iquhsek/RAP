@@ -6,7 +6,6 @@ from copy import deepcopy
 from functools import partial
 from typing import List, Tuple
 from rap.models import QueryLM
-from rap.plan_reflex import MemStateNode
 from rap.forward_search import ForwardSearch
 from rap.utils.blocksworld import apply_change, generate_all_actions, get_world_change
 
@@ -20,8 +19,8 @@ with open('data/blocksworld/my_mcts_prompts_update.json', 'r') as f:
     SPELLS = json.load(f)
 
 
-class MPCNode(MemStateNode):
-    def __init__(self, prompt, memory, rwd_fn, v_fn, alpha, depth, max_depth, parent=None, prob_r=0):
+class MPCNode:
+    def __init__(self, prompt, memory, v_fn, alpha, depth, max_depth, parent=None, prob_r=0):
         self.children = []
         self.depth = depth # real depth, not relative depth
         self.max_depth = max_depth
@@ -46,7 +45,16 @@ def v_fn(world_model: QueryLM, inp, depth) -> str:
         return inp
     last_state = re.search(f'.*{re.escape(SPELLS["state_prefix"].format(depth - 1))}(.*)', inp)[1]
     last_action = re.search(f'.*{re.escape(SPELLS["action_prefix"].format(depth))}(.*)', inp)[1]
-    world_change = get_world_change(last_state, last_action)
+    if "Pick" in last_action:
+        world_update_prompt = SPELLS["world_update_pickup"].format(last_state, last_action)
+    elif "Unstack" in last_action:
+        world_update_prompt = SPELLS["world_update_unstack"].format(last_state, last_action)
+    elif "Put" in last_action:
+        world_update_prompt = SPELLS["world_update_putdown"].format(last_state, last_action)
+    elif "Stack" in last_action:
+        world_update_prompt = SPELLS["world_update_stack"].format(last_state, last_action)
+    world_change = world_model.query_LM(world_update_prompt)
+    # world_change = get_world_change(last_state, last_action)
     last_state = inp.split(f"[STATE {depth-1}]")[-1].split(f"[ACTION {depth}]")[0]
     new_state = apply_change(world_change, last_state)
     new_prompt = inp + SPELLS["state_prefix"].format(depth) + " " + new_state + "\n"

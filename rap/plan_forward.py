@@ -3,6 +3,7 @@ import torch
 import numpy as np
 from copy import deepcopy
 from typing import List, Tuple
+from rap.models import QueryLM
 from rap.forward_search import ForwardSearch, AbsNode
 from rap.utils.blocksworld import apply_change, generate_all_actions, get_world_change
 
@@ -49,7 +50,7 @@ class StateNode(AbsNode):
 def forward_plan(initial_state: str,
                  goal: str,
                  prompts: dict,
-                 world_model,
+                 world_model: QueryLM,
                  alpha: float,
                  horizon: int,
                  search_depth: int,
@@ -62,10 +63,23 @@ def forward_plan(initial_state: str,
 
     def rwd_fn(inp, depth) -> Tuple[List, np.ndarray]:
         '''For r=Pr(a|s_t), the probability component reward'''
+        # extract the last state
         last_state = re.search(f'.*{re.escape(prompts["state_prefix"].format(depth))}(.*)', inp)[1]
+        # pure action description without some prefix like '[ACTION n]'
         raw_action_list = generate_all_actions(last_state)
+        if world_model.__class__.__name__ == 'QueryChatGPT':
+            print()
+            print()
+            print('-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#')
+            print('inp')
+            print('-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#')
+            print()
+            print()
+            raise NotImplementedError
+        # add prefix for actions
         action_output = [inp + prompts["action_prefix"].format(depth + 1) + " " + a.capitalize() + ".\n" for a in raw_action_list]
         n_base_actions = 2 * (depth // 2)
+        # TODO: modify the prompts here to optimize performance
         last_base_state = inp.split(prompts["state_prefix"].format(n_base_actions))[-1].split(prompts["action_prefix"].format(n_base_actions + 1))[0].strip()
         baseline_prompt = prompts["baseline_action"]
         baseline_prompt += "\n[STATEMENT]\n"
