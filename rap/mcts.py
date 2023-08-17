@@ -40,6 +40,7 @@ class MCTS:
         self.prior = prior
         self.aggr_reward = aggr_reward
         self.aggr_child = aggr_child
+        self._num_samples
 
     def rollout(self, node: MCTSNode):
         if self.prior:
