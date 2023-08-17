@@ -202,7 +202,7 @@ class QueryChatGPT(QueryLM):
     def query_next_token(self, prompt: list[str]):
         raise NotImplementedError
 
-    def query_LM(prompt, max_retries=5, retry_delay=5):
+    def query_LM(self, prompt: str, max_retries: int=5, retry_delay: int=5):
         openai.api_version = "2023-06-01-preview"
         for attempt in range(max_retries):
             try:
