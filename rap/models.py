@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+import time
+
 from typing import List, Tuple
 
 import math
@@ -200,33 +202,37 @@ class QueryChatGPT(QueryLM):
     def query_next_token(self, prompt: list[str]):
         raise NotImplementedError
 
-    def query_LM(prompt, temperature=0.8, stop=["\n"], n=1):
+    def query_LM(prompt, max_retries=5, retry_delay=5):
         openai.api_version = "2023-06-01-preview"
-        @retry(
-            stop=stop_after_attempt(10),
-            retry=retry_if_not_exception_type((ValueError, OSError))
-        )
-        def smp_api(prompt):
-            return openai.Completion.create(
-                engine="text-davinci-003",
-                prompt=prompt,
-                logprobs=0,
-                temperature=temperature,
-                max_tokens=100,
-                top_p=0.8,
-                n=n,
-                frequency_penalty=0.0,
-                presence_penalty=0.0,
-                stop=stop,
-            )
-        for tries in range(10):
-            if response == {}:
-                response = smp_api(prompt)
-            elif all(item["text"].strip() == '' for item in response["choices"]):
-                    response = smp_api(prompt)
-            else:
-                break
-        return response["choices"][0]["text"].strip()
+        for attempt in range(max_retries):
+            try:
+                response = openai.Completion.create(
+                    engine="text-davinci-003",
+                    prompt=prompt,
+                    logprobs=0,
+                    temperature=0,
+                    max_tokens=150,
+                    top_p=0.8,
+                    frequency_penalty=0.0,
+                    presence_penalty=0.0,
+                    stop=["\n"],
+                )
+                return response.choices[0].text.strip()
+            
+            except openai.error.OpenAIError as e:
+                # Handle rate limit errors
+                if 'rate limit' in str(e).lower():
+                    print(f"Rate limit hit. Retrying in {retry_delay} seconds...")
+                    time.sleep(retry_delay)
+                    continue
+                
+                # Handle other API errors
+                print(f"API Error: {e}. Retrying in {retry_delay} seconds...")
+                time.sleep(retry_delay)
+
+        # If the loop completes, we've exceeded our retries
+        raise Exception("Failed to get completion after multiple attempts.")
+
 
     def smp_get_ll(self, prompt: str, completions: List[str]) -> List[float]:
         @retry(
