@@ -203,7 +203,6 @@ class QueryChatGPT(QueryLM):
         raise NotImplementedError
 
     def query_LM(self, prompt: str, max_retries: int=5, retry_delay: int=5):
-        openai.api_version = "2023-06-01-preview"
         for attempt in range(max_retries):
             try:
                 response = openai.Completion.create(
@@ -269,7 +268,6 @@ class QueryChatGPT(QueryLM):
                action_space_size: int,
                stop=["\n"],
                temperature=1.0) -> List[Tuple[str, float]]:
-        openai.api_version = "2023-06-01-preview"
         response = _call_openai_api(prompt, stop, n=action_space_size, temperature=temperature)
         for tries in range(10):
             if response == {}:
