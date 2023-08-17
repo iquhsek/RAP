@@ -72,11 +72,11 @@ def forward_plan(initial_state: str,
         # add prefix for actions
         action_output = [inp + prompts["action_prefix"].format(depth + 1) + " " + a.capitalize() + ".\n" for a in raw_action_list]
         if world_model.__class__.__name__ == 'QueryChatGPT':
+        # TODO: modify the prompts here to optimize performance
             scores = world_model.smp_get_ll(inp + ("[ACTION {}]".format(n_base_actions + 1)), raw_action_list)
             exp_scores = np.exp(scores)
             soft_scores = exp_scores / np.sum(exp_scores)
             return action_output, soft_scores
-        # TODO: modify the prompts here to optimize performance
         last_base_state = inp.split(prompts["state_prefix"].format(n_base_actions))[-1].split(prompts["action_prefix"].format(n_base_actions + 1))[0].strip()
         baseline_prompt = prompts["baseline_action"]
         baseline_prompt += "\n[STATEMENT]\n"
