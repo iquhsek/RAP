@@ -67,18 +67,22 @@ def forward_plan(initial_state: str,
         last_state = re.search(f'.*{re.escape(prompts["state_prefix"].format(depth))}(.*)', inp)[1]
         # pure action description without some prefix like '[ACTION n]'
         raw_action_list = generate_all_actions(last_state)
+        # calculate action index
+        n_base_actions = 2 * (depth // 2)
         if world_model.__class__.__name__ == 'QueryChatGPT':
             print()
             print()
             print('-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#')
-            print(inp)
+            print(inp + ("[ACTION {}]".format(n_base_actions + 1)))
+            print('raw_action_list', raw_action_list)
             print('-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#')
             print()
             print()
+            scores = world_model.smp_get_ll(inp + ("[ACTION {}]".format(n_base_actions + 1)), raw_action_list)
+            print('scores=', scores)
             raise NotImplementedError
         # add prefix for actions
         action_output = [inp + prompts["action_prefix"].format(depth + 1) + " " + a.capitalize() + ".\n" for a in raw_action_list]
-        n_base_actions = 2 * (depth // 2)
         # TODO: modify the prompts here to optimize performance
         last_base_state = inp.split(prompts["state_prefix"].format(n_base_actions))[-1].split(prompts["action_prefix"].format(n_base_actions + 1))[0].strip()
         baseline_prompt = prompts["baseline_action"]
