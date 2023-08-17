@@ -197,33 +197,36 @@ class QueryChatGPT(QueryLM):
         with open('data/openai_api_key', 'r') as f:
             openai.api_key = f.read().strip('\n')
 
-    def query_LM(self, prompt, **gen_kwargs):
-        raise NotImplementedError
-
     def query_next_token(self, prompt: list[str]):
         raise NotImplementedError
 
-    def __call__(prompt, stop=["\n"], n=1, temperature=0.0, chatcompletion=False):
+    def query_LM(prompt, temperature=0.8, stop=["\n"], n=1):
         openai.api_version = "2023-06-01-preview"
-        response = _call_openai_api(prompt, stop, n=n, temperature=temperature, chatcompletion=chatcompletion)
-        if chatcompletion:
-            for tries in range(10):
-                if response == {}:
-                    response = _call_openai_api(prompt, stop, n=n, temperature=temperature, chatcompletion=chatcompletion)
-                elif all(item["message"]['content'].strip() == '' for item in response["choices"]):
-                        response = _call_openai_api(prompt, stop, n=n, temperature=temperature, chatcompletion=chatcompletion)
-                else:
-                    break
-            return response["choices"][0]["message"]["content"].strip()
-        else:
-            for tries in range(10):
-                if response == {}:
-                    response = _call_openai_api(prompt, stop, n=n, temperature=temperature, chatcompletion=chatcompletion)
-                elif all(item["text"].strip() == '' for item in response["choices"]):
-                        response = _call_openai_api(prompt, stop, n=n, temperature=temperature, chatcompletion=chatcompletion)
-                else:
-                    break
-            return response["choices"][0]["text"].strip()
+        @retry(
+            stop=stop_after_attempt(10),
+            retry=retry_if_not_exception_type((ValueError, OSError))
+        )
+        def smp_api(prompt):
+            return openai.Completion.create(
+                engine="text-davinci-003",
+                prompt=prompt,
+                logprobs=0,
+                temperature=temperature,
+                max_tokens=100,
+                top_p=0.8,
+                n=n,
+                frequency_penalty=0.0,
+                presence_penalty=0.0,
+                stop=stop,
+            )
+        for tries in range(10):
+            if response == {}:
+                response = smp_api(prompt)
+            elif all(item["text"].strip() == '' for item in response["choices"]):
+                    response = smp_api(prompt)
+            else:
+                break
+        return response["choices"][0]["text"].strip()
 
     def smp_get_ll(self, prompt: str, completions: List[str]) -> List[float]:
         @retry(
