@@ -42,7 +42,7 @@ class ReasoningMCTSNode(MCTSNode):
         return ReasoningMCTSNode(prompt, self.gen_fn, self.reward_fn, self.depth + 1, self._r1_default, self._r_alpha, parent=self, r0=r0, max_depth=self.max_depth)
 
     def _get_children(self):
-        print("# in _get_children")
+        # print("# in _get_children")
         self._visited = True
         self._calculate_reward()
         if self.is_terminal:
@@ -61,8 +61,8 @@ class ReasoningMCTSNode(MCTSNode):
 
     def _calculate_reward(self):
         # NOTE: temporary
-        print("# in _calculate_reward")
-        print("## depth", self.depth)
+        # print("# in _calculate_reward")
+        # print("## depth", self.depth)
         if self.depth == 0:
             return
         self.prompt, self._r1, self._ans_list = self.reward_fn(self.prompt, self.depth)
@@ -84,14 +84,15 @@ class ReasoningMCTSNode(MCTSNode):
     def reward(self):
         if self._r0 < 0 or self._r1 < 0:
             return min(self._r0, self._r1)
-        print("# in @property reward: r0, r1, aggr", self._r0, self._r1, self._r0 ** self._r_alpha * self._r1 ** (1 - self._r_alpha))
+        # print("# in @property reward: r0, r1, aggr", self._r0, self._r1, self._r0 ** self._r_alpha * self._r1 ** (1 - self._r_alpha))
         
         return self._r0 ** self._r_alpha * self._r1 ** (1 - self._r_alpha)
 
     def print(self, mcts: MCTS, file=None):
         def pprint(*args):
             if file is None:
-                tqdm.write(*args)
+                pass
+                # tqdm.write(*args)
             else:
                 print(*args, file=file)
         p1 = '-' * (4 * self.depth - 4)
@@ -140,15 +141,15 @@ def reasoning_mcts_search(initial_state: str,
                           w_exp=1):
 
     def gen_fn(inp, depth):
-        print("# in gen_fn")
+        # print("# in gen_fn")
         last_state = re.search(f'.*{re.escape(prompts["state_prefix"].format(depth))}(.*)', inp)[1]
-        print("## input\n", inp)
-        print("## last state\n", last_state)
+        # print("## input\n", inp)
+        # print("## last state\n", last_state)
 
         raw_action_list = generate_all_actions(last_state)
         action_output = [inp + prompts["action_prefix"].format(depth + 1) + " " + a.capitalize() + ".\n" for a in raw_action_list]
-        print("========")
-        print("action list")
+        # print("========")
+        # print("action list")
         new_action_output = []
         n_base_actions = 2 * (depth // 2)
         if world_model.__class__.__name__ == 'QueryChatGPT':
@@ -174,12 +175,12 @@ def reasoning_mcts_search(initial_state: str,
             action_list.append(history)
             lastest_list.append("\n".join(history.split("\n")[-1 if depth % 2 == 0 else -2:]))
                 
-        print("## action_list", action_list)
-        print("## last state in prompt: ", baseline_prompt.split("[STATE")[-1])
+        # print("## action_list", action_list)
+        # print("## last state in prompt: ", baseline_prompt.split("[STATE")[-1])
 
         ll_prompts = [baseline_prompt + a.lower() for a in lastest_list]
         
-        print("## evaluated actions in prompt: ", [prompt.split("[PLAN]\n")[-1] for prompt in ll_prompts])
+        # print("## evaluated actions in prompt: ", [prompt.split("[PLAN]\n")[-1] for prompt in ll_prompts])
         
         scores = []
         for idx in range(0, len(ll_prompts), speedup_action_batch_size):
@@ -189,13 +190,13 @@ def reasoning_mcts_search(initial_state: str,
             else:
                 log_probs = world_model.llamamodel.get_ll(baseline_prompt, ll_prompts[idx: end_idx])
             scores += list(log_probs)
-        print("## log probs\n", scores)
+        # print("## log probs\n", scores)
 
         # softmax scores
         scores = np.array(scores)
         exp_scores = np.exp(scores)
         soft_scores = exp_scores / np.sum(exp_scores)
-        print("## soft scores\n", soft_scores)
+        # print("## soft scores\n", soft_scores)
         
         for a, s in zip(new_action_output, soft_scores):
             history = "".join(re.findall(r'\[ACTION \d+\].*?\n', a)).replace(".", "")
@@ -203,15 +204,15 @@ def reasoning_mcts_search(initial_state: str,
             for id in identifier:
                 history = history.replace(id, "")
             history = history.strip()
-            print("## action seq and score\n", history, s)
+            # print("## action seq and score\n", history, s)
 
         return new_action_output, soft_scores
     
     def r1_fn(inp, depth):
 
-        print("# in r1_fn")
-        print("## inp\n", inp)
-        print("## depth", depth)
+        # print("# in r1_fn")
+        # print("## inp\n", inp)
+        # print("## depth", depth)
 
         if depth == 0:
             return 1.0, inp, []
@@ -240,8 +241,8 @@ def reasoning_mcts_search(initial_state: str,
         # print("==============inp================")
         # print(inp)
         last_state = inp.split(f"[STATE {depth-1}]")[-1].split(f"[ACTION {depth}]")[0]
-        print("last state:\n", "\"" + last_state + "\"")
-        print('world_change###', world_change)
+        # print("last state:\n", "\"" + last_state + "\"")
+        # print('world_change###', world_change)
         new_state = apply_change(world_change, last_state)
         # print("==============new_state================")
         # print("\"" + new_state + "\"")
@@ -258,7 +259,7 @@ def reasoning_mcts_search(initial_state: str,
         return r1, new_prompt, []
 
     def reward_fn(inp, depth):
-        print("# in reward_fn")
+        # print("# in reward_fn")
         r1, answer, ans_list = r1_fn(inp, depth)
         return answer, r1, ans_list
     
