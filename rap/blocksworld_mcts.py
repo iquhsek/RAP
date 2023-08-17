@@ -228,7 +228,7 @@ def reasoning_mcts_search(initial_state: str,
         elif "Stack" in last_action: 
             world_update_prompt = prompts["world_update_stack"].format(last_state, last_action)
 
-        if world_model.__class__.__name__ == 'QueryVicuna':
+        if world_model.__class__.__name__ == 'QueryVicuna' or 'GPT':
             world_change = get_world_change(last_state, last_action)
         else:
             world_output = world_model.query_LM(world_update_prompt, do_sample=False, num_return_sequences=1,

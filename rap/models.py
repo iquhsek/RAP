@@ -17,6 +17,11 @@ from llama import LLaMA
 from fastchat.model import load_model
 
 
+class FakeTokenizer:
+    def encode(s: str="", bos: bool=False, eos: bool=False):
+        return [[]]
+
+
 @retry(
     stop=stop_after_attempt(4),
     retry=retry_if_not_exception_type((ValueError, OSError))
