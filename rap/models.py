@@ -24,37 +24,6 @@ class FakeTokenizer:
         return [[]]
 
 
-@retry(
-    stop=stop_after_attempt(10),
-    retry=retry_if_not_exception_type((ValueError, OSError))
-)
-def _call_openai_api(prompt, stop, n, temperature=0.0, chatcompletion=False):
-    if chatcompletion:
-        response = openai.ChatCompletion.create(
-            engine='gpt-35-turbo',
-            messages=[
-                {"role": "user", "content": prompt}],
-            temperature=temperature,
-            max_tokens=100,
-            top_p=0.8,
-            stop=stop,
-        )
-    else:
-        response = openai.Completion.create(
-            engine="text-davinci-003",
-            prompt=prompt,
-            logprobs=0,
-            temperature=temperature,
-            max_tokens=100,
-            top_p=0.8,
-            n=n,
-            frequency_penalty=0.0,
-            presence_penalty=0.0,
-            stop=stop,
-        )
-    return response
-
-
 class QueryLM(ABC):
     @abstractmethod
     def query_LM(self, prompt, **gen_kwargs):
@@ -194,8 +163,9 @@ class QueryVicuna(QueryLM):
 
 
 class QueryChatGPT(QueryLM):
-    def __init__(self) -> None:
+    def __init__(self, model_path='text-davinci-003') -> None:
         self.tokenizer = FakeTokenizer()
+        self.engine = model_path
         with open('data/openai_api_key', 'r') as f:
             openai.api_key = f.read().strip('\n')
 
@@ -206,7 +176,7 @@ class QueryChatGPT(QueryLM):
         for attempt in range(max_retries):
             try:
                 response = openai.Completion.create(
-                    engine="text-davinci-003",
+                    engine=self.engine,
                     prompt=prompt,
                     logprobs=0,
                     temperature=0,
@@ -232,7 +202,6 @@ class QueryChatGPT(QueryLM):
         # If the loop completes, we've exceeded our retries
         raise Exception("Failed to get completion after multiple attempts.")
 
-
     def smp_get_ll(self, prompt: str, completions: List[str]) -> List[float]:
         @retry(
             stop=stop_after_attempt(10),
@@ -240,7 +209,7 @@ class QueryChatGPT(QueryLM):
         )
         def smp_api(prompt, completion):
             return openai.Completion.create(
-                engine="text-davinci-003",
+                engine=self.engine,
                 prompt=prompt,
                 max_tokens=len(completion.split()),  # Only predict as many tokens as are in the completion
                 n=1,  # We only want one prediction
@@ -263,27 +232,3 @@ class QueryChatGPT(QueryLM):
             log_probs.append(a_logprob)
 
         return log_probs
-
-    def clx_get_ll(self, prompt: str,
-               action_space_size: int,
-               stop=["\n"],
-               temperature=1.0) -> List[Tuple[str, float]]:
-        response = _call_openai_api(prompt, stop, n=action_space_size, temperature=temperature)
-        for tries in range(10):
-            if response == {}:
-                response = _call_openai_api(prompt, stop, n=action_space_size, temperature=temperature)
-            elif all(item["text"].strip() == '' for item in response["choices"]):
-                    response = _call_openai_api(prompt, stop, n=action_space_size, temperature=temperature)
-            else:
-                break
-        response_list = []
-        for choice in response["choices"]:
-            try:
-                response_text = choice["text"].strip()
-                response_prob = math.exp(mean(choice["logprobs"]["token_logprobs"]))
-                response_list.append((response_text, response_prob))
-            except Exception as e:
-                pass
-        if action_space_size > 1:
-            response_list = sorted(response_list, key=lambda x: x[1], reverse=True)
-        return response_list

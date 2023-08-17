@@ -102,7 +102,7 @@ class MCTS:
     def max_mean_terminal(self, cur: MCTSNode, sum=0., cnt=0):
         if cur.is_terminal:
             if cur.visited:
-                self._num_samples += 1 # is leaf node and is visited
+                # self._num_samples += 1 # is leaf node and is visited
                 return cur, (sum + cur.reward) / (cnt + 1)
             else:
                 return cur, -math.inf
@@ -110,7 +110,7 @@ class MCTS:
             return cur, -math.inf
         
         # not leaf node and visited
-        self._num_samples += 1
+        # self._num_samples += 1
         
         return max((self.max_mean_terminal(child, sum + cur.reward, cnt + 1) for child in self.children[cur]), key=lambda x: x[1])
 
@@ -122,6 +122,7 @@ class MCTS:
 
     def _back_propagate(self, path: list[MCTSNode], reward=0.):
         coeff = 1
+        self._num_samples += len(path)
         for node in reversed(path):
             reward = reward * self.discount + node.reward
             coeff = coeff * self.discount + 1

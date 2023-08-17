@@ -120,7 +120,7 @@ class ReasoningTasks():
         elif self.model_name == "Vicuna":
             self.model = QueryVicuna(model_path, num_gpus)
         elif self.model_name == "GPT":
-            self.model = QueryChatGPT()
+            self.model = QueryChatGPT(model_path)
         else:
             raise NotImplementedError
         
@@ -309,7 +309,7 @@ if __name__ == '__main__':
     parser.add_argument('--n_samples', type=int, default=10, help='Number of samples for t1')
     parser.add_argument('--prompt_path', type=str, default="data/blocksworld/my_mcts_prompts_update.json", help='Path to prompts')
     parser.add_argument('--ckpt_path', type=str, default="", help='path to LLaMA checkpoint')
-    parser.add_argument('--model_path', type=str, default='lmsys/vicuna-7b-v1.3')
+    parser.add_argument('--model_path', type=str, required=True, choices=['lmsys/vicuna-7b-v1.3', 'lmsys/vicuna-13b-v1.3', 'lmsys/vicuna-33b-v1.3', 'text-davinci-003', 'davinci', 'gpt-3.5-turbo', 'gpt-4'])
     parser.add_argument('--num_gpus', type=int, default=1)
     parser.add_argument('--single_run', type=int, default=10000)
 
