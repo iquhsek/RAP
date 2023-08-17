@@ -193,6 +193,7 @@ class QueryVicuna(QueryLM):
 
 class QueryChatGPT(QueryLM):
     def __init__(self) -> None:
+        self.tokenizer = FakeTokenizer()
         with open('data/openai_api_key', 'r') as f:
             openai.api_key = f.read().strip('\n')
 
