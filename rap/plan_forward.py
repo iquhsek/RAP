@@ -73,7 +73,7 @@ def forward_plan(initial_state: str,
             print()
             print()
             print('-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#')
-            print(inp + ("[ACTION {}]".format(n_base_actions + 1)))
+            print(inp + ("[ACTION {}] ".format(n_base_actions + 1)))
             print('raw_action_list', raw_action_list)
             print('-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#')
             print()
