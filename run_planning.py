@@ -215,7 +215,7 @@ class ReasoningTasks():
             query = prompts["baseline_action"]
             query += fill_template(*instance_to_text_blocksworld(problem, False, self.data)) + "\n"
             
-            result, tot_sample = plan_method(
+            result, her_plan, tot_sample = plan_method(
                 f'I have that, {INIT}.', 
                 f'My goal is to have that {GOAL}.',
                 prompts, 
@@ -231,9 +231,8 @@ class ReasoningTasks():
             torch.distributed.barrier()
 
             if self.local_rank == 0:
-                json_logs = []
                 with open(os.path.join(f'./logs/mcts-{name}/json/', f'{i:04d}.json'), 'w') as f:
-                    json.dump(json_logs, f, indent=2)
+                    json.dump(her_plan, f, indent=2)
                 with open(os.path.join(f'./logs/mcts-{name}/sample/', f'{i:04d}.accn'), 'w') as f:
                     f.write(f'{result},{tot_sample}')
 
