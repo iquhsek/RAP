@@ -240,9 +240,9 @@ class QueryChatGPT(QueryLM):
             tokens = response.choices[0]['logprobs']['tokens']
             token_logprobs = response.choices[0]['logprobs']['token_logprobs']
             # If the completion has multiple tokens, make sure they are all in the tokens returned by the API
-            for token in completion.split():
-                if token not in tokens:
-                    print(f"WARNING: Token not in predicted tokens for prompt")
+            # for token in completion.split():
+            #     if token not in tokens:
+            #         print(f"WARNING: Token not in predicted tokens for prompt")
             # Calculate the total log probability for the given completion
             a_logprob = sum(token_logprobs[:len(completion.split())])
             # Collect the log probs
