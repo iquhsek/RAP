@@ -191,6 +191,12 @@ class QueryChatGPT(QueryLM):
         with open('data/openai_api_key', 'r') as f:
             openai.api_key = f.read()
 
+    def query_LM(self, prompt, **gen_kwargs):
+        raise NotImplementedError
+
+    def query_next_token(self, prompt: list[str]):
+        raise NotImplementedError
+
     def __call__(prompt, stop=["\n"], n=1, temperature=0.0, chatcompletion=False):
         openai.api_version = "2023-06-01-preview"
         response = _call_openai_api(prompt, stop, n=n, temperature=temperature, chatcompletion=chatcompletion)
