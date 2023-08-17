@@ -71,7 +71,7 @@ def forward_plan(initial_state: str,
             print()
             print()
             print('-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#')
-            print('inp')
+            print(inp)
             print('-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#')
             print()
             print()
